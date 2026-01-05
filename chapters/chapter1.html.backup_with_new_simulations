@@ -1,0 +1,860 @@
+<div class="interactive-element simulation-box">
+  <h4>🔬 Simulation : Fentes d'Young quantiques</h4>
+  <p>Observez comment les photons individuels créent progressivement une figure d'interférences.</p>
+  <div class="simulation-canvas">
+    <canvas id="young-slits-canvas" width="600" height="400"></canvas>
+  </div>
+  <div class="simulation-controls">
+    <button class="control-button" id="start-photons">Envoyer des photons</button>
+    <button class="control-button" id="pause-photons">Pause</button>
+    <button class="control-button" id="reset-screen">Effacer l'écran</button>
+    <button class="control-button" id="toggle-fentes">Fermer une fente</button>
+    <div class="control-group">
+      <label class="control-label">Vitesse</label>
+      <input type="range" class="control-slider" id="speed-slider" min="1" max="10" value="5">
+    </div>
+  </div>
+  <div class="simulation-info">
+    <p>Photons envoyés: <span id="photon-count">0</span></p>
+    <p>État: <span id="simulation-status">Arrêté</span></p>
+  </div>
+</div>
+
+<script>
+// Simulation des fentes d'Young
+function initializeYoungSlitsSimulation() {
+  try {
+    const canvas = document.getElementById('young-slits-canvas');
+    if (!canvas) {
+      console.log('Canvas fentes d\'Young non trouvé');
+      return;
+    }
+
+    console.log('Initialisation simulation fentes d\'Young...');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('Impossible d\'obtenir le contexte 2D du canvas');
+      return;
+    }
+
+    let animationId;
+    let photonCount = 0;
+    let isRunning = false;
+    let speed = 5;
+    let bothSlitsOpen = true;
+
+    const photons = [];
+    const detectionScreen = [];
+
+    // Initialiser l'écran de détection
+    for (let i = 0; i < canvas.height; i++) {
+      detectionScreen[i] = 0;
+    }
+
+    // Dessiner l'appareil
+    function drawApparatus() {
+      if (!ctx) return;
+      ctx.fillStyle = '#333';
+
+      // Source de photons
+      ctx.fillRect(50, canvas.height/2 - 10, 20, 20);
+      ctx.fillStyle = '#fff';
+      ctx.font = '12px Arial';
+      ctx.fillText('Source', 10, canvas.height/2 - 15);
+
+      // Écran avec fentes - REPRÉSENTATION CORRECTE : écran opaque avec ouvertures
+      ctx.fillStyle = '#333'; // Couleur de l'écran opaque noir
+
+      // Dessiner l'écran complet noir
+      ctx.fillRect(250, 0, 10, canvas.height);
+
+      // Dessiner les fentes comme des ouvertures (zones claires sur fond noir)
+      ctx.fillStyle = '#f8fafc'; // Couleur claire pour les ouvertures/fentes
+      // Fente du haut
+      ctx.fillRect(250, canvas.height/2 - 65, 10, 20);
+      // Fente du bas
+      ctx.fillRect(250, canvas.height/2 + 45, 10, 20);
+
+      // Le séparateur est la zone restante entre les deux fentes
+      // qui reste noire/opaque (la matière de l'écran)
+      // Il est automatiquement visible comme la zone non-ouverte entre les deux fentes
+      // La zone du séparateur est de y = canvas.height/2 - 45 à y = canvas.height/2 + 45
+      // Cela crée un séparateur noir de 25 pixels de largeur
+
+      // Replacer la couleur pour les autres éléments
+      ctx.fillStyle = '#333';
+
+      // Si une fente est fermée, dessiner un rectangle noir par-dessus
+      if (!bothSlitsOpen) {
+        ctx.fillStyle = '#333';
+        ctx.fillRect(250, canvas.height/2 - 65, 10, 20); // Fermer fente du haut
+      }
+
+      // Écran de détection
+      ctx.fillStyle = '#666';
+      ctx.fillRect(550, 0, 10, canvas.height);
+
+      // Afficher la figure d'interférences
+      drawInterferencePattern();
+    }
+
+    function drawInterferencePattern() {
+      if (!ctx) return;
+      const maxIntensity = Math.max(...detectionScreen);
+      if (maxIntensity === 0) return;
+
+      for (let y = 0; y < canvas.height; y++) {
+        const intensity = detectionScreen[y] / maxIntensity;
+
+        // Créer des interférences quantiques réalistes
+        // Calculer la différence de chemin entre la fente du haut et du bas
+        const deltaY = y - canvas.height/2; // Position par rapport au centre
+        const slitSeparation = 110; // Distance entre les fentes (correspondant aux positions des fentes)
+        const distanceToScreen = 300; // Distance écran-fentes
+
+        // Différence de chemin (approximation pour petits angles)
+        const pathDiff = (deltaY * slitSeparation) / distanceToScreen;
+
+        // Longueur d'onde relative (paramètre ajusté pour visibilité)
+        const wavelength = 30; // Paramètre ajusté pour bien voir les franges
+
+        // Intensité basée sur interférence constructive/destructive
+        // I = cos²(π * pathDiff / λ) pour une double fente idéale
+        const interference = Math.pow(Math.cos(Math.PI * pathDiff / wavelength), 2);
+
+        // Combiner avec les détections réelles
+        const combinedIntensity = Math.min(intensity * interference, 1.0);
+
+        // Couleur jaune pour les interférences quantiques
+        const brightness = Math.floor(255 * combinedIntensity);
+        ctx.fillStyle = `rgb(${brightness}, ${brightness}, 0)`;
+        ctx.fillRect(550, y, 10, 1);
+      }
+    }
+
+    function createPhoton() {
+      // Créer un photon qui traverse simultanément les deux fentes (superposition)
+      return {
+        x: 70,
+        y: canvas.height/2 + (Math.random() - 0.5) * 10, // Moins dispersé pour mieux voir les interférences
+        vx: 2 + speed * 0.5,
+        vy: 0,
+        // Amplitudes de probabilité pour passer par chaque fente
+        ampTop: { real: Math.cos(Math.PI/4), imag: Math.sin(Math.PI/4) }, // π/4 pour égalité
+        ampBottom: { real: Math.cos(Math.PI/4), imag: Math.sin(Math.PI/4) },
+        // Chemin classique (pour comparaison)
+        classicalPath: Math.random() < 0.5 ? 'top' : 'bottom'
+      };
+    }
+
+    function updatePhotons() {
+      for (let i = photons.length - 1; i >= 0; i--) {
+        const photon = photons[i];
+        photon.x += photon.vx;
+
+        // Interaction avec les fentes - APPROCHE QUANTIQUE RÉELLE
+        if (photon.x >= 250 && photon.x <= 260) {
+          // Positions des fentes
+          const topSlitY = canvas.height/2 - 55;    // Centre de la fente du haut
+          const bottomSlitY = canvas.height/2 + 55; // Centre de la fente du bas
+
+          if (bothSlitsOpen) {
+            // EN MÉCANIQUE QUANTIQUE : Le photon EST dans une superposition de passer par les deux fentes
+            // Il n'a pas un seul chemin déterminé mais les deux en même temps
+            // On calcule les amplitudes de probabilité pour chaque chemin
+
+            // Calcul des distances et phases pour chaque fente
+            const distToTop = Math.abs(photon.y - topSlitY);
+            const distToBottom = Math.abs(photon.y - bottomSlitY);
+
+            // Phase associée à chaque chemin (différence de phase entre les deux chemins)
+            const phaseTop = 0; // Phase de référence
+            const phaseBottom = (distToBottom - distToTop) * 0.1; // Différence de phase proportionnelle à la différence de chemin
+
+            // Amplitudes de probabilité pour chaque chemin
+            const ampTopReal = Math.cos(phaseTop) * 0.7;
+            const ampTopImag = Math.sin(phaseTop) * 0.7;
+            const ampBottomReal = Math.cos(phaseBottom) * 0.7;
+            const ampBottomImag = Math.sin(phaseBottom) * 0.7;
+
+            // Combinaison des amplitudes (interférence quantique)
+            const totalAmpReal = ampTopReal + ampBottomReal;
+            const totalAmpImag = ampTopImag + ampBottomImag;
+
+            // Module de l'amplitude combinée (probabilité totale)
+            const probAmpMod = Math.sqrt(totalAmpReal*totalAmpReal + totalAmpImag*totalAmpImag);
+
+            // La direction du photon après les fentes est affectée par les interférences
+            // Utiliser la phase relative pour déterminer la direction
+            const interferenceAngle = Math.atan2(totalAmpImag, totalAmpReal);
+            photon.vy = Math.sin(interferenceAngle) * probAmpMod * 2.0;
+          } else {
+            // Si une seule fente est ouverte, le photon continue en ligne droite (ou presque)
+            // mais peut encore être affecté par la diffraction à la fente unique
+            photon.vy = (Math.random() - 0.5) * 0.5; // Petites fluctuations pour la diffraction
+          }
+        }
+
+        photon.y += photon.vy;
+
+        // Détection sur l'écran
+        if (photon.x >= 550) {
+          const detectionY = Math.floor(photon.y);
+          if (detectionY >= 0 && detectionY < canvas.height) {
+            detectionScreen[detectionY]++;
+          }
+          photons.splice(i, 1);
+        }
+
+        // Supprimer si hors écran
+        if (photon.x > canvas.width || photon.y < 0 || photon.y > canvas.height) {
+          photons.splice(i, 1);
+        }
+      }
+    }
+
+    function drawPhotons() {
+      if (!ctx) return;
+      ctx.fillStyle = '#ff0';
+      photons.forEach(photon => {
+        ctx.beginPath();
+        ctx.arc(photon.x, photon.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function animate() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawApparatus();
+      updatePhotons();
+      drawPhotons();
+
+      // Ajouter un nouveau photon
+      if (Math.random() < 0.1 && isRunning) {
+        const newPhoton = createPhoton();
+        // Si une seule fente est ouverte, positionner le photon pour qu'il y passe
+        if (!bothSlitsOpen) {
+          // Toujours envoyer le photon par la fente du haut quand une seule est ouverte
+          newPhoton.y = canvas.height/2 - 50; // Centre de la fente du haut
+        }
+        photons.push(newPhoton);
+        photonCount++;
+        const countEl = document.getElementById('photon-count');
+        if (countEl) countEl.textContent = photonCount;
+      }
+
+      if (isRunning) {
+        animationId = requestAnimationFrame(animate);
+      }
+    }
+
+    // Contrôles
+    const startBtn = document.getElementById('start-photons');
+    const pauseBtn = document.getElementById('pause-photons');
+    const resetBtn = document.getElementById('reset-screen');
+    const toggleBtn = document.getElementById('toggle-fentes');
+    const speedSlider = document.getElementById('speed-slider');
+
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        console.log('Démarrage simulation');
+        isRunning = true;
+        const statusEl = document.getElementById('simulation-status');
+        if (statusEl) statusEl.textContent = 'En cours';
+        animate();
+      });
+    }
+
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        console.log('Pause simulation');
+        isRunning = false;
+        const statusEl = document.getElementById('simulation-status');
+        if (statusEl) statusEl.textContent = 'En pause';
+        if (animationId) cancelAnimationFrame(animationId);
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        console.log('Reset simulation');
+        isRunning = false;
+        if (animationId) cancelAnimationFrame(animationId);
+        photons.length = 0;
+        detectionScreen.fill(0);
+        photonCount = 0;
+        const countEl = document.getElementById('photon-count');
+        const statusEl = document.getElementById('simulation-status');
+        if (countEl) countEl.textContent = '0';
+        if (statusEl) statusEl.textContent = 'Arrêté';
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawApparatus();
+      });
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        bothSlitsOpen = !bothSlitsOpen;
+        if (toggleBtn) toggleBtn.textContent = bothSlitsOpen ? 'Fermer une fente' : 'Ouvrir les deux fentes';
+        console.log('Fentes:', bothSlitsOpen ? 'ouvertes' : 'une fermée');
+      });
+    }
+
+    if (speedSlider) {
+      speedSlider.addEventListener('input', (e) => {
+        speed = parseInt(e.target.value);
+        console.log('Vitesse:', speed);
+      });
+    }
+
+    // Dessiner l'état initial
+    drawApparatus();
+  } catch (error) {
+    console.error('Erreur dans la simulation des fentes d\'Young:', error);
+  }
+}
+// Simulation de la sphère de Bloch
+function initializeBlochSphereSimulation() {
+  try {
+    const canvas = document.getElementById('bloch-sphere-canvas');
+    if (!canvas) {
+      console.log('Canvas sphère de Bloch non trouvé');
+      return;
+    }
+
+    console.log('Initialisation sphère de Bloch...');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('Impossible d\'obtenir le contexte 2D du canvas');
+      return;
+    }
+
+    // Variables pour la simulation
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 150;
+
+    let theta = Math.PI / 2; // 90 degrés
+    let phi = 0;
+    let isAnimating = false;
+
+    function drawSphere() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Fond
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Sphère (cercle principal)
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Équateur
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(centerX, centerY, radius, radius * 0.3, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Méridien
+      ctx.beginPath();
+      ctx.ellipse(centerX, centerY, radius * 0.3, radius, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Axes
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1;
+
+      // Axe Z
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY - radius - 20);
+      ctx.lineTo(centerX, centerY + radius + 20);
+      ctx.stroke();
+
+      // Axe X
+      ctx.beginPath();
+      ctx.moveTo(centerX - radius - 20, centerY);
+      ctx.lineTo(centerX + radius + 20, centerY);
+      ctx.stroke();
+
+      // Labels
+      ctx.fillStyle = '#374151';
+      ctx.font = '14px Arial';
+      ctx.fillText('|0⟩', centerX - 10, centerY - radius - 25);
+      ctx.fillText('|1⟩', centerX - 10, centerY + radius + 35);
+      ctx.fillText('|+⟩', centerX + radius + 25, centerY + 5);
+      ctx.fillText('|-⟩', centerX - radius - 35, centerY + 5);
+
+      // Vecteur d'état
+      const x = radius * Math.sin(theta) * Math.cos(phi);
+      const y = radius * Math.sin(theta) * Math.sin(phi) * 0.3; // Projection 2D
+      const z = radius * Math.cos(theta);
+
+      const endX = centerX + x;
+      const endY = centerY - z;
+
+      // Flèche du vecteur
+      ctx.strokeStyle = '#7c3aed';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+
+      // Pointe de la flèche
+      ctx.fillStyle = '#7c3aed';
+      ctx.beginPath();
+      ctx.arc(endX, endY, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Projection sur l'équateur (phase)
+      if (Math.sin(theta) > 0.01) {
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX + x, centerY + y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    function updateState() {
+      // Mettre à jour les valeurs d'affichage
+      const thetaDeg = (theta * 180 / Math.PI).toFixed(0);
+      const phiDeg = (phi * 180 / Math.PI).toFixed(0);
+
+      const thetaValueEl = document.getElementById('theta-value');
+      const phiValueEl = document.getElementById('phi-value');
+
+      if (thetaValueEl) thetaValueEl.textContent = `${thetaDeg}°`;
+      if (phiValueEl) phiValueEl.textContent = `${phiDeg}°`;
+
+      // Calculer les probabilités
+      const p0 = Math.cos(theta / 2) ** 2;
+      const p1 = Math.sin(theta / 2) ** 2;
+
+      const prob0El = document.getElementById('prob-0');
+      const prob1El = document.getElementById('prob-1');
+
+      if (prob0El) prob0El.textContent = p0.toFixed(3);
+      if (prob1El) prob1El.textContent = p1.toFixed(3);
+
+      // Coordonnées cartésiennes
+      const x = Math.sin(theta) * Math.cos(phi);
+      const y = Math.sin(theta) * Math.sin(phi);
+      const z = Math.cos(theta);
+
+      const coordXEl = document.getElementById('coord-x');
+      const coordYEl = document.getElementById('coord-y');
+      const coordZEl = document.getElementById('coord-z');
+
+      if (coordXEl) coordXEl.textContent = x.toFixed(3);
+      if (coordYEl) coordYEl.textContent = y.toFixed(3);
+      if (coordZEl) coordZEl.textContent = z.toFixed(3);
+
+      // État quantique - SIMPLIFIÉ
+      let stateText;
+      if (Math.abs(theta) < 0.01) {
+        stateText = '|0⟩';
+      } else if (Math.abs(theta - Math.PI) < 0.01) {
+        stateText = '|1⟩';
+      } else if (Math.abs(theta - Math.PI/2) < 0.01) {
+        if (Math.abs(phi) < 0.01) {
+          stateText = '|+⟩';
+        } else if (Math.abs(phi - Math.PI) < 0.01) {
+          stateText = '|-⟩';
+        } else {
+          stateText = `État avec phase ${phiDeg}°`;
+        }
+      } else {
+        const alpha = Math.cos(theta / 2).toFixed(2);
+        const beta = Math.sin(theta / 2).toFixed(2);
+        stateText = `${alpha}|0⟩ + ${beta}|1⟩`;
+      }
+
+      const currentStateEl = document.getElementById('current-state');
+      if (currentStateEl) {
+        currentStateEl.textContent = stateText;
+      }
+
+      // Mettre à jour l'affichage
+      drawSphere();
+    }
+
+    // Contrôles
+    const thetaSlider = document.getElementById('theta-slider');
+    const phiSlider = document.getElementById('phi-slider');
+    const resetBtn = document.getElementById('reset-bloch');
+    const plusBtn = document.getElementById('set-plus');
+    const minusBtn = document.getElementById('set-minus');
+    const animateBtn = document.getElementById('animate-bloch');
+
+    if (thetaSlider) {
+      thetaSlider.addEventListener('input', (e) => {
+        if (e && e.target && e.target.value) {
+          theta = (parseFloat(e.target.value) * Math.PI) / 180;
+          updateState();
+        }
+      });
+    }
+
+    if (phiSlider) {
+      phiSlider.addEventListener('input', (e) => {
+        if (e && e.target && e.target.value) {
+          phi = (parseFloat(e.target.value) * Math.PI) / 180;
+          updateState();
+        }
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        theta = 0;
+        phi = 0;
+        if (thetaSlider) thetaSlider.value = 0;
+        if (phiSlider) phiSlider.value = 0;
+        updateState();
+      });
+    }
+
+    if (plusBtn) {
+      plusBtn.addEventListener('click', () => {
+        theta = Math.PI / 2;
+        phi = 0;
+        if (thetaSlider) thetaSlider.value = 90;
+        if (phiSlider) phiSlider.value = 0;
+        updateState();
+      });
+    }
+
+    if (minusBtn) {
+      minusBtn.addEventListener('click', () => {
+        theta = Math.PI / 2;
+        phi = Math.PI;
+        if (thetaSlider) thetaSlider.value = 90;
+        if (phiSlider) phiSlider.value = 180;
+        updateState();
+      });
+    }
+
+    if (animateBtn) {
+      animateBtn.addEventListener('click', () => {
+        if (isAnimating) {
+          isAnimating = false;
+          if (animateBtn) animateBtn.textContent = 'Animer';
+          return;
+        }
+
+        isAnimating = true;
+        if (animateBtn) animateBtn.textContent = 'Arrêter';
+
+        function animate() {
+          if (!isAnimating) return;
+
+          phi += 0.05;
+          if (phi > 2 * Math.PI) phi = 0;
+
+          if (phiSlider) phiSlider.value = (phi * 180 / Math.PI).toFixed(0);
+          updateState();
+
+          requestAnimationFrame(animate);
+        }
+
+        animate();
+      });
+    }
+
+    // État initial
+    updateState();
+  } catch (error) {
+    console.error('Erreur dans la simulation de la sphère de Bloch:', error);
+  }
+}
+
+// Simulation de décohérence
+function initializeDecoherenceSimulation() {
+  try {
+    const canvas = document.getElementById('decoherence-canvas');
+    if (!canvas) {
+      console.log('Canvas décohérence non trouvé');
+      return;
+    }
+
+    console.log('Initialisation simulation décohérence...');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('Impossible d\'obtenir le contexte 2D du canvas');
+      return;
+    }
+
+    let animationId;
+    let isRunning = false;
+    let time = 0;
+    let temperature = 300;
+    let isolation = 0;
+
+    const coherenceData = [];
+    const maxPoints = 200;
+
+    function calculateCoherenceTime() {
+      // Modèle simplifié : T2 ∝ 1/T * isolation_factor
+      const basetime = 1e-6; // 1 microseconde à 300K
+      const tempFactor = 300 / Math.max(temperature, 0.1);
+      const isolationFactor = 1 + isolation / 10;
+      return basetime * tempFactor * isolationFactor;
+    }
+
+    function calculateFidelity(t, T2) {
+      return Math.exp(-t / T2);
+    }
+
+    function drawGraph() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Fond
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Axes
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1;
+
+      // Axe X (temps)
+      ctx.beginPath();
+      ctx.moveTo(50, canvas.height - 50);
+      ctx.lineTo(canvas.width - 20, canvas.height - 50);
+      ctx.stroke();
+
+      // Axe Y (fidélité)
+      ctx.beginPath();
+      ctx.moveTo(50, 20);
+      ctx.lineTo(50, canvas.height - 50);
+      ctx.stroke();
+
+      // Labels
+      ctx.fillStyle = '#374151';
+      ctx.font = '12px Arial';
+      ctx.fillText('Temps (μs)', canvas.width / 2 - 30, canvas.height - 10);
+      ctx.save();
+      ctx.translate(15, canvas.height / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Fidélité', -30, 0);
+      ctx.restore();
+
+      // Graduations Y
+      for (let i = 0; i <= 10; i++) {
+        const y = 20 + (canvas.height - 70) * i / 10;
+        const value = (1 - i / 10).toFixed(1);
+        ctx.fillText(value, 25, y + 3);
+
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.beginPath();
+        ctx.moveTo(45, y);
+        ctx.lineTo(50, y);
+        ctx.stroke();
+      }
+
+      // Courbe de décohérence
+      if (coherenceData.length > 1) {
+        ctx.strokeStyle = '#7c3aed';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        for (let i = 0; i < coherenceData.length; i++) {
+          const x = 50 + (canvas.width - 70) * i / maxPoints;
+          const y = 20 + (canvas.height - 70) * (1 - coherenceData[i]);
+
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+      }
+
+      // Ligne de référence (fidélité = 1)
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(50, 20);
+      ctx.lineTo(canvas.width - 20, 20);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function animate() {
+      if (!isRunning) return;
+
+      const T2 = calculateCoherenceTime();
+      const fidelity = calculateFidelity(time, T2);
+
+      coherenceData.push(fidelity);
+      if (coherenceData.length > maxPoints) {
+        coherenceData.shift();
+      }
+
+      // Mettre à jour l'affichage
+      const coherenceTimeEl = document.getElementById('coherence-time');
+      const fidelityEl = document.getElementById('fidelity');
+      const startBtn = document.getElementById('start-decoherence');
+
+      if (coherenceTimeEl) {
+        coherenceTimeEl.textContent =
+          T2 > 1e-3 ? `~${(T2 * 1e6).toFixed(0)} μs` : `~${(T2 * 1e9).toFixed(0)} ns`;
+      }
+      if (fidelityEl) {
+        fidelityEl.textContent = `${(fidelity * 100).toFixed(1)}%`;
+      }
+
+      drawGraph();
+
+      time += T2 / 50; // Incrément de temps adaptatif
+
+      if (fidelity > 0.01) {
+        animationId = requestAnimationFrame(animate);
+      } else {
+        isRunning = false;
+        if (startBtn) startBtn.textContent = 'Démarrer';
+      }
+    }
+
+    // Contrôles
+    const tempSlider = document.getElementById('temp-slider');
+    const isolationSlider = document.getElementById('isolation-slider');
+    const startBtn = document.getElementById('start-decoherence');
+    const resetBtn = document.getElementById('reset-decoherence');
+
+    if (tempSlider) {
+      tempSlider.addEventListener('input', (e) => {
+        if (e && e.target && e.target.value) {
+          temperature = parseFloat(e.target.value);
+          const tempValueEl = document.getElementById('temp-value');
+          if (tempValueEl) tempValueEl.textContent = `${temperature}K`;
+        }
+      });
+    }
+
+    if (isolationSlider) {
+      isolationSlider.addEventListener('input', (e) => {
+        if (e && e.target && e.target.value) {
+          isolation = parseFloat(e.target.value);
+          const isolationValueEl = document.getElementById('isolation-value');
+          if (isolationValueEl) isolationValueEl.textContent = `${isolation}%`;
+        }
+      });
+    }
+
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        if (isRunning) {
+          isRunning = false;
+          if (animationId) cancelAnimationFrame(animationId);
+          if (startBtn) startBtn.textContent = 'Démarrer';
+        } else {
+          isRunning = true;
+          if (startBtn) startBtn.textContent = 'Arrêter';
+          time = 0; // Réinitialiser le temps
+          animate();
+        }
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        isRunning = false;
+        if (animationId) cancelAnimationFrame(animationId);
+        time = 0;
+        coherenceData.length = 0;
+        if (startBtn) startBtn.textContent = 'Démarrer';
+        const fidelityEl = document.getElementById('fidelity');
+        if (fidelityEl) fidelityEl.textContent = '100%';
+        drawGraph();
+      });
+    }
+
+    // État initial
+    drawGraph();
+  } catch (error) {
+    console.error('Erreur dans la simulation de décohérence:', error);
+  }
+}
+
+// Calculateur de probabilités
+function initializeProbabilityCalculator() {
+  const calculateBtn = document.getElementById('calculate-probs');
+  if (!calculateBtn) return;
+
+  calculateBtn.addEventListener('click', function() {
+    const alphaReal = parseFloat(document.getElementById('alpha-real').value) || 0;
+    const alphaImag = parseFloat(document.getElementById('alpha-imag').value) || 0;
+    const betaReal = parseFloat(document.getElementById('beta-real').value) || 0;
+    const betaImag = parseFloat(document.getElementById('beta-imag').value) || 0;
+
+    // Calculer les modules
+    const alphaModSq = alphaReal * alphaReal + alphaImag * alphaImag;
+    const betaModSq = betaReal * betaReal + betaImag * betaImag;
+
+    // Normalisation
+    const norm = Math.sqrt(alphaModSq + betaModSq);
+
+    if (norm === 0) {
+      alert('État nul ! Veuillez entrer des amplitudes non nulles.');
+      return;
+    }
+
+    const alphaRealNorm = alphaReal / norm;
+    const alphaImagNorm = alphaImag / norm;
+    const betaRealNorm = betaReal / norm;
+    const betaImagNorm = betaImag / norm;
+
+    // Probabilités
+    const prob0 = (alphaRealNorm * alphaRealNorm + alphaImagNorm * alphaImagNorm);
+    const prob1 = (betaRealNorm * betaRealNorm + betaImagNorm * betaImagNorm);
+
+    // Formatage des nombres complexes
+    function formatComplex(real, imag) {
+      if (Math.abs(imag) < 0.001) return real.toFixed(3);
+      if (Math.abs(real) < 0.001) return `${imag.toFixed(3)}i`;
+      const sign = imag >= 0 ? '+' : '';
+      return `${real.toFixed(3)} ${sign} ${imag.toFixed(3)}i`;
+    }
+
+    // Affichage SIMPLIFIÉ - pas de MathJax
+    const alphaStr = formatComplex(alphaRealNorm, alphaImagNorm);
+    const betaStr = formatComplex(betaRealNorm, betaImagNorm);
+
+    const normalizedStateEl = document.getElementById('normalized-state');
+    if (normalizedStateEl) {
+      normalizedStateEl.textContent = `État: (${alphaStr})|0⟩ + (${betaStr})|1⟩`;
+    }
+
+    const prob0El = document.getElementById('calc-prob-0');
+    const prob1El = document.getElementById('calc-prob-1');
+    const probSumEl = document.getElementById('prob-sum');
+
+    if (prob0El) prob0El.textContent = prob0.toFixed(3);
+    if (prob1El) prob1El.textContent = prob1.toFixed(3);
+    if (probSumEl) {
+      probSumEl.textContent = (prob0 + prob1).toFixed(3);
+
+      // Vérification
+      if (Math.abs(prob0 + prob1 - 1) < 0.001) {
+        probSumEl.style.color = '#10b981';
+      } else {
+        probSumEl.style.color = '#ef4444';
+      }
+    }
+  });
+}
+</script>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Workbook</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; }
+        .test-section { margin: 2rem 0; padding: 1rem; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Test du Workbook Quantique</h1>
+    
+    <div class="test-section">
+        <h2>Test MathJax</h2>
+        <p>Formule simple: $$E = mc^2$$</p>
+        <p>Formule quantique: $$|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$$</p>
+        <p>Probabilité: $$P(|1\rangle) = |\beta|^2$$</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Exercice</h2>
+        <div class="exercise-container" data-exercise-id="test-ex">
+            <div class="exercise-question">
+                Quelle est la probabilité de mesurer $$|1\rangle$$ dans l'état $$|\psi\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$$ ?
+            </div>
+            <div class="exercise-options">
+                <div class="option-item" data-option-id="a" data-correct="false" data-explanation="Non, c'est 1/4.">
+                    <input type="radio" name="test-ex" id="opt-a">
+                    <label for="opt-a">$$\frac{1}{4}$$</label>
+                </div>
+                <div class="option-item" data-option-id="b" data-correct="true" data-explanation="Correct ! $$P = |\frac{1}{\sqrt{2}}|^2 = \frac{1}{2}$$">
+                    <input type="radio" name="test-ex" id="opt-b">
+                    <label for="opt-b">$$\frac{1}{2}$$</label>
+                </div>
+            </div>
+            <button class="btn btn-submit">Vérifier</button>
+            <div class="exercise-feedback" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Canvas</h2>
+        <canvas id="test-canvas" width="300" height="200" style="border: 1px solid #000;"></canvas>
+        <br>
+        <button onclick="testCanvas()">Tester Canvas</button>
+    </div>
+
+    <div id="test-results"></div>
+
+    <script src="assets/js/mathjax-config.js"></script>
+    <script src="assets/libs/mathjax.js"></script>
+    
+    <script>
+        function testCanvas() {
+            const canvas = document.getElementById('test-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#7c3aed';
+            ctx.fillRect(50, 50, 100, 100);
+            ctx.fillStyle = '#fff';
+            ctx.font = '16px Arial';
+            ctx.fillText('Canvas OK!', 60, 110);
+            
+            document.getElementById('test-results').innerHTML += '<p class="success">✓ Canvas fonctionne</p>';
+        }
+
+        // Test des exercices
+        document.addEventListener('DOMContentLoaded', function() {
+            const options = document.querySelectorAll('.option-item');
+            const submitBtn = document.querySelector('.btn-submit');
+            const feedback = document.querySelector('.exercise-feedback');
+
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    option.querySelector('input').checked = true;
+                });
+            });
+
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    const selected = document.querySelector('.option-item.selected');
+                    if (!selected) {
+                        alert('Sélectionnez une réponse');
+                        return;
+                    }
+
+                    const isCorrect = selected.dataset.correct === 'true';
+                    
+                    if (isCorrect) {
+                        selected.classList.add('correct');
+                        feedback.className = 'exercise-feedback feedback-correct';
+                        feedback.innerHTML = '✓ ' + selected.dataset.explanation;
+                    } else {
+                        selected.classList.add('incorrect');
+                        feedback.className = 'exercise-feedback feedback-incorrect';
+                        feedback.innerHTML = '✗ ' + selected.dataset.explanation;
+                        
+                        options.forEach(opt => {
+                            if (opt.dataset.correct === 'true') {
+                                opt.classList.add('correct');
+                            }
+                        });
+                    }
+                    
+                    feedback.style.display = 'block';
+                    
+                    if (window.MathJax && window.MathJax.typesetPromise) {
+                        MathJax.typesetPromise([feedback]);
+                    }
+                    
+                    document.getElementById('test-results').innerHTML += '<p class="success">✓ Exercice fonctionne</p>';
+                });
+            }
+
+            // Test MathJax
+            setTimeout(() => {
+                if (window.MathJax) {
+                    document.getElementById('test-results').innerHTML += '<p class="success">✓ MathJax chargé</p>';
+                } else {
+                    document.getElementById('test-results').innerHTML += '<p class="error">✗ MathJax non chargé</p>';
+                }
+            }, 2000);
+        });
+    </script>
+
+    <style>
+        .option-item {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            border-radius: 0.25rem;
+        }
+        .option-item:hover { background: #f0f0f0; }
+        .option-item.selected { border-color: #7c3aed; background: rgba(124, 58, 237, 0.1); }
+        .option-item.correct { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .option-item.incorrect { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .btn { padding: 0.5rem 1rem; background: #7c3aed; color: white; border: none; border-radius: 0.25rem; cursor: pointer; }
+        .exercise-feedback { margin-top: 1rem; padding: 1rem; border-radius: 0.25rem; }
+        .feedback-correct { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; }
+        .feedback-incorrect { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; }
+    </style>
+</body>
+</html>

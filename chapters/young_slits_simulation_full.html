@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation des Fentes de Young - Interférences Quantiques</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .simulation-container {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            background: #0f172a;
+            display: block;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls-panel {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #60a5fa;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.pause {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        button.reset {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        button.toggle {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+            grid-column: 1 / -1;
+        }
+
+        .slider-control {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #cbd5e1;
+        }
+
+        .slider-value {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: rgba(100, 116, 139, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-indicator.running {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .status-indicator.paused {
+            background: #f59e0b;
+            box-shadow: 0 0 10px #f59e0b;
+        }
+
+        .status-indicator.stopped {
+            background: #64748b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .info-panel {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-panel h3 {
+            color: #a78bfa;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .info-panel p {
+            line-height: 1.8;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        .info-panel strong {
+            color: #60a5fa;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Expérience des Fentes de Young</h1>
+        <p class="subtitle">Observation de l'interférence quantique photon par photon</p>
+
+        <div class="main-grid">
+            <div class="simulation-container">
+                <canvas id="youngCanvas" width="900" height="600"></canvas>
+            </div>
+
+            <div class="controls-panel">
+                <div class="control-section">
+                    <h3>⚡ Contrôles</h3>
+                    <div class="button-group">
+                        <button id="startBtn">▶ Démarrer</button>
+                        <button id="pauseBtn" class="pause">⏸ Pause</button>
+                        <button id="resetBtn" class="reset">🔄 Réinitialiser</button>
+                        <button id="toggleSlitBtn" class="toggle">🚪 Fermer fente supérieure</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>⚙️ Paramètres</h3>
+
+                    <div class="slider-control">
+                        <div class="slider-label">
+                            <span>Taux d'émission</span>
+                            <span class="slider-value" id="emissionValue">50%</span>
+                        </div>
+                        <input type="range" id="emissionSlider" min="1" max="100" value="50">
+                    </div>
+
+                    <div class="slider-control">
+                        <div class="slider-label">
+                            <span>Vitesse des photons</span>
+                            <span class="slider-value" id="speedValue">5</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="1" max="10" value="5">
+                    </div>
+
+                    <div class="slider-control">
+                        <div class="slider-label">
+                            <span>Longueur d'onde λ (nm)</span>
+                            <span class="slider-value" id="wavelengthValue">550 nm</span>
+                        </div>
+                        <input type="range" id="wavelengthSlider" min="400" max="700" value="550">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>📊 Statistiques</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Photons émis</div>
+                            <div class="stat-value" id="photonCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Photons détectés</div>
+                            <div class="stat-value" id="detectedCount">0</div>
+                        </div>
+                        <div class="stat-card" style="grid-column: 1 / -1;">
+                            <div class="stat-label">
+                                <span class="status-indicator stopped" id="statusIndicator"></span>
+                                État
+                            </div>
+                            <div class="stat-value" id="statusText" style="font-size: 1.2em;">Arrêté</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #fbbf24;"></div>
+                        <span>Photon</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981;"></div>
+                        <span>Fentes ouvertes</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444;"></div>
+                        <span>Fente fermée</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>💡 Concepts clés de mécanique quantique</h3>
+            <p>
+                <strong>Dualité onde-corpuscule :</strong> Chaque photon se comporte comme une particule localisée,
+                mais son comportement collectif révèle une nature ondulatoire à travers les interférences.
+            </p>
+            <p>
+                <strong>Superposition quantique :</strong> Lorsque les deux fentes sont ouvertes, chaque photon
+                passe simultanément par les deux fentes dans une superposition d'états quantiques, créant des
+                interférences avec lui-même.
+            </p>
+            <p>
+                <strong>Effondrement de la fonction d'onde :</strong> Fermez une fente pour observer la disparition
+                du motif d'interférence. Le photon "sait" qu'une seule trajectoire est possible et se comporte différemment.
+            </p>
+            <p>
+                <strong>Pattern d'interférence :</strong> L'intensité suit I(y) = I₀ cos²(πd·sin(θ)/λ), où d est
+                la distance entre les fentes, θ l'angle de déviation, et λ la longueur d'onde.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        class YoungSlitsSimulation {
+            constructor() {
+                this.canvas = document.getElementById('youngCanvas');
+                this.ctx = this.canvas.getContext('2d');
+
+                // Paramètres physiques
+                this.wavelength = 550; // nm (vert par défaut)
+                this.slitSeparation = 80; // pixels - réduit pour plus de franges
+                this.slitWidth = 12; // pixels
+                this.slitDistance = 250; // Distance source-fentes
+                this.screenDistance = 400; // Distance fentes-écran - réduit pour franges plus larges
+
+                // État de la simulation
+                this.photons = [];
+                this.detectionData = new Array(this.canvas.height).fill(0);
+                this.isRunning = false;
+                this.photonCount = 0;
+                this.detectedCount = 0;
+                this.emissionRate = 0.5;
+                this.photonSpeed = 5;
+                this.topSlitOpen = true;
+                this.bottomSlitOpen = true;
+
+                // Positions des éléments
+                this.sourceX = 80;
+                this.slitX = this.slitDistance;
+                this.screenX = this.slitDistance + this.screenDistance;
+                this.centerY = this.canvas.height / 2;
+
+                this.setupControls();
+                this.drawInitialSetup();
+            }
+
+            setupControls() {
+                document.getElementById('startBtn').addEventListener('click', () => this.start());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+                document.getElementById('toggleSlitBtn').addEventListener('click', () => this.toggleSlit());
+
+                document.getElementById('emissionSlider').addEventListener('input', (e) => {
+                    this.emissionRate = e.target.value / 100;
+                    document.getElementById('emissionValue').textContent = e.target.value + '%';
+                });
+
+                document.getElementById('speedSlider').addEventListener('input', (e) => {
+                    this.photonSpeed = parseInt(e.target.value);
+                    document.getElementById('speedValue').textContent = e.target.value;
+                });
+
+                document.getElementById('wavelengthSlider').addEventListener('input', (e) => {
+                    this.wavelength = parseInt(e.target.value);
+                    document.getElementById('wavelengthValue').textContent = e.target.value + ' nm';
+                });
+            }
+
+            start() {
+                this.isRunning = true;
+                this.updateStatus('running', 'En cours');
+                this.animate();
+            }
+
+            pause() {
+                this.isRunning = false;
+                this.updateStatus('paused', 'En pause');
+            }
+
+            reset() {
+                this.isRunning = false;
+                this.photons = [];
+                this.detectionData.fill(0);
+                this.photonCount = 0;
+                this.detectedCount = 0;
+                this.updateStatus('stopped', 'Arrêté');
+                document.getElementById('photonCount').textContent = '0';
+                document.getElementById('detectedCount').textContent = '0';
+                this.drawInitialSetup();
+            }
+
+            toggleSlit() {
+                this.topSlitOpen = !this.topSlitOpen;
+                const btn = document.getElementById('toggleSlitBtn');
+                btn.textContent = this.topSlitOpen ? '🚪 Fermer fente supérieure' : '🚪 Ouvrir fente supérieure';
+                this.detectionData.fill(0);
+                this.detectedCount = 0;
+                document.getElementById('detectedCount').textContent = '0';
+            }
+
+            updateStatus(status, text) {
+                const indicator = document.getElementById('statusIndicator');
+                indicator.className = `status-indicator ${status}`;
+                document.getElementById('statusText').textContent = text;
+            }
+
+            createPhoton() {
+                const phase = Math.random() * 2 * Math.PI;
+
+                // Émettre les photons dans un cône qui vise les fentes
+                const targetY = this.centerY + (Math.random() - 0.5) * this.slitSeparation * 1.5;
+
+                return {
+                    x: this.sourceX,
+                    y: this.centerY + (Math.random() - 0.5) * 20,
+                    vx: this.photonSpeed * 0.8,
+                    vy: (targetY - this.centerY) * 0.015, // Légère direction vers les fentes
+                    phase: phase,
+                    amplitude: 1,
+                    passedSlits: false,
+                    topAmplitude: { re: 0, im: 0 },
+                    bottomAmplitude: { re: 0, im: 0 },
+                    trail: []
+                };
+            }
+
+            updatePhotons() {
+                // Émettre de nouveaux photons
+                if (this.isRunning && Math.random() < this.emissionRate * 0.1) {
+                    this.photons.push(this.createPhoton());
+                    this.photonCount++;
+                    document.getElementById('photonCount').textContent = this.photonCount;
+                }
+
+                // Mettre à jour les photons existants
+                for (let i = this.photons.length - 1; i >= 0; i--) {
+                    const photon = this.photons[i];
+
+                    // Ajouter à la traînée
+                    photon.trail.push({ x: photon.x, y: photon.y });
+                    if (photon.trail.length > 15) photon.trail.shift();
+
+                    // Déplacer le photon
+                    photon.x += photon.vx;
+                    photon.y += photon.vy;
+
+                    // Interaction avec les fentes (mécanique quantique)
+                    if (!photon.passedSlits && photon.x >= this.slitX && photon.x < this.slitX + 20) {
+                        photon.passedSlits = true;
+
+                        const topSlitY = this.centerY - this.slitSeparation / 2;
+                        const bottomSlitY = this.centerY + this.slitSeparation / 2;
+
+                        // Vérifier si le photon peut passer par une fente
+                        const distToTop = Math.abs(photon.y - topSlitY);
+                        const distToBottom = Math.abs(photon.y - bottomSlitY);
+
+                        const canPassTop = this.topSlitOpen && distToTop < this.slitWidth;
+                        const canPassBottom = this.bottomSlitOpen && distToBottom < this.slitWidth;
+
+                        // Si le photon ne peut passer par aucune fente, il est bloqué
+                        if (!canPassTop && !canPassBottom) {
+                            this.photons.splice(i, 1);
+                            continue;
+                        }
+
+                        // Calcul des amplitudes de probabilité pour chaque fente accessible
+                        if (this.topSlitOpen && this.bottomSlitOpen && (canPassTop || canPassBottom)) {
+                            // DEUX FENTES OUVERTES : Superposition quantique
+                            // Le photon passe par les deux fentes simultanément (principe de superposition)
+
+                            // Amplitudes de probabilité (fonction gaussienne de la distance)
+                            const ampTop = Math.exp(-distToTop * distToTop / 800);
+                            const ampBottom = Math.exp(-distToBottom * distToBottom / 800);
+
+                            // Normaliser
+                            const norm = Math.sqrt(ampTop * ampTop + ampBottom * ampBottom);
+                            const normAmpTop = ampTop / norm;
+                            const normAmpBottom = ampBottom / norm;
+
+                            // Phases relatives basées sur le chemin optique
+                            const k = 2 * Math.PI / (this.wavelength / 10); // Nombre d'onde ajusté
+                            const phaseTop = photon.phase + k * distToTop * 0.01;
+                            const phaseBottom = photon.phase + k * distToBottom * 0.01;
+
+                            photon.topAmplitude = {
+                                re: normAmpTop * Math.cos(phaseTop),
+                                im: normAmpTop * Math.sin(phaseTop)
+                            };
+                            photon.bottomAmplitude = {
+                                re: normAmpBottom * Math.cos(phaseBottom),
+                                im: normAmpBottom * Math.sin(phaseBottom)
+                            };
+
+                            // Interférence : somme cohérente des amplitudes
+                            const totalRe = photon.topAmplitude.re + photon.bottomAmplitude.re;
+                            const totalIm = photon.topAmplitude.im + photon.bottomAmplitude.im;
+
+                            // Calculer l'angle de déviation basé sur les interférences
+                            const totalAmp = Math.sqrt(totalRe * totalRe + totalIm * totalIm);
+                            const interferencePhase = Math.atan2(totalIm, totalRe);
+
+                            // Direction vers un point sur l'écran avec modulation par interférence
+                            const screenY = this.centerY + (Math.sin(interferencePhase) * this.slitSeparation * 2);
+                            const dx = this.screenX - photon.x;
+                            const dy = screenY - photon.y;
+                            const angle = Math.atan2(dy, dx);
+
+                            // Vitesse angulaire amplifiée pour créer des franges visibles
+                            photon.vy = Math.sin(angle) * this.photonSpeed * 0.6 * totalAmp;
+
+                        } else if (this.topSlitOpen || this.bottomSlitOpen) {
+                            // UNE SEULE FENTE OUVERTE : pas d'interférence, diffraction simple
+                            const openSlitY = this.topSlitOpen ? topSlitY : bottomSlitY;
+                            const openSlitOpen = this.topSlitOpen ? canPassTop : canPassBottom;
+
+                            if (openSlitOpen) {
+                                // Le photon passe par la fente unique
+                                // Diffraction : étalement angulaire selon la largeur de la fente
+                                // Distribution angulaire gaussienne centrée sur la fente
+                                const diffractionSpread = 0.8; // Contrôle l'étalement
+                                photon.vy = (Math.random() - 0.5) * 2 * diffractionSpread;
+
+                                // Petit ajustement pour centrer sur la fente ouverte
+                                const dy = openSlitY - photon.y;
+                                photon.vy += dy * 0.01;
+                            } else {
+                                // Bloqué par l'écran
+                                this.photons.splice(i, 1);
+                                continue;
+                            }
+                        }
+                    }
+
+                    // Détection sur l'écran
+                    if (photon.x >= this.screenX) {
+                        const y = Math.floor(photon.y);
+                        if (y >= 0 && y < this.canvas.height) {
+                            this.detectionData[y] += 1;
+                            this.detectedCount++;
+                            document.getElementById('detectedCount').textContent = this.detectedCount;
+                        }
+                        this.photons.splice(i, 1);
+                        continue;
+                    }
+
+                    // Supprimer si hors limites
+                    if (photon.x > this.canvas.width || photon.y < 0 || photon.y > this.canvas.height) {
+                        this.photons.splice(i, 1);
+                    }
+                }
+            }
+
+            drawInitialSetup() {
+                // Fond
+                this.ctx.fillStyle = '#0f172a';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Grille
+                this.drawGrid();
+
+                // Source
+                this.drawSource();
+
+                // Écran avec fentes
+                this.drawSlitScreen();
+
+                // Écran de détection
+                this.drawDetectionScreen();
+
+                // Labels
+                this.drawLabels();
+            }
+
+            drawGrid() {
+                this.ctx.strokeStyle = 'rgba(100, 116, 139, 0.15)';
+                this.ctx.lineWidth = 1;
+
+                // Lignes verticales
+                for (let x = 0; x < this.canvas.width; x += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+
+                // Lignes horizontales
+                for (let y = 0; y < this.canvas.height; y += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            drawSource() {
+                // Source de photons
+                this.ctx.fillStyle = '#fbbf24';
+                this.ctx.shadowBlur = 20;
+                this.ctx.shadowColor = '#fbbf24';
+                this.ctx.beginPath();
+                this.ctx.arc(this.sourceX, this.centerY, 12, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.shadowBlur = 0;
+
+                // Label
+                this.ctx.fillStyle = '#cbd5e1';
+                this.ctx.font = '14px "Segoe UI"';
+                this.ctx.fillText('Source', this.sourceX - 25, this.centerY - 25);
+            }
+
+            drawSlitScreen() {
+                // Écran opaque
+                this.ctx.fillStyle = '#1e293b';
+                this.ctx.fillRect(this.slitX, 0, 20, this.canvas.height);
+
+                // Bordures de l'écran
+                this.ctx.strokeStyle = '#475569';
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeRect(this.slitX, 0, 20, this.canvas.height);
+
+                const topSlitY = this.centerY - this.slitSeparation / 2;
+                const bottomSlitY = this.centerY + this.slitSeparation / 2;
+
+                // Fente supérieure
+                if (this.topSlitOpen) {
+                    // Fente ouverte - vert lumineux
+                    this.ctx.fillStyle = '#10b981';
+                    this.ctx.shadowBlur = 15;
+                    this.ctx.shadowColor = '#10b981';
+                    this.ctx.fillRect(this.slitX, topSlitY - this.slitWidth / 2, 20, this.slitWidth);
+                    this.ctx.shadowBlur = 0;
+
+                    // Indicateur "OUVERT"
+                    this.ctx.fillStyle = '#10b981';
+                    this.ctx.font = 'bold 10px "Segoe UI"';
+                    this.ctx.fillText('✓', this.slitX - 20, topSlitY);
+                } else {
+                    // Fente fermée - rouge avec croix
+                    this.ctx.fillStyle = '#ef4444';
+                    this.ctx.fillRect(this.slitX, topSlitY - this.slitWidth / 2, 20, this.slitWidth);
+
+                    // Croix pour indiquer fermeture
+                    this.ctx.strokeStyle = '#7f1d1d';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.slitX + 2, topSlitY - this.slitWidth / 2 + 2);
+                    this.ctx.lineTo(this.slitX + 18, topSlitY + this.slitWidth / 2 - 2);
+                    this.ctx.moveTo(this.slitX + 18, topSlitY - this.slitWidth / 2 + 2);
+                    this.ctx.lineTo(this.slitX + 2, topSlitY + this.slitWidth / 2 - 2);
+                    this.ctx.stroke();
+
+                    // Indicateur "FERMÉ"
+                    this.ctx.fillStyle = '#ef4444';
+                    this.ctx.font = 'bold 10px "Segoe UI"';
+                    this.ctx.fillText('✗', this.slitX - 20, topSlitY);
+                }
+
+                // Fente inférieure (toujours ouverte)
+                this.ctx.fillStyle = '#10b981';
+                this.ctx.shadowBlur = 15;
+                this.ctx.shadowColor = '#10b981';
+                this.ctx.fillRect(this.slitX, bottomSlitY - this.slitWidth / 2, 20, this.slitWidth);
+                this.ctx.shadowBlur = 0;
+
+                // Indicateur "OUVERT"
+                this.ctx.fillStyle = '#10b981';
+                this.ctx.font = 'bold 10px "Segoe UI"';
+                this.ctx.fillText('✓', this.slitX - 20, bottomSlitY);
+
+                // Labels des fentes
+                this.ctx.fillStyle = '#cbd5e1';
+                this.ctx.font = '12px "Segoe UI"';
+                this.ctx.fillText('Fente 1', this.slitX - 50, topSlitY - 15);
+                this.ctx.fillText('Fente 2', this.slitX - 50, bottomSlitY - 15);
+
+                // Label général
+                this.ctx.font = '14px "Segoe UI"';
+                this.ctx.fillText('Fentes', this.slitX - 10, 30);
+            }
+
+            drawDetectionScreen() {
+                // Écran de détection
+                this.ctx.fillStyle = '#1e293b';
+                this.ctx.fillRect(this.screenX, 0, 15, this.canvas.height);
+
+                // Lisser les données pour un meilleur affichage
+                const smoothedData = [];
+                const smoothingRadius = 3;
+                for (let y = 0; y < this.canvas.height; y++) {
+                    let sum = 0;
+                    let count = 0;
+                    for (let dy = -smoothingRadius; dy <= smoothingRadius; dy++) {
+                        const idx = y + dy;
+                        if (idx >= 0 && idx < this.canvas.height) {
+                            sum += this.detectionData[idx];
+                            count++;
+                        }
+                    }
+                    smoothedData[y] = sum / count;
+                }
+
+                // Pattern d'interférence - AFFICHAGE DIRECT DES DONNÉES RÉELLES
+                const maxIntensity = Math.max(...smoothedData, 1);
+
+                for (let y = 0; y < this.canvas.height; y++) {
+                    const intensity = smoothedData[y] / maxIntensity;
+
+                    if (intensity > 0) {
+                        // Couleur basée sur la longueur d'onde
+                        const color = this.wavelengthToRGB(this.wavelength);
+
+                        // Fonction gamma pour améliorer le contraste
+                        const gamma = 0.5;
+                        const enhancedIntensity = Math.pow(intensity, gamma);
+
+                        // Affichage avec transparence - BASÉ UNIQUEMENT SUR LES DÉTECTIONS RÉELLES
+                        this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${enhancedIntensity})`;
+                        this.ctx.fillRect(this.screenX, y, 15, 1);
+
+                        // Glow effect plus intense
+                        if (enhancedIntensity > 0.3) {
+                            const glowSize = enhancedIntensity * 40;
+                            const gradient = this.ctx.createRadialGradient(
+                                this.screenX + 7, y, 0,
+                                this.screenX + 7, y, glowSize
+                            );
+                            gradient.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${enhancedIntensity * 0.8})`);
+                            gradient.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, ${enhancedIntensity * 0.3})`);
+                            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                            this.ctx.fillStyle = gradient;
+                            this.ctx.fillRect(this.screenX - glowSize, y - glowSize, glowSize * 2 + 15, glowSize * 2);
+                        }
+                    }
+                }
+
+                // Bordure
+                this.ctx.strokeStyle = '#475569';
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeRect(this.screenX, 0, 15, this.canvas.height);
+
+                // Graphique d'intensité à droite de l'écran
+                const graphX = this.screenX + 30;
+                const graphWidth = 150;
+
+                // Fond du graphique
+                this.ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
+                this.ctx.fillRect(graphX, 50, graphWidth, this.canvas.height - 100);
+
+                // Axes
+                this.ctx.strokeStyle = '#64748b';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(graphX, 50);
+                this.ctx.lineTo(graphX, this.canvas.height - 50);
+                this.ctx.lineTo(graphX + graphWidth, this.canvas.height - 50);
+                this.ctx.stroke();
+
+                // Courbe d'intensité - AFFICHAGE DES DONNÉES RÉELLES UNIQUEMENT
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = '#60a5fa';
+                this.ctx.lineWidth = 2;
+
+                let firstPoint = true;
+                for (let y = 50; y < this.canvas.height - 50; y++) {
+                    const dataY = Math.floor((y - 50) / (this.canvas.height - 100) * this.canvas.height);
+                    const intensity = smoothedData[dataY] / maxIntensity;
+                    const x = graphX + intensity * graphWidth;
+
+                    if (firstPoint) {
+                        this.ctx.moveTo(x, y);
+                        firstPoint = false;
+                    } else {
+                        this.ctx.lineTo(x, y);
+                    }
+                }
+                this.ctx.stroke();
+
+                // Remplissage sous la courbe
+                this.ctx.fillStyle = 'rgba(96, 165, 250, 0.2)';
+                this.ctx.beginPath();
+                this.ctx.moveTo(graphX, this.canvas.height - 50);
+                for (let y = this.canvas.height - 50; y >= 50; y--) {
+                    const dataY = Math.floor((y - 50) / (this.canvas.height - 100) * this.canvas.height);
+                    const intensity = smoothedData[dataY] / maxIntensity;
+                    const x = graphX + intensity * graphWidth;
+                    this.ctx.lineTo(x, y);
+                }
+                this.ctx.lineTo(graphX, 50);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // Labels du graphique
+                this.ctx.fillStyle = '#cbd5e1';
+                this.ctx.font = '12px "Segoe UI"';
+                this.ctx.fillText('Intensité', graphX + 40, 35);
+                this.ctx.save();
+                this.ctx.translate(graphX - 15, this.canvas.height / 2);
+                this.ctx.rotate(-Math.PI / 2);
+                this.ctx.fillText('Position (y)', -40, 0);
+                this.ctx.restore();
+
+                // Label écran
+                this.ctx.fillStyle = '#cbd5e1';
+                this.ctx.font = '14px "Segoe UI"';
+                this.ctx.fillText('Écran', this.screenX - 15, 30);
+
+                // Indication du mode
+                this.ctx.fillStyle = '#94a3b8';
+                this.ctx.font = '11px "Segoe UI"';
+                if (this.topSlitOpen && this.bottomSlitOpen) {
+                    this.ctx.fillText('Mode: Interférences', graphX, this.canvas.height - 35);
+                } else {
+                    this.ctx.fillText('Mode: Diffraction simple', graphX, this.canvas.height - 35);
+                }
+            }
+
+            drawPhotons() {
+                this.photons.forEach(photon => {
+                    // Traînée
+                    if (photon.trail.length > 1) {
+                        this.ctx.strokeStyle = 'rgba(251, 191, 36, 0.3)';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(photon.trail[0].x, photon.trail[0].y);
+                        for (let i = 1; i < photon.trail.length; i++) {
+                            this.ctx.lineTo(photon.trail[i].x, photon.trail[i].y);
+                        }
+                        this.ctx.stroke();
+                    }
+
+                    // Photon
+                    const color = this.wavelengthToRGB(this.wavelength);
+                    this.ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+                    this.ctx.shadowBlur = 15;
+                    this.ctx.shadowColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(photon.x, photon.y, 4, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.shadowBlur = 0;
+                });
+            }
+
+            drawLabels() {
+                this.ctx.fillStyle = '#94a3b8';
+                this.ctx.font = '12px "Segoe UI"';
+
+                // Distance labels
+                const d1 = this.slitX - this.sourceX;
+                const d2 = this.screenX - this.slitX;
+
+                this.ctx.fillText(`d₁ = ${d1}px`, this.sourceX + d1 / 2 - 30, this.canvas.height - 20);
+                this.ctx.fillText(`d₂ = ${d2}px`, this.slitX + d2 / 2 - 30, this.canvas.height - 20);
+            }
+
+            wavelengthToRGB(wavelength) {
+                // Conversion longueur d'onde (nm) -> RGB
+                let r, g, b;
+
+                if (wavelength >= 380 && wavelength < 440) {
+                    r = -(wavelength - 440) / (440 - 380);
+                    g = 0;
+                    b = 1;
+                } else if (wavelength >= 440 && wavelength < 490) {
+                    r = 0;
+                    g = (wavelength - 440) / (490 - 440);
+                    b = 1;
+                } else if (wavelength >= 490 && wavelength < 510) {
+                    r = 0;
+                    g = 1;
+                    b = -(wavelength - 510) / (510 - 490);
+                } else if (wavelength >= 510 && wavelength < 580) {
+                    r = (wavelength - 510) / (580 - 510);
+                    g = 1;
+                    b = 0;
+                } else if (wavelength >= 580 && wavelength < 645) {
+                    r = 1;
+                    g = -(wavelength - 645) / (645 - 580);
+                    b = 0;
+                } else if (wavelength >= 645 && wavelength <= 780) {
+                    r = 1;
+                    g = 0;
+                    b = 0;
+                } else {
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                }
+
+                return {
+                    r: Math.round(r * 255),
+                    g: Math.round(g * 255),
+                    b: Math.round(b * 255)
+                };
+            }
+
+            animate() {
+                if (!this.isRunning) return;
+
+                this.drawInitialSetup();
+                this.updatePhotons();
+                this.drawPhotons();
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // Initialiser la simulation
+        window.addEventListener('DOMContentLoaded', () => {
+            new YoungSlitsSimulation();
+        });
+    </script>
+</body>
+</html>

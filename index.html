@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Workbook interactif - Introduction à la Mécanique Quantique PHY321 - Université de Yaoundé I">
+    <title>Workbook Quantique PHY321 - UY1</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/workbook.css">
+    
+    <!-- MathJax for LaTeX rendering -->
+    <script src="assets/js/mathjax-config.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#7c3aed">
+</head>
+<body>
+    <header class="workbook-header">
+        <div class="container">
+            <div class="header-content">
+                <h1>Introduction à la Mécanique Quantique</h1>
+                <p>PHY321 - Université de Yaoundé I - 2025</p>
+            </div>
+            <nav class="header-nav">
+                <button id="theme-toggle" class="btn-icon" title="Basculer le thème">🌙</button>
+                <button id="pdf-export" class="btn-icon" title="Exporter en PDF">📄</button>
+                <button id="progress-toggle" class="btn-icon" title="Voir la progression">📊</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="workbook-main">
+        <aside class="sidebar">
+            <div class="progress-overview">
+                <h3>Progression</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overall-progress"></div>
+                </div>
+                <span class="progress-text" id="progress-percentage">0%</span>
+            </div>
+            
+            <nav class="chapter-nav">
+                <h3>Table des Matières</h3>
+                <ul class="chapter-list" id="chapter-list">
+                    <!-- Généré dynamiquement -->
+                </ul>
+            </nav>
+            
+            <div class="quick-actions">
+                <h3>Actions Rapides</h3>
+                <button class="action-btn" id="quiz-mode">🎯 Mode Quiz</button>
+                <button class="action-btn" id="flashcards">🃏 Flashcards</button>
+                <button class="action-btn" id="search-toggle">🔍 Recherche</button>
+            </div>
+        </aside>
+
+        <section class="content-area">
+            <div class="search-bar" id="search-container" style="display: none;">
+                <input type="text" id="search-input" placeholder="Rechercher dans le cours...">
+                <button id="search-btn">🔍</button>
+            </div>
+            
+            <article class="chapter-content" id="chapter-content">
+                <div class="welcome-screen">
+                    <h2>Bienvenue dans le Workbook Quantique</h2>
+                    <p>Ce workbook interactif vous accompagne dans l'apprentissage de la mécanique quantique. Sélectionnez un chapitre dans le menu pour commencer.</p>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <h3>📚 Contenu Interactif</h3>
+                            <p>Cours complet avec animations et simulations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Exercices Guidés</h3>
+                            <p>Problèmes étape par étape avec feedback</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Suivi de Progression</h3>
+                            <p>Visualisez vos progrès en temps réel</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📄 Export PDF</h3>
+                            <p>Générez des versions imprimables</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <!-- Modal pour les exercices -->
+    <div id="exercise-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="exercise-content"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/library-loader.js"></script>
+    <script src="assets/js/workbook-core.js"></script>
+    <script src="assets/js/simulation-measurement.js"></script>
+    <script src="assets/js/exercise-engine.js"></script>
+    <script src="assets/js/pdf-generator.js"></script>
+    <script src="assets/js/progress-tracker.js"></script>
+    <script src="assets/js/search-engine.js"></script>
+    <script src="integration/quantum-quiz-integration.js"></script>
+</body>
+</html>

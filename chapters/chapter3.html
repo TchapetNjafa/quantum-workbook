@@ -1,0 +1,433 @@
+<div class="chapter-header fade-in">
+  <h1 class="chapter-title">Mesure et opérateurs</h1>
+  <p class="chapter-subtitle">Comprendre le verdict de la nature : quantification et valeurs propres</p>
+</div>
+
+<div class="info-box">
+  <h3>🎯 Objectifs du chapitre</h3>
+  <ul>
+    <li>Comprendre que la mesure quantique est une projection forcée</li>
+    <li>Maîtriser le concept d'opérateur Hermitien</li>
+    <li>Explorer l'expérience de Stern-Gerlach</li>
+    <li>Découvrir les valeurs et vecteurs propres</li>
+    <li>Apprendre l'algèbre des opérateurs et les relations de commutation</li>
+  </ul>
+</div>
+
+<section class="section">
+  <h2 class="section-title">1. Le verdict de la nature : Stern et Gerlach</h2>
+
+  <p>
+    Imaginez lancer des milliers de toupies qui tournent sur elles-mêmes. Si vous les faites passer 
+    à travers un champ magnétique, vous vous attendriez à une distribution continue. Mais en 1922, 
+    Otto Stern et Walther Gerlach découvrirent quelque chose de stupéfiant : le faisceau se sépare 
+    en <strong>deux taches distinctes uniquement</strong>. Pas de continu. Pas d'entre-deux.
+  </p>
+
+  <div class="interactive-element simulation-box">
+    <h4>🔬 Simulation : Expérience de Stern-Gerlach</h4>
+    <p>Observez comment les atomes se séparent en deux chemins distincts après le champ magnétique.</p>
+    <div class="simulation-canvas">
+      <canvas id="stern-gerlach-canvas" width="600" height="400"></canvas>
+    </div>
+    <div class="simulation-controls">
+      <button class="control-button" id="sg-start">Lancer des atomes</button>
+      <button class="control-button" id="sg-pause">Pause</button>
+      <button class="control-button" id="sg-reset">Réinitialiser</button>
+      <div class="control-group">
+        <label class="control-label">Orientation du champ (θ)</label>
+        <input type="range" class="control-slider" id="sg-angle" min="0" max="360" value="90">
+        <span id="sg-angle-display">90°</span>
+      </div>
+    </div>
+    <div class="simulation-info">
+      <p>Atomes envoyés: <span id="sg-count">0</span></p>
+      <p>Haut (↑): <span id="sg-up">0</span> | Bas (↓): <span id="sg-down">0</span></p>
+      <p>Probabilité ↑: <span id="sg-prob-up">0%</span></p>
+    </div>
+  </div>
+
+  <div class="principle-box">
+    <h4>💡 Principe : Quantification de la mesure</h4>
+    <p>
+      La mesure d'une grandeur physique sur un système quantique ne peut donner que des 
+      <strong>valeurs discrètes spécifiques</strong>, appelées <strong>valeurs propres</strong>. 
+      Pour le spin dans l'expérience de Stern-Gerlach : $$S_z = \pm\frac{\hbar}{2}$$
+    </p>
+  </div>
+
+  <div class="info-box alert-box">
+    <h4>⚠️ La mesure est une projection forcée</h4>
+    <p>
+      En mécanique quantique, mesurer n'est pas un acte d'observation passive. C'est une 
+      <strong>projection forcée</strong> qui oblige le système à abandonner sa superposition 
+      pour choisir une seule réponse. La mesure ne révèle pas une propriété cachée—elle la crée.
+    </p>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch3-ex1">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 3.1 : Le verdict de Stern-Gerlach</h4>
+      <span class="exercise-difficulty difficulty-medium">Moyen</span>
+    </div>
+
+    <div class="exercise-question">
+      Dans l'expérience de Stern-Gerlach avec des atomes d'argent envoyés à travers un champ 
+      magnétique selon l'axe z, que observe-t-on sur l'écran de détection ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="false" 
+           data-explanation="Non, cela serait le comportement classique. En quantique, c'est discret.">
+        <input type="radio" name="exercise-ch3-ex1" class="option-radio" id="option-a">
+        <label for="option-a">Une distribution continue d'atomes sur tout l'écran</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="true" 
+           data-explanation="Correct ! Le faisceau se sépare en deux taches distinctes : spin up et spin down.">
+        <input type="radio" name="exercise-ch3-ex1" class="option-radio" id="option-b">
+        <label for="option-b">Deux taches distinctes correspondant à spin up et spin down</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, la quantification impose exactement deux états.">
+        <input type="radio" name="exercise-ch3-ex1" class="option-radio" id="option-c">
+        <label for="option-c">Une tache unique au centre</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, le nombre de taches n'est pas aléatoire ; c'est toujours deux.">
+        <input type="radio" name="exercise-ch3-ex1" class="option-radio" id="option-d">
+        <label for="option-d">Un nombre aléatoire de taches</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">2. Opérateurs Hermitiens et valeurs propres</h2>
+
+  <p>
+    Chaque question physique ("Quel est le spin ? Quelle est l'énergie ?") est encodée par un 
+    <strong>opérateur Hermitien</strong>. Les valeurs que cet opérateur peut retourner sont ses 
+    <strong>valeurs propres</strong>. Les états qui donnent ces valeurs avec certitude sont ses 
+    <strong>vecteurs propres</strong>.
+  </p>
+
+  <div class="subsection">
+    <h3 class="subsection-title">2.1 Équation aux valeurs propres</h3>
+
+    <p>
+      Pour un opérateur $\hat{O}$ et un vecteur propre $\ket{\psi}$, avec valeur propre $\lambda$ :
+    </p>
+
+    <div class="equation-box">
+      $$\hat{O}\ket{\psi} = \lambda \ket{\psi}$$
+    </div>
+
+    <p>
+      <strong>Exemple avec le spin :</strong> L'opérateur $\hat{S}_z$ appliqué à l'état $\ket{+}$ 
+      (spin up) redonne le même état multiplié par $+\hbar/2$ :
+    </p>
+
+    <div class="equation-box">
+      $$\hat{S}_z \ket{+} = \frac{\hbar}{2}\ket{+}$$
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">2.2 Propriétés des opérateurs Hermitiens</h3>
+
+    <div class="info-box">
+      <ul>
+        <li><strong>Valeurs propres réelles :</strong> Toutes les valeurs propres sont des nombres réels (essentielles pour les observables)</li>
+        <li><strong>Vecteurs propres orthogonaux :</strong> Les vecteurs propres correspondant à différentes valeurs propres sont orthogonaux</li>
+        <li><strong>Ensemble complet :</strong> Les vecteurs propres forment une base orthonormale complète</li>
+        <li><strong>Défini par :</strong> $\hat{O}^\dagger = \hat{O}$ (l'adjoint égale l'opérateur)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch3-ex2">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 3.2 : Identification de valeurs propres</h4>
+      <span class="exercise-difficulty difficulty-medium">Moyen</span>
+    </div>
+
+    <div class="exercise-question">
+      Si $\hat{S}_z\ket{+} = \frac{\hbar}{2}\ket{+}$, quelle est la valeur propre associée à l'état $\ket{+}$ ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="false" 
+           data-explanation="Non, ceci est une autre valeur propre du spin.">
+        <input type="radio" name="exercise-ch3-ex2" class="option-radio" id="option-a">
+        <label for="option-a">$$-\frac{\hbar}{2}$$</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="true" 
+           data-explanation="Correct ! Pour l'état $\ket{+}$, la valeur propre de $\hat{S}_z$ est $+\hbar/2$.">
+        <input type="radio" name="exercise-ch3-ex2" class="option-radio" id="option-b">
+        <label for="option-b">$$+\frac{\hbar}{2}$$</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, c'est la constante de Planck réduite, mais pas la valeur propre.">
+        <input type="radio" name="exercise-ch3-ex2" class="option-radio" id="option-c">
+        <label for="option-c">$$\hbar$$</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, zéro n'est pas une valeur propre du spin.">
+        <input type="radio" name="exercise-ch3-ex2" class="option-radio" id="option-d">
+        <label for="option-d">$$0$$</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">3. L'algèbre des opérateurs</h2>
+
+  <p>
+    Les opérateurs se manipulent comme des nombres, mais avec une différence cruciale : 
+    la <strong>multiplication n'est pas commutative</strong>. L'ordre dans lequel on applique 
+    les opérateurs importe.
+  </p>
+
+  <div class="subsection">
+    <h3 class="subsection-title">3.1 Commutateur et incompatibilité</h3>
+
+    <p>
+      Le <strong>commutateur</strong> de deux opérateurs mesure le degré de leur incompatibilité :
+    </p>
+
+    <div class="equation-box">
+      $$[\hat{A}, \hat{B}] = \hat{A}\hat{B} - \hat{B}\hat{A}$$
+    </div>
+
+    <div class="info-box">
+      <ul>
+        <li>Si $[\hat{A}, \hat{B}] = 0$ (commutent), les opérateurs sont <strong>compatibles</strong> et peuvent avoir une base commune de vecteurs propres</li>
+        <li>Si $[\hat{A}, \hat{B}] \neq 0$ (ne commutent pas), les opérateurs sont <strong>incompatibles</strong>. Mesurer l'un efface l'information de l'autre</li>
+      </ul>
+    </div>
+
+    <p><strong>Exemple :</strong> Les opérateurs de position $\hat{x}$ et de moment $\hat{p}$ ne commutent pas :</p>
+
+    <div class="equation-box">
+      $$[\hat{x}, \hat{p}] = i\hbar \mathbb{I}$$
+    </div>
+
+    <p>C'est la relation de commutation de Heisenberg, fondamentale en mécanique quantique.</p>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">3.2 Matrices de Pauli</h3>
+
+    <p>
+      Les <strong>matrices de Pauli</strong> sont les trois matrices Hermitienne qui décrivent le spin :
+    </p>
+
+    <div class="equation-box">
+      $$\sigma_x = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}, \quad 
+      \sigma_y = \begin{pmatrix} 0 & -i \\ i & 0 \end{pmatrix}, \quad 
+      \sigma_z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}$$
+    </div>
+
+    <div class="info-box">
+      <p><strong>Propriétés :</strong></p>
+      <ul>
+        <li>Chaque matrice au carré donne l'identité : $\sigma_i^2 = \mathbb{I}$</li>
+        <li>Elles satisfont $\{\sigma_i, \sigma_j\} = 2\delta_{ij}\mathbb{I}$ (anti-commutateur)</li>
+        <li>Elles satisfont $[\sigma_i, \sigma_j] = 2i\epsilon_{ijk}\sigma_k$ (commutateur)</li>
+        <li>Elles ont pour valeurs propres $\pm 1$</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch3-ex3">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 3.3 : Relations de commutation</h4>
+      <span class="exercise-difficulty difficulty-hard">Difficile</span>
+    </div>
+
+    <div class="exercise-question">
+      Pour deux opérateurs quelconques, si $[\hat{A}, \hat{B}] = 0$, que peut-on dire 
+      sur la possibilité de les mesurer simultanément avec précision arbitraire ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="true" 
+           data-explanation="Correct ! Si les opérateurs commutent, ils sont compatibles et on peut les mesurer simultanément.">
+        <input type="radio" name="exercise-ch3-ex3" class="option-radio" id="option-a">
+        <label for="option-a">On peut les mesurer simultanément avec précision arbitraire</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="false" 
+           data-explanation="Non, c'est le contraire. Les opérateurs commutants sont compatibles.">
+        <input type="radio" name="exercise-ch3-ex3" class="option-radio" id="option-b">
+        <label for="option-b">On ne peut pas les mesurer simultanément</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, la commutativity n'a rien à voir avec le type de mesure.">
+        <input type="radio" name="exercise-ch3-ex3" class="option-radio" id="option-c">
+        <label for="option-c">Il faut les mesurer avec une source externe</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, les opérateurs commutants permettent une mesure simultanée précise.">
+        <input type="radio" name="exercise-ch3-ex3" class="option-radio" id="option-d">
+        <label for="option-d">La commutativity n'a aucun effet sur les mesures</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">4. Inégalité de Heisenberg</h2>
+
+  <p>
+    L'incompatibilité de certains opérateurs traduit un principe fondamental de la mécanique quantique : 
+    on <strong>ne peut pas connaître</strong> avec précision arbitraire deux observables conjuguées 
+    simultanément. C'est le <strong>principe d'incertitude de Heisenberg</strong>.
+  </p>
+
+  <div class="equation-box">
+    $$\Delta x \cdot \Delta p \geq \frac{\hbar}{2}$$
+  </div>
+
+  <div class="info-box alert-box">
+    <h4>📊 Signification physique</h4>
+    <p>
+      Le produit des incertitudes sur la position et le moment ne peut jamais être inférieur à 
+      $\hbar/2$. Ce n'est pas une limitation technologique, c'est une <strong>limite fondamentale</strong> 
+      imposée par la nature même de la réalité quantique. Plus on connaît la position avec précision, 
+      moins on peut connaître le moment, et vice-versa.
+    </p>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch3-ex4">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 3.4 : Inégalité de Heisenberg</h4>
+      <span class="exercise-difficulty difficulty-medium">Moyen</span>
+    </div>
+
+    <div class="exercise-question">
+      Si on mesure la position d'une particule avec une incertitude $\Delta x = 10^{-10}$ m, 
+      quelle est l'incertitude minimale sur le moment ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="false" 
+           data-explanation="Non, c'est trop petit. L'incertitude sur le moment doit être plus grande.">
+        <input type="radio" name="exercise-ch3-ex4" class="option-radio" id="option-a">
+        <label for="option-a">$$\Delta p \geq 10^{-25}$$ kg·m/s</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="true" 
+           data-explanation="Correct ! Avec $\Delta x = 10^{-10}$ m, on a $\Delta p \geq \hbar/(2\Delta x) \approx 5.3 \times 10^{-26}$ kg·m/s.">
+        <input type="radio" name="exercise-ch3-ex4" class="option-radio" id="option-b">
+        <label for="option-b">$$\Delta p \geq 5.3 \times 10^{-26}$$ kg·m/s</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, cette valeur est supérieure à ce que demande Heisenberg.">
+        <input type="radio" name="exercise-ch3-ex4" class="option-radio" id="option-c">
+        <label for="option-c">$$\Delta p \geq 10^{-20}$$ kg·m/s</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, zéro n'est jamais possible pour les variables conjuguées.">
+        <input type="radio" name="exercise-ch3-ex4" class="option-radio" id="option-d">
+        <label for="option-d">$$\Delta p \geq 0$$ (incertitude nulle possible)</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">5. Résumé et concepts clés</h2>
+
+  <div class="summary-box">
+    <h3>🎯 Points essentiels</h3>
+    <ul>
+      <li><strong>Quantification :</strong> Les résultats de mesure sont discrets (valeurs propres)</li>
+      <li><strong>Opérateurs :</strong> Chaque observable est représentée par un opérateur Hermitien</li>
+      <li><strong>Superposition :</strong> Avant mesure, le système est une superposition d'états propres</li>
+      <li><strong>Effondrement :</strong> La mesure force le système à choisir un des états propres</li>
+      <li><strong>Incompatibilité :</strong> Les opérateurs qui ne commutent pas sont incompatibles</li>
+      <li><strong>Heisenberg :</strong> L'inégalité limite la connaissance simultanée d'observables conjuguées</li>
+    </ul>
+  </div>
+</section>
+
+<script src="../../assets/js/simulation-stern-gerlach.js"></script>
+
+<script>
+// Initialiser la simulation de Stern-Gerlach après le chargement du chapitre
+if (window.SternGerlachSimulation && document.getElementById('stern-gerlach-canvas')) {
+  if (window.sternGerlachSimulation) {
+    window.sternGerlachSimulation.destroy();
+  }
+  window.sternGerlachSimulation = new window.SternGerlachSimulation('stern-gerlach-canvas');
+}
+</script>
+
+<!-- Résumé du Chapitre 3 -->
+<div class="interactive-element concept-box">
+  <h3>🧠 Résumé du chapitre</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <div>
+      <h4>🔬 Concepts clés maîtrisés</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li>✅ Expérience de Stern-Gerlach</li>
+        <li>✅ Quantification du moment magnétique</li>
+        <li>✅ Opérateurs Hermitiens</li>
+        <li>✅ Valeurs et vecteurs propres</li>
+        <li>✅ Projecteurs quantiques</li>
+        <li>✅ Relations de commutation</li>
+      </ul>
+    </div>
+    <div>
+      <h4>📚 Équations importantes</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li>$\hat{A}|\psi\rangle = a|\psi\rangle$ (équation aux valeurs propres)</li>
+        <li>$P_a = |\langle a|\psi\rangle|^2$ (probabilité)</li>
+        <li>$[\hat{A}, \hat{B}] = \hat{A}\hat{B} - \hat{B}\hat{A}$ (commutateur)</li>
+        <li>$\hat{A}^\dagger = \hat{A}$ (opérateur Hermitien)</li>
+      </ul>
+    </div>
+    <div>
+      <h4>🎯 Points clés à retenir</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li>La mesure sélectionne un état propre</li>
+        <li>Les observables sont des opérateurs Hermitiens</li>
+        <li>Non-commutativité → incompatibilité des observables</li>
+        <li>L'expérience de Stern-Gerlach démontre la quantification</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="chapter-navigation">
+  <a href="chapter2.html" class="nav-btn" id="prev-chapter">
+    ← Chapitre 2 : Mesures et Opérateurs Quantiques
+  </a>
+  <a href="chapter4.html" class="nav-btn" id="next-chapter">
+    Chapitre 4 : Les postulats de la mécanique quantique →
+  </a>
+</div>

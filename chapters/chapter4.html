@@ -1,0 +1,608 @@
+<div class="chapter-header fade-in">
+  <h1 class="chapter-title">Les postulats de la mécanique quantique</h1>
+  <p class="chapter-subtitle">Les fondations mathématiques de la théorie quantique</p>
+</div>
+
+<div class="info-box">
+  <h3>🎯 Objectifs du chapitre</h3>
+  <ul>
+    <li>Comprendre les cinq postulats fondamentaux de la mécanique quantique</li>
+    <li>Maîtriser l'équation de Schrödinger et son interprétation</li>
+    <li>Apprendre les principes de superposition et d'effondrement</li>
+    <li>Explorer l'évolution temporelle des états quantiques</li>
+    <li>Découvrir les relations entre postulats et observations expérimentales</li>
+  </ul>
+</div>
+
+<section class="section">
+  <h2 class="section-title">1. Postulat 1 : L'espace des états</h2>
+
+  <p>
+    Chaque système quantique est complètement décrit par un <strong>vecteur d'état</strong> 
+    $\ket{\psi}$ appartenant à un <strong>espace de Hilbert</strong> complexe.
+  </p>
+
+  <div class="principle-box">
+    <h4>📐 Définition : Espace de Hilbert</h4>
+    <p>
+      Un espace de Hilbert est un espace vectoriel complexe doté d'un produit scalaire 
+      (appelé produit interne) qui lui confère une métrique. Il satisfait :
+    </p>
+    <div class="equation-box">
+      $$\langle \psi | \phi \rangle = \text{nombre complexe}$$
+      $$\langle \psi | \psi \rangle = \|\psi\|^2 \geq 0 \text{ (réel et positif)}$$
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">1.1 Propriétés essentielles</h3>
+    <ul>
+      <li><strong>Linéarité :</strong> Si $\ket{\psi}$ et $\ket{\phi}$ sont dans l'espace, alors $a\ket{\psi} + b\ket{\phi}$ y est aussi</li>
+      <li><strong>Complétude :</strong> Toute série de Cauchy converge vers un élément de l'espace</li>
+      <li><strong>Séparabilité :</strong> L'espace possède une base dénombrable</li>
+    </ul>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch4-ex1">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 4.1 : Espace de Hilbert</h4>
+      <span class="exercise-difficulty difficulty-easy">Facile</span>
+    </div>
+
+    <div class="exercise-question">
+      Si $\ket{\psi} = \alpha\ket{0} + \beta\ket{1}$ est un état quantique à deux niveaux, 
+      que représentent $\alpha$ et $\beta$ ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="false" 
+           data-explanation="Non, ce sont les amplitudes de probabilité complexes.">
+        <input type="radio" name="exercise-ch4-ex1" class="option-radio" id="option-a">
+        <label for="option-a">Les énergies des deux niveaux</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="true" 
+           data-explanation="Correct ! $\alpha$ et $\beta$ sont les amplitudes de probabilité complexes pour chaque état.">
+        <input type="radio" name="exercise-ch4-ex1" class="option-radio" id="option-b">
+        <label for="option-b">Les amplitudes de probabilité complexes</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, ce sont les valeurs propres de l'Hamiltonien.">
+        <input type="radio" name="exercise-ch4-ex1" class="option-radio" id="option-c">
+        <label for="option-c">Les phases d'oscillation</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, ce sont des coefficients complexes, pas des probabilités directement.">
+        <input type="radio" name="exercise-ch4-ex1" class="option-radio" id="option-d">
+        <label for="option-d">Les probabilités classiques</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">2. Postulat 2 : Les observables et opérateurs</h2>
+
+  <p>
+    Chaque grandeur physique mesurable (observable) est représentée par un 
+    <strong>opérateur Hermitien</strong> agissant sur l'espace de Hilbert.
+  </p>
+
+  <div class="principle-box">
+    <h4>🔍 Correspondance physique-mathématique</h4>
+    <p>
+      Observable (physique) ↔ Opérateur Hermitien (mathématique)
+    </p>
+    <ul>
+      <li>Position : $\hat{x}$</li>
+      <li>Moment : $\hat{p} = -i\hbar\frac{d}{dx}$</li>
+      <li>Énergie : $\hat{H}$ (Hamiltonien)</li>
+      <li>Spin : $\hat{S}_x, \hat{S}_y, \hat{S}_z$</li>
+      <li>Moment angulaire : $\hat{L}_x, \hat{L}_y, \hat{L}_z$</li>
+    </ul>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch4-ex2">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 4.2 : Identification d'opérateurs</h4>
+      <span class="exercise-difficulty difficulty-medium">Moyen</span>
+    </div>
+
+    <div class="exercise-question">
+      Quel opérateur représente la mesure de l'énergie d'un système quantique ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="false" 
+           data-explanation="Non, c'est l'opérateur de position.">
+        <input type="radio" name="exercise-ch4-ex2" class="option-radio" id="option-a">
+        <label for="option-a">$\hat{x}$</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="true" 
+           data-explanation="Correct ! L'Hamiltonien $\hat{H}$ représente l'observable d'énergie.">
+        <input type="radio" name="exercise-ch4-ex2" class="option-radio" id="option-b">
+        <label for="option-b">$\hat{H}$ (Hamiltonien)</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, c'est l'opérateur de moment.">
+        <input type="radio" name="exercise-ch4-ex2" class="option-radio" id="option-c">
+        <label for="option-c">$\hat{p}$</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, c'est l'opérateur de moment angulaire.">
+        <input type="radio" name="exercise-ch4-ex2" class="option-radio" id="option-d">
+        <label for="option-d">$\hat{L}$</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">3. Postulat 3 : Les résultats de mesure</h2>
+
+  <p>
+    Le seul résultat possible d'une mesure d'une observable $\hat{A}$ est l'une de ses 
+    <strong>valeurs propres</strong>. La probabilité d'obtenir une valeur propre spécifique 
+    dépend de l'état initial.
+  </p>
+
+  <div class="subsection">
+    <h3 class="subsection-title">3.1 Décomposition spectrale</h3>
+
+    <p>
+      Si $\hat{A}$ a un spectre discret, tout état peut être écrit comme superposition 
+      de ses vecteurs propres :
+    </p>
+
+    <div class="equation-box">
+      $$\ket{\psi} = \sum_n c_n \ket{a_n}$$
+    </div>
+
+    <p>
+      où $\hat{A}\ket{a_n} = a_n\ket{a_n}$ et la probabilité d'obtenir $a_n$ est :
+    </p>
+
+    <div class="equation-box">
+      $$P(a_n) = |c_n|^2$$
+    </div>
+  </div>
+
+  <div class="interactive-element simulation-box">
+    <h4>🧮 Calculateur : Probabilités de mesure</h4>
+    <p>Explorez comment les amplitudes complexes se transforment en probabilités de mesure.</p>
+    <div class="simulation-controls">
+      <div class="control-group">
+        <label>Amplitude pour état 0: $\alpha$ = ?</label>
+        <input type="text" id="alpha-real" placeholder="Partie réelle" value="0.7" style="width: 80px;">
+        <span> + </span>
+        <input type="text" id="alpha-imag" placeholder="Partie imag." value="0" style="width: 80px;">
+        <span>i</span>
+      </div>
+      <div class="control-group">
+        <label>Amplitude pour état 1: $\beta$ = ?</label>
+        <input type="text" id="beta-real" placeholder="Partie réelle" value="0.7" style="width: 80px;">
+        <span> + </span>
+        <input type="text" id="beta-imag" placeholder="Partie imag." value="0" style="width: 80px;">
+        <span>i</span>
+      </div>
+      <button class="control-button" id="calc-probs">Calculer probabilités</button>
+    </div>
+    <div class="simulation-info">
+      <p>Normalisation: <span id="norm-check">?</span></p>
+      <p>Probabilité de mesurer 0: <span id="prob-0">?</span></p>
+      <p>Probabilité de mesurer 1: <span id="prob-1">?</span></p>
+    </div>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch4-ex3">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 4.3 : Calcul de probabilité</h4>
+      <span class="exercise-difficulty difficulty-medium">Moyen</span>
+    </div>
+
+    <div class="exercise-question">
+      Si $\ket{\psi} = \frac{1}{\sqrt{2}}(\ket{0} + \ket{1})$, quelle est la probabilité de mesurer 0 ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="false" 
+           data-explanation="Non, c'est le carré de l'amplitude qui donne la probabilité.">
+        <input type="radio" name="exercise-ch4-ex3" class="option-radio" id="option-a">
+        <label for="option-a">$$\frac{1}{\sqrt{2}}$$</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="true" 
+           data-explanation="Correct ! $P(0) = |1/\sqrt{2}|^2 = 1/2$.">
+        <input type="radio" name="exercise-ch4-ex3" class="option-radio" id="option-b">
+        <label for="option-b">$$\frac{1}{2}$$</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, ce serait le cas pour un état différent.">
+        <input type="radio" name="exercise-ch4-ex3" class="option-radio" id="option-c">
+        <label for="option-c">$$1$$</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, c'est le carré du module de l'amplitude.">
+        <input type="radio" name="exercise-ch4-ex3" class="option-radio" id="option-d">
+        <label for="option-d">$$0$$</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">4. Postulat 4 : L'équation de Schrödinger</h2>
+
+  <p>
+    L'évolution temporelle d'un système quantique fermé est gouvernée par l'équation de Schrödinger dépendant du temps :
+  </p>
+
+  <div class="equation-box">
+    $$i\hbar\frac{\partial\ket{\psi(t)}}{\partial t} = \hat{H}\ket{\psi(t)}$$
+  </div>
+
+  <div class="principle-box">
+    <h4>⏱️ Interprétation</h4>
+    <p>
+      Cette équation déterministe décrit comment l'état $\ket{\psi(t)}$ change avec le temps sous 
+      l'influence de l'Hamiltonien $\hat{H}$ (opérateur énergie totale). Elle est déterministe 
+      (contrairement à la mesure, qui est probabiliste).
+    </p>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">4.1 Solution générale</h3>
+
+    <p>
+      Si l'Hamiltonien est indépendant du temps, la solution s'écrit :
+    </p>
+
+    <div class="equation-box">
+      $$\ket{\psi(t)} = e^{-i\hat{H}t/\hbar}\ket{\psi(0)} = \hat{U}(t)\ket{\psi(0)}$$
+    </div>
+
+    <p>
+      où $\hat{U}(t) = e^{-i\hat{H}t/\hbar}$ est l'<strong>opérateur d'évolution unitaire</strong>.
+    </p>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">4.2 États stationnaires</h3>
+
+    <p>
+      Les états propres de l'Hamiltonien $\ket{n}$ (avec $\hat{H}\ket{n} = E_n\ket{n}$) 
+      évoluent simplement en phase :
+    </p>
+
+    <div class="equation-box">
+      $$\ket{\psi_n(t)} = e^{-iE_n t/\hbar}\ket{n}$$
+    </div>
+
+    <p>
+      Ces états conservent leur norme et leurs probabilités de mesure sont constantes dans le temps.
+    </p>
+  </div>
+
+  <div class="interactive-element simulation-box">
+    <h4>📈 Simulation : Évolution d'un paquet d'ondes</h4>
+    <p>Observez comment l'amplitude de probabilité évolue dans le temps selon l'équation de Schrödinger.</p>
+    <div class="simulation-canvas">
+      <canvas id="schrodinger-canvas" width="600" height="350"></canvas>
+    </div>
+    <div class="simulation-controls">
+      <button class="control-button" id="sch-start">Démarrer</button>
+      <button class="control-button" id="sch-pause">Pause</button>
+      <button class="control-button" id="sch-reset">Réinitialiser</button>
+      <div class="control-group">
+        <label>Vitesse</label>
+        <input type="range" class="control-slider" id="sch-speed" min="0.1" max="5" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="simulation-info">
+      <p>Temps: <span id="sch-time">0</span> unités</p>
+      <p>Énergie moyenne: <span id="sch-energy">0</span></p>
+    </div>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch4-ex4">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 4.4 : Équation de Schrödinger</h4>
+      <span class="exercise-difficulty difficulty-medium">Moyen</span>
+    </div>
+
+    <div class="exercise-question">
+      Si un système est dans un état propre d'énergie $\ket{n}$ avec énergie $E_n$, 
+      comment évolue-t-il selon Schrödinger ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="false" 
+           data-explanation="Non, l'état n'évolue pas uniquement en magnitude, mais en phase.">
+        <input type="radio" name="exercise-ch4-ex4" class="option-radio" id="option-a">
+        <label for="option-a">L'amplitude diminue exponentiellement : $e^{-E_n t/\hbar}$</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="true" 
+           data-explanation="Correct ! Les états propres d'énergie évoluent en phase selon $e^{-iE_n t/\hbar}$.">
+        <input type="radio" name="exercise-ch4-ex4" class="option-radio" id="option-b">
+        <label for="option-b">L'état acquiert une phase : $\ket{n}(t) = e^{-iE_n t/\hbar}\ket{n}$</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, les états propres de l'Hamiltonien sont stationnaires.">
+        <input type="radio" name="exercise-ch4-ex4" class="option-radio" id="option-c">
+        <label for="option-c">L'état change vers un autre état propre</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, c'est déterministe selon l'équation de Schrödinger.">
+        <input type="radio" name="exercise-ch4-ex4" class="option-radio" id="option-d">
+        <label for="option-d">L'évolution est aléatoire</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">5. Postulat 5 : L'effondrement du paquet d'ondes</h2>
+
+  <p>
+    Lors d'une mesure d'une observable $\hat{A}$ produisant une valeur propre $a_n$, 
+    l'état du système s'<strong>effondre</strong> instantanément vers le vecteur propre 
+    correspondant $\ket{a_n}$.
+  </p>
+
+  <div class="principle-box">
+    <h4>⚡ La réduction du paquet d'ondes</h4>
+    <p>
+      Avant mesure : $\ket{\psi} = \sum_n c_n\ket{a_n}$ (superposition)
+    </p>
+    <p>
+      Après mesure (résultat $a_n$) : $\ket{\psi'} = \ket{a_n}$ (état propre)
+    </p>
+  </div>
+
+  <div class="info-box alert-box">
+    <h4>🚀 Dynamique discontinue</h4>
+    <p>
+      Entre les mesures, l'état évolue <strong>continûment</strong> et <strong>déterministiquement</strong> 
+      selon Schrödinger. Mais à l'instant de la mesure, il subit une transformation 
+      <strong>discontinue</strong> et <strong>aléatoire</strong>. C'est le contraste fondamental 
+      entre l'évolution unitaire et l'effondrement.
+    </p>
+  </div>
+
+  <div class="exercise-container" data-exercise-id="ch4-ex5">
+    <div class="exercise-header">
+      <h4 class="exercise-title">Exercice 4.5 : Réduction du paquet d'ondes</h4>
+      <span class="exercise-difficulty difficulty-hard">Difficile</span>
+    </div>
+
+    <div class="exercise-question">
+      Si on mesure une observable et on obtient le résultat correspondant au vecteur propre $\ket{a_1}$, 
+      puis on mesure immédiatement la même observable à nouveau, que se passe-t-il ?
+    </div>
+
+    <div class="exercise-options">
+      <div class="option-item" data-option-id="a" data-correct="true" 
+           data-explanation="Correct ! Après l'effondrement vers $\ket{a_1}$, une seconde mesure donne certainement le même résultat $a_1$.">
+        <input type="radio" name="exercise-ch4-ex5" class="option-radio" id="option-a">
+        <label for="option-a">On obtient certainement le même résultat $a_1$</label>
+      </div>
+      <div class="option-item" data-option-id="b" data-correct="false" 
+           data-explanation="Non, la réduction en $\ket{a_1}$ assure que la seconde mesure redonne $a_1$.">
+        <input type="radio" name="exercise-ch4-ex5" class="option-radio" id="option-b">
+        <label for="option-b">On obtient un résultat aléatoire différent</label>
+      </div>
+      <div class="option-item" data-option-id="c" data-correct="false" 
+           data-explanation="Non, on ne change pas d'observable, donc elle donne le même résultat.">
+        <input type="radio" name="exercise-ch4-ex5" class="option-radio" id="option-c">
+        <label for="option-c">On obtient une superposition de résultats</label>
+      </div>
+      <div class="option-item" data-option-id="d" data-correct="false" 
+           data-explanation="Non, l'effondrement a eu lieu et assure la répétabilité.">
+        <input type="radio" name="exercise-ch4-ex5" class="option-radio" id="option-d">
+        <label for="option-d">Le résultat dépend de la durée entre les mesures</label>
+      </div>
+    </div>
+
+    <div class="exercise-actions">
+      <button class="btn btn-submit">Vérifier la réponse</button>
+    </div>
+
+    <div class="exercise-feedback" style="display: none;"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">6. Résumé des postulats</h2>
+
+  <div class="summary-box">
+    <h3>🎯 Les cinq piliers de la mécanique quantique</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr style="background: #f0f4f8;">
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Postulat</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Concept clé</th>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px;"><strong>1. États</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px;">Espace de Hilbert, vecteur d'état $\ket{\psi}$</td>
+      </tr>
+      <tr style="background: #f9f9f9;">
+        <td style="border: 1px solid #ddd; padding: 10px;"><strong>2. Observables</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px;">Opérateurs Hermitiens</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px;"><strong>3. Mesure</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px;">Valeurs propres, probabilités $|c_n|^2$</td>
+      </tr>
+      <tr style="background: #f9f9f9;">
+        <td style="border: 1px solid #ddd; padding: 10px;"><strong>4. Évolution</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px;">Équation de Schrödinger, unitaire</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px;"><strong>5. Effondrement</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px;">Réduction du paquet d'ondes</td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<script>
+// Probability calculator
+document.getElementById('calc-probs').addEventListener('click', () => {
+  const alphaReal = parseFloat(document.getElementById('alpha-real').value) || 0;
+  const alphaImag = parseFloat(document.getElementById('alpha-imag').value) || 0;
+  const betaReal = parseFloat(document.getElementById('beta-real').value) || 0;
+  const betaImag = parseFloat(document.getElementById('beta-imag').value) || 0;
+
+  const prob0 = alphaReal * alphaReal + alphaImag * alphaImag;
+  const prob1 = betaReal * betaReal + betaImag * betaImag;
+  const norm = prob0 + prob1;
+
+  document.getElementById('prob-0').textContent = (prob0.toFixed(3));
+  document.getElementById('prob-1').textContent = (prob1.toFixed(3));
+  document.getElementById('norm-check').textContent = 
+    Math.abs(norm - 1) < 0.01 ? '✅ Normalisée' : '❌ Non normalisée (somme = ' + norm.toFixed(3) + ')';
+});
+
+// Schrödinger simulation
+const schCanvas = document.getElementById('schrodinger-canvas');
+if (schCanvas) {
+  const ctx = schCanvas.getContext('2d');
+  let schRunning = false;
+  let schTime = 0;
+  let schSpeed = 1;
+
+  document.getElementById('sch-start').addEventListener('click', () => {
+    schRunning = true;
+  });
+
+  document.getElementById('sch-pause').addEventListener('click', () => {
+    schRunning = false;
+  });
+
+  document.getElementById('sch-reset').addEventListener('click', () => {
+    schTime = 0;
+    schRunning = false;
+  });
+
+  document.getElementById('sch-speed').addEventListener('input', (e) => {
+    schSpeed = parseFloat(e.target.value);
+  });
+
+  function drawSchrodinger() {
+    ctx.fillStyle = '#f0f4f8';
+    ctx.fillRect(0, 0, schCanvas.width, schCanvas.height);
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(50, 300);
+    ctx.lineTo(550, 300);
+    ctx.stroke();
+
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 12px Arial';
+    ctx.fillText('Position', 20, 310);
+    ctx.fillText('Temps', 520, 320);
+
+    // Wave packet
+    ctx.strokeStyle = '#3498db';
+    ctx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+    ctx.beginPath();
+
+    for (let x = 50; x < 550; x++) {
+      const phase = (x - 300) * (x - 300) / 10000 - schTime * 0.1;
+      const amp = Math.exp(-(x - 300) * (x - 300) / 20000) * Math.cos(phase);
+      const y = 300 - amp * 100;
+      if (x === 50) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+
+    ctx.stroke();
+
+    // Energy indicator
+    const energy = (schTime * 0.1 % 2);
+    ctx.fillStyle = '#2ecc71';
+    ctx.fillRect(50, 50, 100, 20);
+    ctx.fillStyle = '#fff';
+    ctx.fillText('E ≈ ' + energy.toFixed(2), 60, 65);
+
+    if (schRunning) {
+      schTime += schSpeed * 0.5;
+    }
+
+    document.getElementById('sch-time').textContent = schTime.toFixed(1);
+    document.getElementById('sch-energy').textContent = energy.toFixed(2);
+
+    requestAnimationFrame(drawSchrodinger);
+  }
+
+  drawSchrodinger();
+}
+</script>
+
+<!-- Résumé du Chapitre 4 -->
+<div class="interactive-element concept-box">
+  <h3>🧠 Résumé du chapitre</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <div>
+      <h4>🔬 Les 5 Postulats</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li>✅ Postulat 1: Espace des états</li>
+        <li>✅ Postulat 2: Observables et opérateurs</li>
+        <li>✅ Postulat 3: Résultats de mesure</li>
+        <li>✅ Postulat 4: Probabilités (Règle de Born)</li>
+        <li>✅ Postulat 5: Effondrement d'état</li>
+      </ul>
+    </div>
+    <div>
+      <h4>📚 Équations fondamentales</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li>$i\hbar\frac{\partial}{\partial t}|\psi\rangle = \hat{H}|\psi\rangle$ (Schrödinger)</li>
+        <li>$P(a) = |\langle a|\psi\rangle|^2$ (Règle de Born)</li>
+        <li>$\hat{H}|\psi\rangle = E|\psi\rangle$ (valeurs propres d'énergie)</li>
+        <li>$|\psi(t)\rangle = e^{-i\hat{H}t/\hbar}|\psi(0)\rangle$ (évolution)</li>
+      </ul>
+    </div>
+    <div>
+      <h4>🎯 Concepts essentiels</h4>
+      <ul style="list-style: none; padding: 0;">
+        <li>Espace de Hilbert et normalisation</li>
+        <li>Superposition et interférences quantiques</li>
+        <li>Équation de Schrödinger dépendante du temps</li>
+        <li>Conservation de la probabilité</li>
+        <li>Évolution unitaire et déterminisme</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="chapter-navigation">
+  <a href="chapter3.html" class="nav-btn" id="prev-chapter">
+    ← Chapitre 3 : Mesure et opérateurs
+  </a>
+  <a href="chapter5.html" class="nav-btn" id="next-chapter">
+    Chapitre 5 : Systèmes multi-qubits et intrication →
+  </a>
+</div>
