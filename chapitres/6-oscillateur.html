@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 6 · Oscillateur harmonique — Carnet PHY321</title>
+<meta name="description" content="Opérateurs d’échelle, états de Fock, fonctions propres et états cohérents : laboratoires interactifs et exercices corrigés du chapitre 6 de PHY321 (Université de Yaoundé I).">
+<meta property="og:title" content="Oscillateur harmonique quantique — Carnet PHY321">
+<meta property="og:description" content="Montez l’échelle avec a†, comparez |ψ_n|² à la densité classique, faites osciller un état cohérent : manipulez, mesurez, vérifiez.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script src="../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+<script defer src="../assets/js/labs/ch6.js"></script>
+</head>
+<body data-chapter="ch6">
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <a class="brand" href="../index.html"><b>Carnet PHY321</b><span>Mécanique quantique · UY1</span></a>
+  <nav aria-label="Chapitres">
+    <a href="1-etats-quantiques.html">1 · États</a>
+    <a href="2-mesure-operateurs.html">2 · Mesure</a>
+    <a href="3-dynamique.html">3 · Dynamique</a>
+    <a href="4-intrication.html">4 · Intrication</a>
+    <a href="5-fonction-etat.html">5 · Espace continu</a>
+    <a href="6-oscillateur.html" aria-current="page">6 · Oscillateur</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Thème">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+  <span class="readbar" aria-hidden="true"></span>
+</header>
+
+<div class="chapter-layout">
+  <aside class="toc" aria-label="Sommaire du chapitre">
+    <details>
+      <summary>Sommaire</summary>
+      <ol>
+        <li><a href="#s1"><span class="toc-num">6.1</span>Quantification de l’énergie</a></li>
+        <li><a href="#s1-3"><span class="toc-num">6.1.3</span>États de Fock en position</a></li>
+        <li><a href="#s2"><span class="toc-num">6.2</span>États cohérents</a></li>
+        <li><a href="#s3"><span class="toc-num">6.3</span>Exercices de synthèse</a></li>
+        <li><a href="#actu"><span class="toc-num">·</span>Où en est-on en 2026 ?</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main id="contenu">
+    <header class="chapter-head">
+      <span class="big-num" aria-hidden="true">6</span>
+      <p class="eyebrow">Chapitre 6 · CM 6 h + TD 3 h</p>
+      <h1>Oscillateur harmonique quantique</h1>
+      <p class="lede">Une masse au bout d’un ressort, une molécule qui vibre, un mode du champ électromagnétique : même hamiltonien, même échelle d’énergie à barreaux égaux. Deux opérateurs suffisent pour la parcourir.</p>
+      <ul class="goals">
+        <li>Écrire \(H\) avec \(a\) et \(a^\dagger\) et en déduire le spectre \(E_n = \hbar\omega(n+\tfrac12)\).</li>
+        <li>Appliquer \(a\) et \(a^\dagger\) à un état de Fock sans oublier les facteurs \(\sqrt n\) et \(\sqrt{n+1}\).</li>
+        <li>Lire sur \(\psi_n(x)\) le nombre de nœuds, la parité et l’effet tunnel hors de la zone classique.</li>
+        <li>Calculer \(\langle N\rangle\), \(\Delta N\) et \(P(n)\) pour un état cohérent, et expliquer pourquoi il décrit une oscillation classique.</li>
+      </ul>
+    </header>
+
+    <!-- ===================================================== 6.1 -->
+    <section class="section" id="s1">
+      <h2><span class="n">6.1</span>Quantification de l’énergie</h2>
+
+      <p>Classiquement, une particule de masse \(m\) rappelée par une force \(F = -kx\) oscille à la pulsation \(\omega = \sqrt{k/m}\). Son énergie peut prendre n’importe quelle valeur positive. Elle va et vient entre deux points de rebroussement \(\pm x_0\), et c’est près de ces bords, où elle ralentit, qu’on a le plus de chances de la trouver.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Définitions 6.1 — Opérateurs d’échelle</span>
+        <p>Avec la longueur \(\ell = \sqrt{\hbar/m\omega}\), on pose \(\hat X = X/\ell\) et \(\hat P = \ell P/\hbar\), qui vérifient \([\hat X, \hat P] = i\). Alors</p>
+        <div class="eq">$$H = \frac{P^2}{2m} + \frac12 m\omega^2 X^2 = \frac{\hbar\omega}{2}\left(\hat X^2 + \hat P^2\right),\qquad a = \frac{\hat X + i\hat P}{\sqrt2},\quad a^\dagger = \frac{\hat X - i\hat P}{\sqrt2}.$$</div>
+        <p>On trouve \([a, a^\dagger] = 1\) et \(H = \hbar\omega\left(N + \tfrac12\right)\) avec l’<strong>opérateur nombre</strong> \(N = a^\dagger a\), hermitien. \(a\) et \(a^\dagger\) ne sont pas hermitiens : ce ne sont pas des observables.</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">Principe 6.1 — Spectre de l’oscillateur</span>
+        <div class="eq">$$a\ket n = \sqrt n\,\ket{n-1},\qquad a\ket0 = 0,\qquad a^\dagger\ket n = \sqrt{n+1}\,\ket{n+1},\qquad \ket n = \frac{(a^\dagger)^n}{\sqrt{n!}}\ket0.$$</div>
+        <p>Les énergies sont \(E_n = \hbar\omega\left(n + \tfrac12\right)\), \(n = 0, 1, 2,\dots\) : des barreaux équidistants, espacés de \(\hbar\omega\). Le plus bas, \(E_0 = \tfrac12\hbar\omega\), est l’<strong>énergie du point zéro</strong>.</p>
+      </div>
+
+      <figure class="lab rise" data-lab="ladder" aria-labelledby="lab-ld-t">
+        <div class="lab-head"><h3 id="lab-ld-t">Monter et descendre l’échelle</h3><span class="tag">LABO 6.1</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent small" data-op="up" type="button">a†</button>
+              <button class="btn accent small" data-op="down" type="button">a</button>
+              <button class="btn ghost small" data-op="num" type="button">N</button>
+            </div>
+            <div class="btn-row">
+              <button class="btn ghost small" data-start="0" type="button">Repartir de |0⟩</button>
+              <button class="btn ghost small" data-start="3" type="button">Repartir de |3⟩</button>
+            </div>
+            <p class="mono" data-out="eq" aria-live="polite" style="margin:0;font-size:.95rem"></p>
+            <dl class="readout">
+              <div><dt>Coefficient</dt><dd data-out="c"></dd></div>
+              <div><dt>Norme²</dt><dd data-out="K"></dd></div>
+              <div><dt>Énergie</dt><dd data-out="E"></dd></div>
+            </dl>
+            <p class="legend" data-out="note" aria-live="polite"></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Partez de \(\ket3\) et comparez \(a\,a^\dagger\ket3 = 4\ket3\) avec \(a^\dagger a\ket3 = 3\ket3\) : l’écart vaut 1, c’est \([a, a^\dagger] = 1\). Puis appliquez \(a\) au vide : on obtient le vecteur nul, pas l’état \(\ket0\).</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Précision — d’où vient l’énergie du point zéro ?</span>
+        <p>Le cours l’attribue à un « principe d’action minimale ». Ce nom prête à confusion : le principe de moindre action est un principe variationnel classique, sans rapport. L’argument correct utilise l’inégalité de Heisenberg. Dans un état propre, \(\langle X\rangle = \langle P\rangle = 0\), donc</p>
+        <div class="eq">$$\begin{aligned}\langle H\rangle &= \frac{(\Delta P)^2}{2m} + \frac12 m\omega^2(\Delta X)^2\\ &\ge \frac{\hbar^2}{8m(\Delta X)^2} + \frac12 m\omega^2(\Delta X)^2 \ \ge\ \frac12\hbar\omega,\end{aligned}$$</div>
+        <p>le minimum étant atteint pour \((\Delta X)^2 = \hbar/2m\omega\), c’est-à-dire par la gaussienne \(\psi_0\).</p>
+      </div>
+
+      <div class="box history rise">
+        <p>En 1900, Planck obtient la loi du corps noir en supposant que les oscillateurs matériels de la paroi n’échangent l’énergie que par multiples de \(h\nu\). Il y voit d’abord un artifice de calcul. C’est Einstein, en 1905, qui attribue des quanta à la lumière elle-même. Les niveaux de Planck étaient \(nh\nu\) : le demi-quantum du point zéro n’apparaît qu’avec la mécanique quantique de 1925–1926.</p>
+      </div>
+
+      <article class="exo" data-id="6.1" data-num="0.0329" data-tol="0.03" data-ok="Exact : \(E_0 = \tfrac12\hbar\omega = \tfrac12 \times 6{,}58\times10^{-16} \times 10^{14} \approx 0{,}033\ \mathrm{eV}\)." data-ko="Utilisez \(E_0 = \tfrac12\hbar\omega\) avec \(\hbar = 6{,}58\times10^{-16}\ \mathrm{eV\,s}\).">
+        <div class="exo-head"><span class="num">Exercice 6.1</span><h3>Énergie du fondamental</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Un atome vibre dans un cristal à la pulsation \(\omega = 1{,}0\times10^{14}\ \mathrm{rad/s}\). Quelle est son énergie de point zéro, en eV ?</p>
+        <div class="num-answer"><label for="e61">E₀ =</label><input id="e61" type="text" inputmode="decimal" autocomplete="off"><span>eV</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="6.2" data-num="0.358" data-tol="0.02" data-ok="Oui : \(\Delta E = hc\tilde\nu = 1{,}24\times10^{-4}\ \mathrm{eV\,cm}\times 2886\ \mathrm{cm^{-1}} \approx 0{,}36\ \mathrm{eV}\)." data-ko="Utilisez \(\Delta E = hc\,\tilde\nu\) avec \(hc = 1{,}24\times10^{-4}\ \mathrm{eV\,cm}\).">
+        <div class="exo-head"><span class="num">Exercice 6.2</span><h3>Espacement des niveaux d’une molécule</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>La molécule HCl absorbe dans l’infrarouge au nombre d’onde \(\tilde\nu = 2\,886\ \mathrm{cm^{-1}}\), qui correspond au saut \(n = 0 \to 1\) de sa vibration. Quel est l’espacement \(\hbar\omega\) des niveaux, en eV ?</p>
+        <div class="num-answer"><label for="e62">ħω =</label><input id="e62" type="text" inputmode="decimal" autocomplete="off"><span>eV</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Pour aller plus loin</summary><div><p>À 300 K, \(k_BT \approx 0{,}026\ \mathrm{eV}\), soit environ 14 fois moins que \(\hbar\omega\). Le facteur de Boltzmann \(e^{-14}\approx 10^{-6}\) montre que presque toutes les molécules sont dans \(\ket0\) à température ambiante : la vibration est « gelée ». L’approximation harmonique vaut pour les premiers niveaux ; plus haut, les niveaux réels se resserrent.</p></div></details>
+      </article>
+
+      <article class="exo" data-id="6.3" data-num="2.44949" data-tol="0.005" data-ok="Exact : \(a^\dagger a^\dagger\ket1 = a^\dagger\sqrt2\ket2 = \sqrt2\sqrt3\ket3 = \sqrt6\ket3\)." data-ko="Appliquez \(a^\dagger\) deux fois, en multipliant à chaque étape par \(\sqrt{n+1}\). Vérifiez dans le labo 6.1.">
+        <div class="exo-head"><span class="num">Exercice 6.3</span><h3>Deux montées</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>On écrit \((a^\dagger)^2\ket1 = c\,\ket3\). Que vaut \(c\) ? (décimal ou forme exacte, ex. <code>sqrt(5)</code>)</p>
+        <div class="num-answer"><label for="e63">c =</label><input id="e63" type="text" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="6.4" data-answer="c">
+        <div class="exo-head"><span class="num">Exercice 6.4</span><h3>Annihiler le vide</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Que vaut \(a\ket0\) ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : |0⟩ n’est pas état propre de a avec la valeur propre 1. Le vide est un état normé, alors que a|0⟩ a une norme nulle : ⟨0|a†a|0⟩ = 0."><input type="radio" name="e64" value="a"><span>\(\ket0\)</span></label></li>
+          <li><label class="choice" data-why="Non : il n’existe pas d’état |−1⟩. Si a|0⟩ en donnait un, on pourrait descendre indéfiniment et l’énergie ne serait pas bornée inférieurement."><input type="radio" name="e64" value="b"><span>\(\ket{-1}\)</span></label></li>
+          <li><label class="choice" data-why="Exact. a|0⟩ = √0 |−1⟩ = 0, le vecteur nul. C’est cette condition qui arrête l’échelle par le bas et fixe ψ₀."><input type="radio" name="e64" value="c"><span>Le vecteur nul (noté 0)</span></label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 6.1.3 -->
+    <section class="section" id="s1-3">
+      <h2><span class="n">6.1.3</span>États de Fock en représentation position</h2>
+      <p>Avec la variable réduite \(u = x/\ell\), l’opérateur \(a\) devient \(\tfrac{1}{\sqrt2}\left(u + \tfrac{d}{du}\right)\). La condition \(a\ket0 = 0\) est alors une équation du premier ordre, \(\psi_0' = -u\,\psi_0\), dont la solution est une gaussienne. Les états excités s’obtiennent en appliquant \(a^\dagger\).</p>
+
+      <div class="box def rise">
+        <span class="box-title">Fonctions propres 6.1.3</span>
+        <div class="eq">$$\psi_n(u) = \frac{1}{\pi^{1/4}\sqrt{2^n n!}}\,H_n(u)\,e^{-u^2/2},$$</div>
+        <p>avec \(H_0 = 1\), \(H_1 = 2u\) et la récurrence</p>
+        <div class="eq">$$H_{n+1} = 2u\,H_n - 2n\,H_{n-1}\quad (n\ge1).$$</div>
+        <p>\(\psi_n\) a \(n\) nœuds et la parité de \(n\) : \(\psi_n(-u) = (-1)^n\psi_n(u)\). La normalisation porte sur \(u\) ; en variable \(x\), on divise par \(\sqrt\ell\).</p>
+      </div>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Le cours écrit la récurrence de Hermite « pour \(n \ge 2\) ». Elle vaut dès \(n = 1\) : elle donne \(H_2 = 2u\cdot 2u - 2 = 4u^2 - 2\), qu’on ne pourrait pas obtenir autrement à partir de \(H_0\) et \(H_1\).</p>
+      </div>
+
+      <figure class="lab rise" data-lab="levels" aria-labelledby="lab-lv-t">
+        <div class="lab-head"><h3 id="lab-lv-t">Niveaux et fonctions propres</h3><span class="tag">LABO 6.2</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="lv-n">Niveau n <output for="lv-n"></output></label><input id="lv-n" type="range" min="0" max="12" step="1" value="0"></div>
+            <div class="ctrl"><span class="lbl">Afficher</span>
+              <div class="seg" data-seg="mode"><button type="button" data-v="psi" aria-pressed="true">ψₙ(x)</button><button type="button" data-v="prob">|ψₙ|² et classique</button></div>
+            </div>
+            <dl class="readout">
+              <div><dt>Énergie</dt><dd data-out="E"></dd></div>
+              <div><dt>Nœuds</dt><dd data-out="nodes"></dd></div>
+              <div><dt>Parité</dt><dd data-out="par"></dd></div>
+              <div><dt>P(zone interdite)</dt><dd data-out="out"></dd></div>
+            </dl>
+            <p class="legend"><span><i class="acc"></i>quantique</span><span><i class="dash"></i>densité classique</span></p>
+            <p class="legend">Touchez un niveau du schéma pour le choisir.</p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Les zones hachurées sont classiquement interdites : \(|x| > x_0\), avec \(\tfrac12 m\omega^2x_0^2 = E_n\), soit \(u_0 = \sqrt{2n+1}\). Pour \(n = 0\), la particule s’y trouve avec la probabilité \(\mathrm{erfc}(1) \approx 15{,}7\ \%\). Quand \(n\) grandit, \(|\psi_n|^2\) oscille autour de la densité classique \(\rho(x) = 1/\big(\pi\sqrt{x_0^2 - x^2}\big)\) : c’est le principe de correspondance.</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="6.5" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 6.5</span><h3>Parité de ψ₇</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Que peut-on dire de \(\psi_7\) au centre du puits, et de \(\langle x\rangle\) dans l’état \(\ket7\) ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : 7 est impair, donc ψ₇ est impaire et s’annule en 0."><input type="radio" name="e65" value="a"><span>\(\psi_7(0)\) est maximal et \(\langle x\rangle = 0\).</span></label></li>
+          <li><label class="choice" data-why="Exact. ψ₇(−x) = −ψ₇(x) impose ψ₇(0) = 0. La densité |ψ₇|² est paire, donc ⟨x⟩ = 0, comme dans tout état de Fock."><input type="radio" name="e65" value="b"><span>\(\psi_7(0) = 0\) et \(\langle x\rangle = 0\).</span></label></li>
+          <li><label class="choice" data-why="Non : |ψ₇|² est paire, même si ψ₇ est impaire. Le barycentre reste en 0."><input type="radio" name="e65" value="c"><span>\(\psi_7(0) = 0\) et \(\langle x\rangle \ne 0\).</span></label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="6.6" data-num="2.5" data-tol="0.01" data-ok="Exact : \(\langle x^2\rangle = \ell^2(n+\tfrac12)\) et \(\langle p^2\rangle = (\hbar/\ell)^2(n+\tfrac12)\), donc \(\Delta x\,\Delta p = \hbar(n+\tfrac12) = 2{,}5\,\hbar\)." data-ko="Dans \(\ket n\), \(\langle x\rangle = \langle p\rangle = 0\). Utilisez \(\langle x^2\rangle = \ell^2(n+\tfrac12)\) et \(\langle p^2\rangle = (\hbar/\ell)^2(n+\tfrac12)\).">
+        <div class="exo-head"><span class="num">Exercice 6.6</span><h3>Heisenberg dans un état de Fock</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Calculez \(\Delta x\,\Delta p\) dans l’état \(\ket2\), en unités de \(\hbar\). Seul \(\ket0\) sature l’inégalité.</p>
+        <div class="num-answer"><label for="e66">Δx Δp / ħ =</label><input id="e66" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Indice</summary><div><p>Écrivez \(x = \tfrac{\ell}{\sqrt2}(a + a^\dagger)\). Dans \(\langle n|(a+a^\dagger)^2|n\rangle\), seuls les termes \(aa^\dagger\) et \(a^\dagger a\) survivent : \((n+1) + n\).</p></div></details>
+      </article>
+
+      <h3>Superposer deux niveaux</h3>
+      <p>Un état de Fock est stationnaire : sa densité ne bouge pas. Une superposition de deux niveaux, elle, évolue. Chaque composante tourne à sa propre fréquence \(E_n/\hbar\), et seul l’écart compte :</p>
+      <div class="eq">$$\begin{aligned}\left|\psi(x,t)\right|^2 &= \tfrac12\left(\psi_n^2 + \psi_m^2\right)\\ &\quad + \psi_n\psi_m\cos\big((m-n)\,\omega t\big).\end{aligned}$$</div>
+
+      <figure class="lab rise" data-lab="superpose" aria-labelledby="lab-sp-t">
+        <div class="lab-head"><h3 id="lab-sp-t">Superposition (|n⟩ + |m⟩)/√2</h3><span class="tag">LABO 6.3</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="sp-n">Premier niveau <output for="sp-n"></output></label><input id="sp-n" type="range" min="0" max="5" step="1" value="0"></div>
+            <div class="ctrl"><label for="sp-m">Second niveau <output for="sp-m"></output></label><input id="sp-m" type="range" min="0" max="6" step="1" value="1"></div>
+            <div class="btn-row"><button class="btn ghost small" data-act="play" type="button">Pause</button></div>
+            <dl class="readout">
+              <div><dt>Période de la densité</dt><dd data-out="Tb"></dd></div>
+              <div><dt>Amplitude de ⟨x⟩</dt><dd data-out="amp"></dd></div>
+              <div><dt>⟨x⟩(t)</dt><dd data-out="mean"></dd></div>
+            </dl>
+            <p class="legend"><span><i class="acc"></i>|ψ(x,t)|²</span><span><i class="dash"></i>moyenne sur une période</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>\(T = 2\pi/\omega\). Avec \(\ket0\) et \(\ket1\), le nuage se balance de gauche à droite et \(\langle x\rangle\) oscille à la pulsation \(\omega\) du ressort classique. Avec \(\ket0\) et \(\ket2\), la densité « respire » à \(2\omega\) mais reste symétrique : \(\langle x\rangle = 0\), car \(x\) ne relie que des niveaux voisins.</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="6.7" data-answer="a">
+        <div class="exo-head"><span class="num">Exercice 6.7</span><h3>Quelle fréquence ?</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>On prépare \((\ket1 + \ket4)/\sqrt2\). À quelle pulsation la densité de probabilité oscille-t-elle, et que fait \(\langle x\rangle\) ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact. Le battement vaut (E₄ − E₁)/ħ = 3ω. Les niveaux 1 et 4 ne sont pas voisins : ⟨1|x|4⟩ = 0, donc ⟨x⟩ reste nul. Testez-le dans le labo 6.3."><input type="radio" name="e67" value="a"><span>\(3\omega\), et \(\langle x\rangle = 0\) à tout instant.</span></label></li>
+          <li><label class="choice" data-why="Non : le demi-quantum se simplifie dans la différence, mais l’écart est de trois barreaux, pas de cinq."><input type="radio" name="e67" value="b"><span>\(5\omega\), et \(\langle x\rangle\) oscille.</span></label></li>
+          <li><label class="choice" data-why="Non : une phase globale e^{-iE₁t/ħ} ne change rien ; seule la différence des énergies apparaît dans |ψ|²."><input type="radio" name="e67" value="c"><span>\(\tfrac32\omega\) et \(\tfrac92\omega\) en même temps.</span></label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 6.2 -->
+    <section class="section" id="s2">
+      <h2><span class="n">6.2</span>États quasi-classiques : les états cohérents</h2>
+      <p>Dans tout état de Fock, \(\langle X\rangle = 0\). Or un faisceau laser, ou un pendule, oscille de façon visible. Il faut donc des états qui mélangent plusieurs \(\ket n\) avec des phases bien réglées. Schrödinger les a écrits en 1926, Glauber en a fait la base de l’optique quantique dans les années 1960 (Nobel 2005).</p>
+
+      <div class="box def rise">
+        <span class="box-title">Définition 6.2 — État cohérent</span>
+        <p>\(\ket\alpha\) est état propre de l’opérateur d’annihilation, \(a\ket\alpha = \alpha\ket\alpha\) avec \(\alpha\in\mathbb C\) :</p>
+        <div class="eq">$$\ket\alpha = e^{-|\alpha|^2/2}\sum_{n\ge0}\frac{\alpha^n}{\sqrt{n!}}\ket n = D(\alpha)\ket0.$$</div>
+        <p>L’opérateur déplacement \(D(\alpha) = e^{\alpha a^\dagger - \alpha^* a}\) est unitaire. \(\ket\alpha\) est donc le vide, déplacé sans déformation au point \(\big(\langle\hat X\rangle, \langle\hat P\rangle\big) = \sqrt2\,(\mathrm{Re}\,\alpha, \mathrm{Im}\,\alpha)\) de l’espace des phases.</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">Propriétés 6.2</span>
+        <ul style="margin:.3rem 0 0">
+          <li><strong>Comptage</strong> : \(P(n) = e^{-|\alpha|^2}\,|\alpha|^{2n}/n!\) (loi de Poisson), \(\langle N\rangle = |\alpha|^2\), \(\Delta N = |\alpha|\).</li>
+          <li><strong>Incertitude minimale</strong> : \(\Delta x = \ell/\sqrt2\), \(\Delta p = \hbar/(\ell\sqrt2)\), \(\Delta x\,\Delta p = \hbar/2\), comme le vide.</li>
+          <li><strong>Évolution</strong> : \(\ket{\alpha(t)} = e^{-i\omega t/2}\,\ket{\alpha e^{-i\omega t}}\). Le paquet gaussien suit la trajectoire classique sans s’étaler.</li>
+        </ul>
+      </div>
+
+      <figure class="lab rise" data-lab="coherent" aria-labelledby="lab-co-t">
+        <div class="lab-head"><h3 id="lab-co-t">Un état cohérent dans le puits</h3><span class="tag">LABO 6.4</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="co-a">Amplitude |α| <output for="co-a"></output></label><input id="co-a" type="range" min="0" max="4" step="0.05" value="2"></div>
+            <div class="btn-row">
+              <button class="btn ghost small" data-act="play" type="button">Pause</button>
+              <button class="btn accent small" data-act="count" type="button">Mesurer N 500 fois</button>
+            </div>
+            <dl class="readout">
+              <div><dt>⟨N⟩ = |α|²</dt><dd data-out="n"></dd></div>
+              <div><dt>ΔN = |α|</dt><dd data-out="dn"></dd></div>
+              <div><dt>ΔN / ⟨N⟩</dt><dd data-out="rel"></dd></div>
+              <div><dt>P(0)</dt><dd data-out="p0"></dd></div>
+            </dl>
+            <div class="lab-stage" data-stage="poisson" style="min-height:9rem;border:1px solid var(--rule-soft);border-radius:var(--r-sm)"></div>
+            <p class="legend"><span><i></i>P(n) de Poisson</span><span><i class="acc"></i>fréquences mesurées</span><span data-out="cnt"></span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>En haut, \(|\psi(x,t)|^2 = \frac{1}{\sqrt\pi\,\ell}\exp\!\big[-(x - x_c(t))^2/\ell^2\big]\) avec \(x_c(t) = \sqrt2\,|\alpha|\,\ell\cos\omega t\) : la largeur ne change jamais. En bas, le même état dans l’espace des phases : un disque d’incertitude qui tourne sur le cercle classique. À \(|\alpha| = 0\), on retrouve le vide immobile.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Précisions</span>
+        <ul style="margin:.3rem 0 0">
+          <li>Le cours dit que la loi de Poisson est « maximale pour \(\langle N\rangle\) ». Son maximum est en \(n = \lfloor|\alpha|^2\rfloor\) (et aussi en \(|\alpha|^2 - 1\) quand \(|\alpha|^2\) est entier) ; il coïncide avec \(\langle N\rangle\) seulement à une unité près.</li>
+          <li>De \(\Delta H = \hbar\omega|\alpha|\), on ne peut pas déduire qu’une force extérieure transforme le vide en état cohérent. Ce résultat est vrai pour une force classique imposée, mais il se démontre à part, en résolvant l’évolution sous \(H - F(t)X\).</li>
+          <li>Les états comprimés ne « trichent » pas avec Heisenberg : ils respectent \(\Delta\hat X\,\Delta\hat P \ge \tfrac12\) et réduisent le bruit sur une quadrature en l’augmentant sur l’autre. Les états cohérents sont, parmi les états d’incertitude minimale, ceux dont les deux incertitudes réduites sont égales.</li>
+        </ul>
+      </div>
+
+      <article class="exo" data-id="6.8" data-num="9" data-tol="0.01" data-ok="Exact : \(\langle N\rangle = |\alpha|^2 = 9\). La phase \(\pi/4\) n’intervient pas." data-ko="\(\langle N\rangle = \langle\alpha|a^\dagger a|\alpha\rangle = |\alpha|^2\) : seul le module compte.">
+        <div class="exo-head"><span class="num">Exercice 6.8</span><h3>Nombre moyen de quanta</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Un oscillateur est dans l’état cohérent \(\ket\alpha\) avec \(\alpha = 3\,e^{i\pi/4}\). Que vaut \(\langle N\rangle\) ? Et \(\Delta N\) (à vérifier dans le labo 6.4) ?</p>
+        <div class="num-answer"><label for="e68">⟨N⟩ =</label><input id="e68" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="6.9" data-num="0.13534" data-tol="0.01" data-ok="Exact : \(P(0) = |\langle0|\alpha\rangle|^2 = e^{-|\alpha|^2} = e^{-2} \approx 0{,}135\)." data-ko="Utilisez \(\langle0|\alpha\rangle = e^{-|\alpha|^2/2}\), donc \(P(0) = e^{-|\alpha|^2}\).">
+        <div class="exo-head"><span class="num">Exercice 6.9</span><h3>Trouver le vide dans un état cohérent</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Pour \(\langle N\rangle = 2\), quelle est la probabilité qu’une mesure de \(N\) donne \(0\) ? (réponse décimale)</p>
+        <div class="num-answer"><label for="e69">P(0) =</label><input id="e69" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — la transe rythmique</span>
+        <p>Le cours propose de comparer l’état cohérent aux cérémonies où un rythme stable, joué sans interruption, entraîne tout un groupe : musique gnawa du Maroc, cérémonies vodun du Bénin. Un tambour régulier, une phase commune, une oscillation qui ne se déforme pas.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>Les danseurs sont des individus qui se <em>synchronisent</em> en interagissant. Un état cohérent décrit un seul mode d’oscillateur ; sa stabilité ne vient d’aucune interaction entre photons, qui n’interagissent quasiment pas entre eux. L’analogie rend bien l’idée de phase stable, pas celle de nombre de quanta incertain : on peut compter les danseurs, alors qu’une mesure de \(N\) sur \(\ket\alpha\) donne un résultat aléatoire. Précision géographique : la musique gnawa est marocaine (Afrique du Nord) ; le vodun vient du golfe de Guinée (Bénin, Togo), d’où il a gagné Haïti.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 6.3 -->
+    <section class="section" id="s3">
+      <h2><span class="n">6.3</span>Exercices de synthèse</h2>
+
+      <article class="exo" data-id="6.10">
+        <div class="exo-head"><span class="num">Exercice 6.10</span><h3>Le champ d’un laser : Fock ou cohérent ?</h3><span class="stars" aria-label="difficulté 3 sur 3">★★★</span></div>
+        <p>Un mode du champ électrique s’écrit \(E = i\xi\left(a\,e^{-i\omega t} - a^\dagger e^{i\omega t}\right)\), avec \(\xi\) réel. (1) Montrez que \(\langle E\rangle = 0\) dans tout état \(\ket n\). (2) Calculez \(\langle E\rangle\) dans \(\ket\alpha\) avec \(\alpha = |\alpha|e^{i\theta}\). (3) Montrez que \((\Delta E)^2 = \xi^2\) dans \(\ket\alpha\), quel que soit \(\alpha\), et commentez \(\Delta E/|\langle E\rangle|_{\max}\) pour un laser intense.</p>
+        <details class="reveal"><summary>Indice</summary><div><p>Pour (1), \(\langle n|a|n\rangle = \langle n|a^\dagger|n\rangle = 0\). Pour (3), réécrivez \(\langle\alpha|a^\dagger a|\alpha\rangle\) et \(\langle\alpha|aa^\dagger|\alpha\rangle = |\alpha|^2 + 1\).</p></div></details>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>(1) \(a\) et \(a^\dagger\) changent \(n\) d’une unité, donc leurs valeurs moyennes dans \(\ket n\) sont nulles. Un état de Fock a une amplitude définie mais aucune phase : la moyenne du champ est nulle.</p>
+          <p>(2) \(\langle E\rangle = i\xi\left(\alpha e^{-i\omega t} - \alpha^* e^{i\omega t}\right) = 2\xi|\alpha|\sin(\omega t - \theta)\) : une onde sinusoïdale d’amplitude \(2\xi|\alpha|\) et de phase fixée par \(\theta\).</p>
+          <p>(3) \(\langle E^2\rangle = -\xi^2\langle(ae^{-i\omega t} - a^\dagger e^{i\omega t})^2\rangle = \xi^2\left[2|\alpha|^2 + 1 - \alpha^2e^{-2i\omega t} - \alpha^{*2}e^{2i\omega t}\right]\), et \(\langle E\rangle^2\) retire tout sauf \(\xi^2\). Donc \(\Delta E = \xi\), la même valeur que dans le vide, et \(\Delta E/(2\xi|\alpha|) = 1/(2\sqrt{\langle N\rangle})\to 0\) pour un faisceau intense : le champ devient classique.</p>
+        </div></details>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Précision — effet Casimir</span>
+        <p>Le cours décrit le vide comme rempli de « paires virtuelles qui apparaissent et disparaissent ». C’est une image de vulgarisation, pas une observation. Le calcul repose sur la somme des énergies \(\tfrac12\hbar\omega\) des modes permis entre les plaques. En 1D, \(E(L) = -\pi\hbar c/(24L)\) donne \(F = -dE/dL = -\pi\hbar c/(24L^2)\) : une force attractive.</p>
+      </div>
+    </section>
+
+    <section class="section" id="actu">
+      <h2><span class="n">·</span>Où en est-on en 2026 ?</h2>
+      <div class="box news rise">
+        <span class="box-title">Prix Nobel de physique 2025 : un oscillateur électrique quantifié</span>
+        <p>John Clarke, Michel Devoret et John Martinis ont été récompensés « pour la découverte de l’effet tunnel quantique macroscopique et de la quantification de l’énergie dans un circuit électrique ». Dans leurs expériences des années 1980, un circuit supraconducteur à jonction Josephson présente des niveaux d’énergie discrets, comme l’oscillateur de ce chapitre. La jonction rend l’oscillateur non harmonique : les barreaux ne sont plus équidistants, ce qui permet d’adresser seulement les deux premiers. C’est le principe des qubits supraconducteurs actuels.</p>
+        <cite>Communiqué du comité Nobel, 7 octobre 2025 — nobelprize.org</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">LIGO comprime le bruit quantique</span>
+        <p>Le bruit de grenaille d’un laser est celui de l’état cohérent : \(\Delta N = \sqrt{\langle N\rangle}\). Depuis mai 2023, LIGO injecte dans ses interféromètres un vide comprimé dont l’orientation de l’ellipse de bruit dépend de la fréquence, grâce à une cavité de filtrage de 300 m. Le bruit quantique baisse sur toute la bande : bruit de grenaille à haute fréquence, pression de radiation à basse fréquence. Le gain attendu est d’environ 60 % de fusions détectées en plus.</p>
+        <cite>LIGO, communiqué du 23 octobre 2023 ; <i>Phys. Rev. X</i> (2023)</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Bilan de la campagne O4</span>
+        <p>La quatrième campagne d’observation de LIGO, Virgo et KAGRA s’est achevée le 18 novembre 2025, après deux ans et demi. Environ 250 signaux candidats ont été repérés en temps réel, et l’analyse du premier tiers a déjà donné 128 événements significatifs, contre 90 pour les trois campagnes précédentes réunies. Le signal GW250114, reçu le 14 janvier 2025, a un rapport signal sur bruit de 80 et a permis de vérifier le théorème d’aire de Hawking. Une campagne intermédiaire de six mois est prévue à partir de novembre 2026, calendrier susceptible de bouger.</p>
+        <cite>LIGO, 18 novembre 2025 ; <i>Phys. Rev. Lett.</i>, septembre 2025 ; observing.docs.ligo.org/plan</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Un chat de Schrödinger de 16 microgrammes</span>
+        <p>À l’ETH Zurich, un résonateur mécanique de 16 µg, soit environ \(10^{17}\) atomes, a été préparé dans des superpositions d’états de mouvement, dits états « chat de Schrödinger ». Ce résonateur est un oscillateur harmonique quantique macroscopique : on y retrouve les états de Fock et les états cohérents de ce chapitre, et leurs superpositions.</p>
+        <cite>Bild <i>et al.</i>, <i>Science</i> (2023), ETH Zurich</cite>
+      </div>
+    </section>
+
+    <footer class="chapter-foot">
+      <label class="done-toggle"><input type="checkbox" data-done> J’ai terminé ce chapitre</label>
+      <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/?chapitre=6">S’entraîner sur le quiz du chapitre 6 →</a>
+      <a class="pager" href="5-fonction-etat.html"><small>← Chapitre précédent</small>Fonction d’état et espace continu</a>
+      <a class="pager next" href="../index.html"><small>Fin du carnet →</small>Retour au sommaire</a>
+    </footer>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Département de Physique, Faculté des Sciences, Université de Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Mis à jour en octobre 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Sources sur GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

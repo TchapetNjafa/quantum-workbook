@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 2 · Mesure et opérateurs — Carnet PHY321</title>
+<meta name="description" content="Expérience de Stern et Gerlach, opérateurs hermitiens, valeurs propres, matrices de Pauli, commutateurs et relation d’indétermination : laboratoires interactifs et exercices corrigés du chapitre 2 de PHY321 (Université de Yaoundé I).">
+<meta property="og:title" content="Mesure et opérateurs — Carnet PHY321">
+<meta property="og:description" content="Stern-Gerlach en cascade, mesure d’un spin selon un axe quelconque, inégalité de Robertson : manipulez, mesurez, vérifiez.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script src="../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+<script defer src="../assets/js/labs/bloch.js"></script>
+<script defer src="../assets/js/labs/ch2.js"></script>
+</head>
+<body data-chapter="ch2">
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <a class="brand" href="../index.html"><b>Carnet PHY321</b><span>Mécanique quantique · UY1</span></a>
+  <nav aria-label="Chapitres">
+    <a href="1-etats-quantiques.html">1 · États</a>
+    <a href="2-mesure-operateurs.html" aria-current="page">2 · Mesure</a>
+    <a href="3-dynamique.html">3 · Dynamique</a>
+    <a href="4-intrication.html">4 · Intrication</a>
+    <a href="5-fonction-etat.html">5 · Espace continu</a>
+    <a href="6-oscillateur.html">6 · Oscillateur</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Thème">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+  <span class="readbar" aria-hidden="true"></span>
+</header>
+
+<div class="chapter-layout">
+  <aside class="toc" aria-label="Sommaire du chapitre">
+    <details>
+      <summary>Sommaire</summary>
+      <ol>
+        <li><a href="#s1"><span class="toc-num">2.1</span>Stern et Gerlach</a></li>
+        <li><a href="#s2"><span class="toc-num">2.2</span>Opérateurs linéaires</a></li>
+        <li><a href="#s3"><span class="toc-num">2.3</span>Algèbre des opérateurs</a></li>
+        <li><a href="#s4"><span class="toc-num">2.4</span>Incompatibilité, indétermination</a></li>
+        <li><a href="#s5"><span class="toc-num">2.5</span>Exercices de synthèse</a></li>
+        <li><a href="#actu"><span class="toc-num">·</span>Où en est-on en 2026 ?</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main id="contenu">
+    <header class="chapter-head">
+      <span class="big-num" aria-hidden="true">2</span>
+      <p class="eyebrow">Chapitre 2 · CM 6 h + TD 3 h</p>
+      <h1>Mesure et opérateurs</h1>
+      <p class="lede">Un jet d’atomes d’argent, un aimant, et deux taches au lieu d’une bande. Pour décrire ce résultat, chaque grandeur mesurable devient un opérateur, et chaque résultat possible une valeur propre.</p>
+      <ul class="goals">
+        <li>Prédire les fractions d’atomes en sortie d’une cascade d’appareils de Stern-Gerlach.</li>
+        <li>Écrire la matrice d’un opérateur, vérifier qu’il est hermitien et trouver ses valeurs et vecteurs propres.</li>
+        <li>Calculer une probabilité, une valeur moyenne et un écart-type pour un état donné.</li>
+        <li>Relier un commutateur non nul à l’incompatibilité de deux mesures et à l’inégalité de Robertson.</li>
+      </ul>
+    </header>
+
+    <!-- ===================================================== 2.1 -->
+    <section class="section" id="s1">
+      <h2><span class="n">2.1</span>Mesure et verdict de Stern et Gerlach</h2>
+      <p>En physique classique, mesurer, c’est lire une valeur qui existe déjà. En 1922, à Francfort, Otto Stern et Walther Gerlach envoient un jet d’atomes d’argent entre les pôles d’un aimant dont le champ n’est pas uniforme. Chaque atome porte un petit moment magnétique. Si ces moments pouvaient pointer dans toutes les directions, on verrait une bande continue sur la plaque. On observe deux taches.</p>
+      <ul>
+        <li>La projection du spin sur l’axe de l’aimant ne prend que deux valeurs : \(S_z = +\hbar/2\) ou \(S_z = -\hbar/2\).</li>
+        <li>On ne peut pas prédire dans quelle tache ira un atome donné : seule la fréquence (ici 50/50) est reproductible.</li>
+      </ul>
+
+      <div class="box history rise">
+        <p>Le dépôt d’argent était trop mince pour être vu. Selon le récit de Stern, il est apparu quand il s’est penché sur la plaque en fumant un cigare bon marché : le soufre de la fumée a noirci l’argent en sulfure. Gerlach envoya à Bohr une carte postale avec la photo des deux taches. Tous deux y voyaient la « quantification spatiale » de l’ancienne théorie de Bohr et Sommerfeld. Le spin de l’électron n’a été proposé qu’en 1925 par Uhlenbeck et Goudsmit, et c’est lui qui explique les deux taches de l’argent.</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">Principe 2.1 — Quantification de la mesure</span>
+        <p>Une mesure ne peut donner comme résultat que certaines valeurs bien précises, que l’on appellera <strong>valeurs propres</strong> de l’opérateur associé. Juste après la mesure, le système est dans l’état associé au résultat obtenu : c’est la <strong>réduction</strong> (ou projection) de l’état.</p>
+      </div>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p><strong>Spin ou moment magnétique ?</strong> Le cours écrit « \(\mu_\pm = \pm\hbar/2\) ». Ce qui vaut \(\pm\hbar/2\), c’est la projection du <em>spin</em> \(S_z\), une grandeur qui s’exprime en J·s. Le moment magnétique associé vaut environ \(\mp\mu_B\) (magnéton de Bohr, en J/T) : il est de signe opposé pour un électron.</p>
+        <p><strong>Discret, pas toujours.</strong> Les valeurs propres du spin sont discrètes, mais celles de la position ou de l’impulsion forment un continuum (chapitre 5). Le principe porte sur les valeurs <em>propres</em>, pas sur leur caractère discret.</p>
+        <p><strong>Le four produit un mélange.</strong> Les atomes qui sortent du four ne sont pas tous dans une même superposition \(\alpha_+\ket{+} + \alpha_-\ket{-}\). Un état pur de ce type pointe vers une direction précise de la sphère de Bloch, et donnerait 100 % dans un appareil orienté selon cette direction. Le jet du four donne 50/50 <em>quelle que soit</em> l’orientation : c’est un mélange statistique, la distinction vue au chapitre 1.</p>
+      </div>
+
+      <h3>Mesures successives : le jeu de cache-cache</h3>
+      <p>Un appareil de Stern-Gerlach dont on bloque une sortie devient un <strong>filtre</strong> : il prépare des atomes dans un état connu. On note \(\mathrm{SG}_\theta\) un appareil orienté à l’angle \(\theta\) de l’axe \(z\), dans le plan \(xz\). Pour un atome préparé dans \(\ket{+}_{\theta_1}\), la probabilité de sortir par la voie \(+\) d’un appareil \(\mathrm{SG}_{\theta_2}\) est</p>
+      <div class="eq">$$P(+_{\theta_2} \leftarrow +_{\theta_1}) = |\braket{+_{\theta_2}|+_{\theta_1}}|^2 = \cos^2\frac{\theta_2 - \theta_1}{2}.$$</div>
+
+      <figure class="lab rise" data-lab="sg" aria-labelledby="lab-sg-t">
+        <div class="lab-head"><h3 id="lab-sg-t">Stern-Gerlach en cascade</h3><span class="tag">LABO 2.1</span></div>
+        <div class="lab-body">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel" style="grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))">
+            <div style="display:grid;gap:1rem;align-content:start">
+            <div class="btn-row">
+              <button class="btn accent" data-act="play" type="button">Pause</button>
+              <button class="btn ghost small" data-act="burst" type="button">+1 000 atomes</button>
+              <button class="btn ghost small" data-act="reset" type="button">Remettre à zéro</button>
+            </div>
+            <div class="btn-row" aria-label="Montages du cours">
+              <button class="btn ghost small" data-preset="zz" type="button">Z → Z</button>
+              <button class="btn ghost small" data-preset="zx" type="button">Z → X</button>
+              <button class="btn ghost small" data-preset="zxz" type="button">Z → X → Z</button>
+              <button class="btn ghost small" data-preset="zthx" type="button">Z → 60° → X</button>
+            </div>
+            <div class="ctrl"><span class="lbl">Nombre d’appareils</span>
+              <div class="seg" data-seg="n"><button type="button" data-v="2">2</button><button type="button" data-v="3" aria-pressed="true">3</button></div>
+            </div>
+            </div>
+            <div style="display:grid;gap:1rem;align-content:start">
+            <div class="ctrl"><label for="sg-a1">SG₁ : orientation <output for="sg-a1"></output></label><input id="sg-a1" type="range" min="0" max="355" step="5" value="0"></div>
+            <div class="ctrl"><span class="lbl">Après SG₁, on laisse passer</span>
+              <div class="seg" data-seg="keep0"><button type="button" data-v="+" aria-pressed="true">voie +</button><button type="button" data-v="-">voie −</button></div>
+            </div>
+            <div class="ctrl"><label for="sg-a2">SG₂ : orientation <output for="sg-a2"></output></label><input id="sg-a2" type="range" min="0" max="355" step="5" value="90"></div>
+            <div class="ctrl" data-only3><span class="lbl">Après SG₂, on laisse passer</span>
+              <div class="seg" data-seg="keep1"><button type="button" data-v="+" aria-pressed="true">voie +</button><button type="button" data-v="-">voie −</button></div>
+            </div>
+            <div class="ctrl" data-only3><label for="sg-a3">SG₃ : orientation <output for="sg-a3"></output></label><input id="sg-a3" type="range" min="0" max="355" step="5" value="0"></div>
+            </div>
+            <div style="display:grid;gap:1rem;align-content:start">
+            <dl class="readout">
+              <div><dt>Atomes émis</dt><dd data-out="sent">0</dd></div>
+              <div><dt>Arrivés au bout, mesuré</dt><dd data-out="frac">—</dd></div>
+              <div><dt>Arrivés au bout, prévu</dt><dd data-out="reach"></dd></div>
+              <div><dt>P(+) dernier SG</dt><dd data-out="plast"></dd></div>
+            </dl>
+            <div class="bars" aria-live="polite">
+              <div class="bar" data-bar="0"><span>+</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+              <div class="bar" data-bar="1"><span>−</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+            </div>
+            <p class="legend"><span><i></i>fréquence au dernier appareil</span><span><i class="acc"></i>probabilité prévue</span></p>
+            </div>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Les cadrans indiquent l’axe mesuré dans le plan \(xz\) (\(z\) vers le haut, \(x\) vers la droite). Essayez Z → X → Z : la voie \(-_z\), pourtant éliminée par SG₁, réapparaît dans la moitié des cas. Retirez ensuite SG₂ (2 appareils, Z → Z) : 100 % en \(+\). La mesure intermédiaire selon \(x\) a effacé l’information sur \(z\). Le four envoie un mélange, donc SG₁ laisse passer la moitié des atomes quelle que soit son orientation.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box law rise">
+        <span class="box-title">Les trois actes</span>
+        <div class="table-wrap" style="margin:.4rem 0 0">
+          <table>
+            <thead><tr><th>Séquence</th><th>Résultat au dernier appareil</th><th>Ce que cela montre</th></tr></thead>
+            <tbody>
+              <tr><td>\(\mathrm{SG}_z \to \mathrm{SG}_z\)</td><td>100 % en \(+_z\)</td><td>Une mesure répétée redonne le même résultat</td></tr>
+              <tr><td>\(\mathrm{SG}_z \to \mathrm{SG}_x\)</td><td>50 % / 50 %</td><td>\(\ket{+_z}\) n’est pas un état propre de \(S_x\)</td></tr>
+              <tr><td>\(\mathrm{SG}_z \to \mathrm{SG}_x \to \mathrm{SG}_z\)</td><td>50 % / 50 %</td><td>\(S_x\) et \(S_z\) sont incompatibles</td></tr>
+              <tr><td>\(\mathrm{SG}_z \to \mathrm{SG}_x \to \mathrm{SG}_\theta\)</td><td>\(\tfrac12(1 + \sin\theta)\) en \(+_\theta\)</td><td>Règle de Born avec un axe quelconque</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <article class="exo" data-id="2.1" data-num="0.75" data-tol="0.01" data-ok="Exact : \(\cos^2(30°) = 3/4\). Vérifiez dans le labo 2.1 avec SG₂ à 60° et 2 appareils." data-ko="Appliquez \(\cos^2(\Delta\theta/2)\) avec \(\Delta\theta = 60°\).">
+        <div class="exo-head"><span class="num">Exercice 2.1</span><h3>Un analyseur incliné</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Des atomes préparés dans \(\ket{+_z}\) entrent dans un appareil orienté à 60° de l’axe \(z\), dans le plan \(xz\). Quelle fraction sort par la voie \(+\) ?</p>
+        <div class="num-answer"><label for="e21">P(+) =</label><input id="e21" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="2.2" data-num="0.125" data-tol="0.01" data-ok="Oui : ½ (le four est un mélange) × ½ × ½ = 1/8. Dans le labo 2.1 (Z → X → Z), « Arrivés au bout, prévu » affiche 25 % et la moitié de ces atomes sort en +." data-ko="Multipliez les probabilités de chaque étape, sans oublier la première : le jet du four donne ½ dans SG₁.">
+        <div class="exo-head"><span class="num">Exercice 2.2</span><h3>Compter les atomes jusqu’au bout</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Montage Z → X → Z. On garde la voie \(+\) après SG₁ et après SG₂. Quelle fraction des atomes sortis du four ressort par la voie \(+_z\) de SG₃ ?</p>
+        <div class="num-answer"><label for="e22">Fraction =</label><input id="e22" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Indice</summary><div><p>Trois mesures successives, trois facteurs \(\tfrac12\). Le premier vient de ce que le four produit un mélange, les deux autres de \(|\braket{+_x|+_z}|^2 = |\braket{+_z|+_x}|^2 = \tfrac12\).</p></div></details>
+      </article>
+
+      <blockquote class="dialogue rise">
+        <p><b>Einstein</b>« Le 50/50 ne peut traduire que notre ignorance. L’atome porte des instructions cachées qui fixent d’avance sa sortie. »</p>
+        <p><b>Bohr</b>« La propriété “spin selon \(z\)” n’était pas définie pendant qu’on mesurait le spin selon \(x\). Il n’y a pas de mémoire effacée, il n’y avait pas de valeur à retenir. »</p>
+      </blockquote>
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Dans la version longue du cours, Einstein évoque ici une « action fantomatique à distance ». Cette expression concerne deux particules <em>intriquées</em> et éloignées (article EPR de 1935, chapitre 4). Elle ne s’applique pas à des mesures successives sur un même atome. Les expériences de type Bell ont depuis exclu les variables cachées <em>locales</em>.</p>
+      </div>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — la consultation du devin</span>
+        <p>Avant la consultation, l’avenir est un ensemble de possibles. La pratique divinatoire « force » la révélation d’une seule voie, comme la mesure force une seule valeur propre. Superposition ↔ avenir ouvert ; mesure ↔ consultation ; état propre ↔ voie annoncée.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>Une mesure quantique est une interaction physique : elle ne dépend ni de l’intention ni des croyances de l’expérimentateur, et deux appareils identiques donnent les mêmes statistiques. Les probabilités quantiques sont calculables (règle de Born) et vérifiables sur un grand nombre d’atomes, ce qu’aucune consultation ne permet. Enfin, l’atome n’a pas de « destin » à lire : avant la mesure selon \(x\), il n’y avait pas de valeur de \(S_x\) à révéler.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 2.2 -->
+    <section class="section" id="s2">
+      <h2><span class="n">2.2</span>Formalisme des opérateurs linéaires</h2>
+      <div class="box law rise">
+        <span class="box-title">Principe 2.2 — Grandeur physique et opérateur hermitien</span>
+        <p>À chaque grandeur mesurable \(A\) (énergie, spin, position…) est associé un opérateur linéaire hermitien \(\hat A\) qui agit sur l’espace des états. Sur un grand nombre de systèmes préparés dans \(\ket\psi\), la moyenne des résultats est</p>
+        <div class="eq">$$\langle A\rangle_\psi = \bra\psi\hat A\ket\psi.$$</div>
+      </div>
+      <p>La linéarité, \(\hat A(\alpha\ket{\psi_1} + \beta\ket{\psi_2}) = \alpha\hat A\ket{\psi_1} + \beta\hat A\ket{\psi_2}\), est ce qui rend l’opérateur compatible avec le principe de superposition.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Définition 2.2 — Valeurs et vecteurs propres</span>
+        <p>Les solutions de \(\hat A\ket{\varphi_i} = a_i\ket{\varphi_i}\) donnent les résultats possibles \(a_i\) de la mesure et les états \(\ket{\varphi_i}\) du système juste après avoir obtenu \(a_i\). La probabilité d’obtenir \(a_i\) est \(P(a_i) = |\braket{\varphi_i|\psi}|^2\) (valeur propre non dégénérée).</p>
+      </div>
+
+      <h3>Un exemple : l’opérateur Z</h3>
+      <p>\(\hat Z = \ket0\bra0 - \ket1\bra1\) agit sur \(\ket\psi = \alpha\ket0 + \beta\ket1\) en donnant \(\alpha\ket0 - \beta\ket1\). Donc \(\hat Z\ket0 = +\ket0\) et \(\hat Z\ket1 = -\ket1\) : valeurs propres \(\pm1\), vecteurs propres \(\ket0\) et \(\ket1\). En informatique quantique, c’est la porte « phase-flip ». Dans une base orthonormée \(\{\ket i\}\), l’opérateur est décrit par la matrice \(A_{ij} = \bra i\hat A\ket j\). Pour la porte NOT, \(\hat X\ket0 = \ket1\) et \(\hat X\ket1 = \ket0\) donnent \(X_{01} = X_{10} = 1\), \(X_{00} = X_{11} = 0\), soit \(\hat X = \ket0\bra1 + \ket1\bra0\).</p>
+
+      <h3>Le spin selon un axe quelconque</h3>
+      <p>Pour un axe \(\vec n = (\sin\theta\cos\varphi, \sin\theta\sin\varphi, \cos\theta)\), l’opérateur \(\hat\sigma_n = \vec n\cdot\vec{\hat\sigma} = n_x\hat\sigma_x + n_y\hat\sigma_y + n_z\hat\sigma_z\) vaut</p>
+      <div class="eq">$$\hat\sigma_n = \begin{pmatrix}\cos\theta & e^{-i\varphi}\sin\theta\\ e^{i\varphi}\sin\theta & -\cos\theta\end{pmatrix},\qquad \ket{n_+} = \begin{pmatrix}\cos\frac\theta2\\ e^{i\varphi}\sin\frac\theta2\end{pmatrix},\qquad \ket{n_-} = \begin{pmatrix}\sin\frac\theta2\\ -e^{i\varphi}\cos\frac\theta2\end{pmatrix}.$$</div>
+      <p>Ses valeurs propres sont \(\pm1\) pour tout axe. Pour un état de vecteur de Bloch \(\vec r\), on montre que \(\langle\hat\sigma_n\rangle = \vec r\cdot\vec n\), donc \(P(+1) = \tfrac12(1 + \vec r\cdot\vec n)\).</p>
+
+      <figure class="lab rise" data-lab="op" aria-labelledby="lab-op-t">
+        <div class="lab-head"><h3 id="lab-op-t">Mesurer le spin selon \(\vec n\)</h3><span class="tag">LABO 2.2</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"><span class="lab-hint">Glissez pour tourner la sphère</span></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="op-nt">Axe n : θ <output for="op-nt"></output></label><input id="op-nt" type="range" min="0" max="180" step="1" value="90"></div>
+            <div class="ctrl"><label for="op-np">Axe n : φ <output for="op-np"></output></label><input id="op-np" type="range" min="0" max="359" step="1" value="0"></div>
+            <div class="btn-row" aria-label="Axes usuels">
+              <button class="btn ghost small" data-axis="z" type="button">n = z</button>
+              <button class="btn ghost small" data-axis="x" type="button">n = x</button>
+              <button class="btn ghost small" data-axis="y" type="button">n = y</button>
+            </div>
+            <div class="ctrl"><span class="lbl">Matrice de σn dans la base {|0⟩, |1⟩}</span>
+              <div style="display:inline-grid;grid-template-columns:auto auto;gap:.2rem 1.2rem;justify-self:start;padding:.25rem .7rem;border-left:2px solid var(--ink);border-right:2px solid var(--ink);border-radius:6px;font-family:var(--mono);font-size:.85rem">
+                <span data-out="m00"></span><span data-out="m01"></span><span data-out="m10"></span><span data-out="m11"></span>
+              </div>
+            </div>
+            <dl class="readout">
+              <div><dt style="text-transform:none;letter-spacing:0">|n+⟩, v.p. +1</dt><dd data-out="vp" style="font-size:.8rem"></dd></div>
+              <div><dt style="text-transform:none;letter-spacing:0">|n−⟩, v.p. −1</dt><dd data-out="vm" style="font-size:.8rem"></dd></div>
+            </dl>
+            <div class="ctrl"><label for="op-st">État |ψ⟩ : θ <output for="op-st"></output></label><input id="op-st" type="range" min="0" max="180" step="1" value="60"></div>
+            <div class="ctrl"><label for="op-sp">État |ψ⟩ : φ <output for="op-sp"></output></label><input id="op-sp" type="range" min="0" max="359" step="1" value="0"></div>
+            <div class="btn-row">
+              <button class="btn ghost small" data-act="align" type="button">Préparer |ψ⟩ = |n+⟩</button>
+            </div>
+            <dl class="readout">
+              <div><dt style="text-transform:none;letter-spacing:0">⟨σn⟩ = r·n</dt><dd data-out="mean"></dd></div>
+              <div><dt>P(+1)</dt><dd data-out="p"></dd></div>
+              <div><dt style="text-transform:none;letter-spacing:0">Δσn</dt><dd data-out="dev"></dd></div>
+              <div><dt>Moyenne mesurée</dt><dd data-out="emp">—</dd></div>
+            </dl>
+            <div class="btn-row">
+              <button class="btn accent small" data-act="measure" type="button">Mesurer une fois</button>
+              <button class="btn ghost small" data-act="many" type="button">Mesurer 1 000 copies</button>
+            </div>
+            <div class="bars" aria-live="polite">
+              <div class="bar" data-bar="0"><span>+1</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+              <div class="bar" data-bar="1"><span>−1</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+            </div>
+            <p class="legend" data-out="last" aria-live="polite"></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Les résultats sont toujours \(+1\) ou \(-1\), jamais une valeur intermédiaire : la <em>moyenne</em> \(\vec r\cdot\vec n\) varie continûment, pas les résultats. Avec « Préparer \(\ket\psi = \ket{n_+}\) », l’écart-type tombe à zéro : un état propre donne un résultat certain.</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="2.3" data-num="4" data-tol="0.01" data-ok="Exact. \(\lambda^2 - 5\lambda + 4 = 0\) donne \(\lambda = 1\) et \(\lambda = 4\), deux réels comme il se doit pour une matrice hermitienne." data-ko="Écrivez \(\det(A - \lambda\mathbb 1) = 0\), sans oublier que \((1-i)(1+i) = 2\).">
+        <div class="exo-head"><span class="num">Exercice 2.3</span><h3>Valeurs propres</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Une grandeur est représentée par \(A = \begin{pmatrix}2 & 1-i\\ 1+i & 3\end{pmatrix}\). Quel est le plus grand résultat de mesure possible ?</p>
+        <div class="num-answer"><label for="e23">a<sub>max</sub> =</label><input id="e23" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div><p>\((2-\lambda)(3-\lambda) - |1+i|^2 = \lambda^2 - 5\lambda + 6 - 2 = (\lambda-1)(\lambda-4)\). Contrôle : la trace vaut \(5 = 1 + 4\) et le déterminant \(4 = 1\times4\).</p></div></details>
+      </article>
+    </section>
+
+    <!-- ===================================================== 2.3 -->
+    <section class="section" id="s3">
+      <h2><span class="n">2.3</span>Algèbre des opérateurs</h2>
+      <div class="box def rise">
+        <span class="box-title">Définitions 2.3 — Adjoint, hermitien, unitaire</span>
+        <p><strong>Adjoint</strong> : \((A^\dagger)_{ij} = A_{ji}^*\), transposée conjuguée. On a \((AB)^\dagger = B^\dagger A^\dagger\) et \((\lambda A)^\dagger = \lambda^* A^\dagger\). Pour une expression en notation de Dirac : on renverse l’ordre, on échange kets et bras, on conjugue les nombres. Exemple : \((2\ket0\bra1 - i\ket1\bra0)^\dagger = 2\ket1\bra0 + i\ket0\bra1\).</p>
+        <p><strong>Hermitien</strong> : \(A^\dagger = A\). Les éléments diagonaux sont réels, les éléments symétriques par rapport à la diagonale sont conjugués : \(\begin{pmatrix}a & c\\ c^* & b\end{pmatrix}\), \(a, b\in\mathbb R\).</p>
+        <p><strong>Unitaire</strong> : \(U^\dagger U = UU^\dagger = \mathbb 1\). Il conserve la norme ; l’évolution d’un système isolé est unitaire (chapitre 3).</p>
+      </div>
+
+      <p>Un opérateur hermitien a des valeurs propres réelles, et ses vecteurs propres associés à des valeurs propres distinctes sont orthogonaux. Il s’écrit alors comme une somme de projecteurs, c’est la <strong>décomposition spectrale</strong> :</p>
+      <div class="eq">$$\hat A = \sum_i a_i\,\hat P_i,\qquad \hat P_i = \ket{\varphi_i}\bra{\varphi_i},\qquad \hat P_i^2 = \hat P_i,\qquad \sum_i\hat P_i = \mathbb 1.$$</div>
+      <p>La <strong>trace</strong> \(\mathrm{Tr}\,A = \sum_i A_{ii} = \sum_i a_i\) ne dépend pas de la base, et \(\mathrm{Tr}(AB) = \mathrm{Tr}(BA)\).</p>
+
+      <div class="box law rise">
+        <span class="box-title">Formulaire — matrices de Pauli</span>
+        <div class="eq">$$\sigma_x = \begin{pmatrix}0&1\\1&0\end{pmatrix},\quad \sigma_y = \begin{pmatrix}0&-i\\i&0\end{pmatrix},\quad \sigma_z = \begin{pmatrix}1&0\\0&-1\end{pmatrix},\qquad \sigma_j\sigma_k = \delta_{jk}\mathbb 1 + i\varepsilon_{jkl}\sigma_l.$$</div>
+        <p>Hermitiennes et unitaires (\(\sigma_j^2 = \mathbb 1\)), de trace nulle, de déterminant \(-1\), de valeurs propres \(\pm1\). Commutateurs : \([\sigma_x, \sigma_y] = 2i\sigma_z\) et permutations circulaires. Anticommutateurs : \(\{\sigma_j, \sigma_k\} = 2\delta_{jk}\mathbb 1\). Le spin s’en déduit par \(\hat S_j = \frac\hbar2\sigma_j\), d’où \([\hat S_x, \hat S_y] = i\hbar\hat S_z\).</p>
+        <p>\(\varepsilon_{jkl}\) vaut \(+1\) pour \((x,y,z)\) et ses permutations circulaires, \(-1\) pour les permutations impaires (un échange de deux indices), \(0\) si deux indices sont égaux.</p>
+      </div>
+
+      <article class="exo" data-id="2.4" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 2.4</span><h3>Reconnaître une observable</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Laquelle de ces matrices peut représenter une grandeur physique ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : l’élément (1,2) vaut i et l’élément (2,1) vaut i aussi. Il faudrait −i, le conjugué."><input type="radio" name="e24" value="a">\(\begin{pmatrix}1 & i\\ i & 1\end{pmatrix}\)</label></li>
+          <li><label class="choice" data-why="Exact : diagonale réelle, et −i et i sont conjugués. C’est σ_y + (3/2)𝟙 − (1/2)σ_z."><input type="radio" name="e24" value="b">\(\begin{pmatrix}1 & -i\\ i & 2\end{pmatrix}\)</label></li>
+          <li><label class="choice" data-why="Non : un élément diagonal imaginaire donnerait un résultat de mesure complexe."><input type="radio" name="e24" value="c">\(\begin{pmatrix}i & 0\\ 0 & 1\end{pmatrix}\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="2.5" data-answer="a">
+        <div class="exo-head"><span class="num">Exercice 2.5</span><h3>Un commutateur de Pauli</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Calculez \([\sigma_z, \sigma_x] = \sigma_z\sigma_x - \sigma_x\sigma_z\).</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact : σ_zσ_x = [[0,1],[−1,0]] = iσ_y et σ_xσ_z = −iσ_y. La différence vaut 2iσ_y, en accord avec la permutation circulaire (z, x, y)."><input type="radio" name="e25" value="a">\(2i\sigma_y\)</label></li>
+          <li><label class="choice" data-why="Non : c’est [σ_x, σ_z]. L’ordre compte, le commutateur est antisymétrique."><input type="radio" name="e25" value="b">\(-2i\sigma_y\)</label></li>
+          <li><label class="choice" data-why="Non : si σ_z et σ_x commutaient, Z → X → Z redonnerait 100 % dans le labo 2.1."><input type="radio" name="e25" value="c">\(0\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="2.6" data-num="0.5" data-tol="0.01" data-ok="Exact : \(|\braket{+|\psi}|^2 = \tfrac12\,|1/\sqrt3 + i\sqrt{2/3}|^2 = \tfrac12(\tfrac13 + \tfrac23) = \tfrac12\)." data-ko="Calculez \(\braket{+|\psi} = \tfrac{1}{\sqrt2}(\alpha + \beta)\), puis son module au carré, sans oublier que \(\beta\) est imaginaire.">
+        <div class="exo-head"><span class="num">Exercice 2.6</span><h3>Projecteur et règle de Born</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Soit \(\ket\psi = \frac{1}{\sqrt3}\ket0 + i\sqrt{\frac23}\ket1\) et \(\hat P_+ = \ket+\bra+ = \frac12\begin{pmatrix}1&1\\1&1\end{pmatrix}\). Calculez \(\bra\psi\hat P_+\ket\psi\), probabilité d’obtenir \(+1\) en mesurant \(\sigma_x\).</p>
+        <div class="num-answer"><label for="e26">P(+1) =</label><input id="e26" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Pour aller plus loin</summary><div><p>Vérifiez que \(\hat P_+^2 = \hat P_+\) et que ses valeurs propres sont \(0\) et \(1\). Ici \(\vec r = (0,\ 2\sqrt2/3,\ -1/3)\) : l’état est dans le plan \(yz\), d’où \(\langle\sigma_x\rangle = 0\). Placez-le dans le labo 2.2 (θ ≈ 109,5°, φ = 90°) avec n = x.</p></div></details>
+      </article>
+    </section>
+
+    <!-- ===================================================== 2.4 -->
+    <section class="section" id="s4">
+      <h2><span class="n">2.4</span>Incompatibilité et indétermination</h2>
+      <div class="box def rise">
+        <span class="box-title">Définition 2.4 — Commutateur et compatibilité</span>
+        <p>\([\hat A, \hat B] = \hat A\hat B - \hat B\hat A\). Deux observables qui commutent ont une base commune de vecteurs propres : il existe des états où les deux résultats sont certains, et mesurer \(A\) puis \(B\) puis \(A\) redonne le premier résultat. On dit qu’elles sont <strong>compatibles</strong>.</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">Méthode — calculer les probabilités d’une mesure</span>
+        <p>1. Écrire l’état \(\ket\psi\). 2. Identifier l’opérateur \(\hat A\). 3. Trouver ses valeurs propres \(a_i\) et vecteurs propres \(\ket{\varphi_i}\). 4. Projeter : \(c_i = \braket{\varphi_i|\psi}\). 5. \(P(a_i) = |c_i|^2\), et vérifier que \(\sum_i P(a_i) = 1\).</p>
+      </div>
+
+      <article class="exo" data-id="2.7" data-answer="c">
+        <div class="exo-head"><span class="num">Exercice 2.7</span><h3>Idées reçues sur la mesure</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Une seule de ces affirmations est vraie. Laquelle ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Faux : Z → X → Z montre qu’il n’y a pas de valeur de S_z « mémorisée » qui attendrait d’être lue."><input type="radio" name="e27" value="a">La mesure révèle une valeur qui existait déjà, cachée.</label></li>
+          <li><label class="choice" data-why="Faux : 𝟙 commute avec tout opérateur sans lui être égal, et σ_z commute avec σ_z² = 𝟙."><input type="radio" name="e27" value="b">Deux opérateurs qui commutent sont identiques.</label></li>
+          <li><label class="choice" data-why="Vrai. C’est ce qui permet de préparer des états où A et B sont tous deux certains. Attention : même si [A,B] = 0, mesurer A peut modifier l’état (projection), il ne détruit simplement pas l’information sur B."><input type="radio" name="e27" value="c">Si \([\hat A, \hat B] = 0\), ils ont une base commune de vecteurs propres.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <h3>L’inégalité de Robertson</h3>
+      <p>L’écart-type d’une mesure dans l’état \(\ket\psi\) est \(\Delta A = \sqrt{\langle A^2\rangle - \langle A\rangle^2}\). Pour deux observables quelconques (Robertson, 1929, qui généralise Heisenberg, 1927) :</p>
+      <div class="eq">$$\Delta A\,\Delta B \ \ge\ \frac12\,\big|\bra\psi[\hat A, \hat B]\ket\psi\big|.$$</div>
+      <p>Pour le qubit, \(\sigma_j^2 = \mathbb 1\) donne \(\Delta\sigma_j = \sqrt{1 - r_j^2}\), et l’inégalité pour \(\sigma_x, \sigma_y\) devient \(\Delta\sigma_x\,\Delta\sigma_y \ge |\langle\sigma_z\rangle| = |r_z|\). Pour la position et l’impulsion, \([\hat x, \hat p] = i\hbar\) donne \(\Delta x\,\Delta p \ge \hbar/2\) (chapitre 5).</p>
+
+      <figure class="lab rise" data-lab="rb" aria-labelledby="lab-rb-t">
+        <div class="lab-head"><h3 id="lab-rb-t">Indétermination de \(\sigma_x\) et \(\sigma_y\)</h3><span class="tag">LABO 2.3</span></div>
+        <div class="lab-body">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel" style="grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))">
+            <div style="display:grid;gap:1rem;align-content:start">
+            <div class="btn-row"><button class="btn accent" data-act="move" type="button">Faire bouger l’état</button></div>
+            <div class="ctrl"><label for="rb-t">État : θ <output for="rb-t"></output></label><input id="rb-t" type="range" min="0" max="180" step="1" value="50"></div>
+            <div class="ctrl"><label for="rb-p">État : φ <output for="rb-p"></output></label><input id="rb-p" type="range" min="0" max="359" step="1" value="30"></div>
+            <p class="legend"><span><i></i>Δσx·Δσy en fonction de θ</span><span><i class="dash"></i>borne |cos θ|</span></p>
+            </div>
+            <dl class="readout">
+              <div><dt style="text-transform:none;letter-spacing:0">⟨σx⟩</dt><dd data-out="sx"></dd></div>
+              <div><dt style="text-transform:none;letter-spacing:0">⟨σy⟩</dt><dd data-out="sy"></dd></div>
+              <div><dt style="text-transform:none;letter-spacing:0">⟨σz⟩</dt><dd data-out="sz"></dd></div>
+              <div><dt style="text-transform:none;letter-spacing:0">Δσx</dt><dd data-out="dx"></dd></div>
+              <div><dt style="text-transform:none;letter-spacing:0">Δσy</dt><dd data-out="dy"></dd></div>
+              <div><dt style="text-transform:none;letter-spacing:0">Δσx · Δσy</dt><dd data-out="prod"></dd></div>
+              <div><dt style="text-transform:none;letter-spacing:0">Borne |⟨σz⟩|</dt><dd data-out="bound"></dd></div>
+            </dl>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>La courbe noire ne descend jamais dans la zone interdite. Elle touche la borne quand φ = 0°, 90°, 180° ou 270° : l’inégalité est alors une égalité. À l’équateur (θ = 90°), la borne vaut zéro, et pour φ = 0 on obtient même \(\Delta\sigma_x = 0\) : l’état \(\ket+\) est propre de \(\sigma_x\).</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Le cours affirme que, si \([\hat A, \hat B] \neq 0\), « il est impossible de préparer un état où les deux dispersions sont nulles ». L’inégalité ne dit pas cela : sa borne dépend de l’état et peut s’annuler. Pour le moment cinétique, \([\hat L_x, \hat L_y] = i\hbar\hat L_z \neq 0\), et pourtant l’état \(\ell = 0\) donne \(\Delta L_x = \Delta L_y = 0\). Deux opérateurs qui ne commutent pas peuvent avoir <em>quelques</em> vecteurs propres communs, mais pas une base complète. Pour \(\sigma_x\) et \(\sigma_y\), il n’y en a aucun : la somme \(\Delta\sigma_x^2 + \Delta\sigma_y^2 = 1 + r_z^2\) est toujours au moins 1.</p>
+        <p>Autre nuance : l’inégalité de Robertson porte sur des écarts-types mesurés sur des <em>copies</em> du même état. Elle ne décrit pas la « perturbation » d’une mesure par la suivante.</p>
+      </div>
+
+      <article class="exo" data-id="2.8" data-num="0.866" data-tol="0.01" data-ok="Exact : \(\langle\sigma_z\rangle = \tfrac34 - \tfrac14 = \tfrac12\), donc \(\Delta\sigma_z = \sqrt{1 - \tfrac14} = \sqrt3/2\)." data-ko="Calculez \(\langle\sigma_z\rangle = |\alpha|^2 - |\beta|^2\), puis \(\Delta\sigma_z = \sqrt{1 - \langle\sigma_z\rangle^2}\) car \(\sigma_z^2 = \mathbb 1\).">
+        <div class="exo-head"><span class="num">Exercice 2.8</span><h3>Valeur moyenne et écart-type</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Pour \(\ket\psi = \frac{\sqrt3}{2}\ket0 + \frac12\ket1\), calculez l’écart-type \(\Delta\sigma_z\).</p>
+        <div class="num-answer"><label for="e28">Δσz =</label><input id="e28" type="text" inputmode="decimal" autocomplete="off" placeholder="ex. sqrt(3)/2"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Pour aller plus loin</summary><div><p>Cet état est à θ = 60°, φ = 0. Vérifiez dans le labo 2.3 : \(\Delta\sigma_x = 1/2\), \(\Delta\sigma_y = 1\), produit \(1/2 = |\langle\sigma_z\rangle|\). La borne est atteinte.</p></div></details>
+      </article>
+
+      <div class="box law rise">
+        <span class="box-title">Application — BB84, l’incompatibilité comme alarme</span>
+        <p>Alice envoie des qubits préparés au hasard dans la base Z ou X ; Bob mesure chacun dans une base tirée au hasard. Ils comparent ensuite publiquement leurs bases et ne gardent que les bits où elles coïncident. Une espionne qui mesure dans la mauvaise base projette l’état : si Bob mesure ensuite dans la base d’Alice, il obtient le mauvais bit une fois sur deux. Sur les bits interceptés <em>et</em> conservés, cela fait un taux d’erreur attendu de 25 %.</p>
+      </div>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — le masque sacré</span>
+        <p>Dans de nombreuses cultures, un masque sacré dort hors des cérémonies ; son identité ne se manifeste que pendant le rituel qui l’« active ». Masque dormant ↔ grandeur non définie avant la mesure ; rituel ↔ mesure ; manifestations possibles de l’esprit ↔ valeurs propres.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>Le rituel suit des règles fixées par une communauté et dépend des intentions des participants. La mesure quantique, elle, est une interaction physique qui donne les mêmes statistiques quel que soit l’opérateur humain. Surtout, l’analogie ne dit rien de l’<em>incompatibilité</em> : un masque peut manifester plusieurs qualités à la fois, alors que \(S_x\) et \(S_z\) ne peuvent pas être définis ensemble.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 2.5 -->
+    <section class="section" id="s5">
+      <h2><span class="n">2.5</span>Exercices de synthèse</h2>
+      <article class="exo" data-id="2.9" data-num="0.6998" data-tol="0.01" data-ok="Exact : \(\cos^2 30° \times \tfrac12(1 + \sin 60°) = 0{,}75 \times 0{,}933 \approx 0{,}700\). Dans le labo 2.1 (préréglage Z → 60° → X), « P(+) dernier SG » affiche 93,3 % et « Arrivés au bout, prévu » 37,5 % = ½ × 0,75." data-ko="Deux facteurs : \(\cos^2(\theta/2)\) pour passer SG₂, puis \(\cos^2((90° - \theta)/2) = \tfrac12(1 + \sin\theta)\) pour passer SG₃.">
+        <div class="exo-head"><span class="num">Exercice 2.9</span><h3>Trois appareils, un angle</h3><span class="stars" aria-label="difficulté 3 sur 3">★★★</span></div>
+        <p>Des atomes \(\ket{+_z}\) (déjà filtrés par SG₁) traversent SG₂ orienté à \(\theta = 60°\) (on garde \(+_\theta\)), puis SG₃ orienté selon \(x\). Quelle fraction de ces atomes sort par la voie \(+_x\) de SG₃ ?</p>
+        <div class="num-answer"><label for="e29">Fraction =</label><input id="e29" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div><p>\(\ket{+_z} = \cos\frac\theta2\ket{+_\theta} + \sin\frac\theta2\ket{-_\theta}\), donc \(P(+_\theta) = \cos^2\frac\theta2\). Ensuite \(\ket{+_\theta}\) entre dans \(\mathrm{SG}_x\) : \(P(+_x) = \cos^2\frac{90° - \theta}{2} = \frac12(1 + \sin\theta)\). Au total \(\cos^2\frac\theta2\cdot\frac12(1 + \sin\theta)\).</p></div></details>
+      </article>
+
+      <article class="exo" data-id="2.10" data-num="0" data-tol="0.01" data-ok="Exact : aucun des qubits 3, 6 et 11 n’est conservé, car Bob n’a pas mesuré dans la base d’Alice. Eve passe inaperçue sur cet échantillon." data-ko="Repérez d’abord les qubits où les bases d’Alice et de Bob coïncident. Les qubits interceptés en font-ils partie ?">
+        <div class="exo-head"><span class="num">Exercice 2.10</span><h3>BB84 en pratique</h3><span class="stars" aria-label="difficulté 3 sur 3">★★★</span></div>
+        <p>Alice envoie (base, bit) : (Z,0) (X,1) (X,0) (Z,1) (Z,1) (X,0) (Z,0) (X,1) (Z,1) (X,1) (Z,0) (X,0). Bob mesure dans : Z X Z X Z Z X X Z X X Z. Eve intercepte les qubits 3, 6 et 11 et les mesure dans la base Z. Quel taux d’erreur (QBER, entre 0 et 1) Alice et Bob observent-ils sur leur clé tamisée ?</p>
+        <div class="num-answer"><label for="e210">QBER =</label><input id="e210" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>Les bases coïncident pour les qubits 1, 2, 5, 8, 9 et 10. Clé tamisée : 0 1 1 1 1 1. Les qubits 3, 6 et 11 sont éliminés au tamisage, donc Eve n’introduit aucune erreur visible : QBER = 0.</p>
+          <p>Si Eve avait intercepté le qubit 2 (Alice en X, Bob en X), sa mesure en Z aurait donné à Bob un bit faux avec probabilité ½. C’est pourquoi Alice et Bob sacrifient une partie de la clé tamisée pour estimer le QBER : une espionne qui intercepte tout produit 25 % d’erreurs en moyenne.</p>
+        </div></details>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Dans l’énoncé du cours (exercice 2.5.4), les trois qubits interceptés par Eve sont justement ceux où Bob n’a pas choisi la base d’Alice. La question « quel QBER trahit Eve ? » a donc pour réponse 0 : l’exemple ne montre pas la détection. Pour l’illustrer, il faut qu’Eve intercepte au moins un qubit conservé, par exemple le 2 ou le 8.</p>
+      </div>
+    </section>
+
+    <section class="section" id="actu">
+      <h2><span class="n">·</span>Où en est-on en 2026 ?</h2>
+      <div class="box news rise">
+        <span class="box-title">Une clé quantique entre Pékin et Stellenbosch</span>
+        <p>Le microsatellite chinois Jinan-1 a distribué des clés quantiques en temps réel vers des stations au sol mobiles d’environ 100 kg. Il a permis une communication chiffrée entre Pékin et Stellenbosch (Afrique du Sud), à 12 900 km. Le satellite y sert de <em>relais de confiance</em> : il connaît les clés, ce n’est pas de l’intrication de bout en bout. La sécurité de BB84 est démontrée pour le protocole idéal ; les dispositifs réels ont leurs propres failles.</p>
+        <cite>Li et al., Nature (19 mars 2025) ; communiqué de l’Académie chinoise des sciences</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Mesurer sans tout détruire : la correction d’erreurs</span>
+        <p>Un code correcteur quantique mesure de façon répétée des opérateurs qui commutent entre eux, choisis pour signaler une erreur sans lire l’information stockée. Fin 2024, Google a montré sur sa puce Willow que l’erreur d’un qubit logique (code de surface) est divisée par environ 2,14 à chaque augmentation de la distance du code. À ne pas confondre avec la simple <em>détection</em> d’erreurs, où l’on jette les essais fautifs.</p>
+        <cite>Nature 638, 920 (2025)</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Une horloge lue par un autre ion</span>
+        <p>L’horloge à ion aluminium du NIST atteint une incertitude relative de \(5{,}5\times10^{-19}\). L’ion Al<sup>+</sup> est difficile à lire directement : on transfère son état à un ion Mg<sup>+</sup> voisin, que l’on mesure. La décision de redéfinir la seconde n’est pas attendue avant la Conférence générale des poids et mesures de 2030.</p>
+        <cite>Physical Review Letters, juillet 2025 ; BIPM</cite>
+      </div>
+    </section>
+
+    <footer class="chapter-foot">
+      <label class="done-toggle"><input type="checkbox" data-done> J’ai terminé ce chapitre</label>
+      <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/?chapitre=2">S’entraîner sur le quiz du chapitre 2 →</a>
+      <a class="pager" href="1-etats-quantiques.html"><small>← Chapitre précédent</small>États quantiques</a>
+      <a class="pager next" href="3-dynamique.html"><small>Chapitre suivant →</small>Dynamique quantique</a>
+    </footer>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Département de Physique, Faculté des Sciences, Université de Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Mis à jour en octobre 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Sources sur GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 3 · Dynamique quantique — Carnet PHY321</title>
+<meta name="description" content="Postulats, équation de Schrödinger, opérateur d’évolution, précession de Larmor et oscillations de Rabi : laboratoires interactifs et exercices corrigés du chapitre 3 de PHY321 (Université de Yaoundé I).">
+<meta property="og:title" content="Dynamique quantique — Carnet PHY321">
+<meta property="og:description" content="Préparer, faire évoluer, mesurer un qubit ; précession de Larmor, oscillations de Rabi et franges de Ramsey sur la sphère de Bloch.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script src="../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+<script defer src="../assets/js/labs/bloch.js"></script>
+<script defer src="../assets/js/labs/ch3.js"></script>
+</head>
+<body data-chapter="ch3">
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <a class="brand" href="../index.html"><b>Carnet PHY321</b><span>Mécanique quantique · UY1</span></a>
+  <nav aria-label="Chapitres">
+    <a href="1-etats-quantiques.html">1 · États</a>
+    <a href="2-mesure-operateurs.html">2 · Mesure</a>
+    <a href="3-dynamique.html" aria-current="page">3 · Dynamique</a>
+    <a href="4-intrication.html">4 · Intrication</a>
+    <a href="5-fonction-etat.html">5 · Espace continu</a>
+    <a href="6-oscillateur.html">6 · Oscillateur</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Thème">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+  <span class="readbar" aria-hidden="true"></span>
+</header>
+
+<div class="chapter-layout">
+  <aside class="toc" aria-label="Sommaire du chapitre">
+    <details>
+      <summary>Sommaire</summary>
+      <ol>
+        <li><a href="#s1"><span class="toc-num">3.1</span>Les postulats</a></li>
+        <li><a href="#s2"><span class="toc-num">3.2</span>Équation de Schrödinger</a></li>
+        <li><a href="#s3"><span class="toc-num">3.3</span>Oscillations de Rabi</a></li>
+        <li><a href="#s4"><span class="toc-num">3.4</span>Exercices de synthèse</a></li>
+        <li><a href="#actu"><span class="toc-num">·</span>Où en est-on en 2026 ?</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main id="contenu">
+    <header class="chapter-head">
+      <span class="big-num" aria-hidden="true">3</span>
+      <p class="eyebrow">Chapitre 3 · CM 4 h + TD 4 h</p>
+      <h1>Dynamique quantique</h1>
+      <p class="lede">Le chapitre 2 donnait une photographie : un état, une question, une réponse. Ici, on tourne le film. Entre deux mesures, l’état évolue de façon déterministe ; à la mesure, le hasard reprend la main.</p>
+      <ul class="goals">
+        <li>Énoncer les six postulats et dire lequel intervient à chaque étape d’une expérience.</li>
+        <li>Résoudre l’équation de Schrödinger pour un hamiltonien indépendant du temps avec \(U(t) = e^{-i\hat Ht/\hbar}\).</li>
+        <li>Reconnaître un état stationnaire et une grandeur conservée.</li>
+        <li>Calculer une probabilité de Rabi et la durée d’une impulsion \(\pi\) ou \(\pi/2\).</li>
+      </ul>
+    </header>
+
+    <!-- ===================================================== 3.1 -->
+    <section class="section" id="s1">
+      <h2><span class="n">3.1</span>Les postulats : les règles du jeu</h2>
+      <p>Les postulats ne se démontrent pas. Ils résument ce que les chapitres 1 et 2 ont établi, et un siècle d’expériences n’a trouvé aucune situation qui les contredise. On les range en deux groupes : la description du système, puis la mesure.</p>
+
+      <div class="box law rise">
+        <span class="box-title">Postulats 1 à 5 — description et mesure</span>
+        <p><strong>P1, état.</strong> L’état est un vecteur normé \(\ket\psi\) d’un espace de Hilbert : \(\ket\psi = \sum_n \alpha_n\ket{\varphi_n}\), \(\alpha_n = \braket{\varphi_n|\psi}\), \(\braket{\psi|\psi} = 1\).</p>
+        <p><strong>P2, grandeurs.</strong> À toute grandeur mesurable \(A\) correspond un opérateur hermitien \(\hat A\).</p>
+        <p><strong>P3, résultats.</strong> Une mesure de \(A\) ne peut donner qu’une valeur propre \(a_n\) : \(\hat A\ket{\varphi_n} = a_n\ket{\varphi_n}\), et \(\hat A = \sum_n a_n\ket{\varphi_n}\bra{\varphi_n}\).</p>
+        <p><strong>P4, règle de Born.</strong> \(P(a_n) = |\braket{\varphi_n|\psi}|^2\). En moyenne, \(\langle A\rangle_\psi = \sum_n P(a_n)\,a_n = \bra\psi\hat A\ket\psi\).</p>
+        <p><strong>P5, projection.</strong> Après le résultat \(a_n\), l’état devient</p>
+        <div class="eq">$$\ket{\psi_\text{après}} = \frac{\hat P_n\ket\psi}{\lVert\hat P_n\ket\psi\rVert},\qquad \hat P_n = \ket{\varphi_n}\bra{\varphi_n}.$$</div>
+      </div>
+
+      <p>Le sixième postulat, l’équation de Schrödinger, dit comment l’état change entre deux mesures (section 3.2). Le laboratoire ci-dessous enchaîne les trois actes d’une expérience sur un qubit.</p>
+
+      <figure class="lab rise" data-lab="postulats" aria-labelledby="lab-pq-t">
+        <div class="lab-head"><h3 id="lab-pq-t">Préparer, évoluer, mesurer</h3><span class="tag">LABO 3.1</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"><span class="lab-hint">Glissez pour tourner la sphère</span></div>
+          <div class="lab-panel">
+            <div class="ctrl"><span class="lbl">① État préparé (P1)</span>
+              <div class="seg" data-seg="prep"><button type="button" data-v="0" aria-pressed="true">|0⟩</button><button type="button" data-v="+">|+⟩</button><button type="button" data-v="+i">|+i⟩</button></div>
+            </div>
+            <div class="ctrl"><span class="lbl">② Hamiltonien \(\hat H = \tfrac{\hbar\omega}{2}\hat\sigma_n\) (P6)</span>
+              <div class="seg" data-seg="ham"><button type="button" data-v="Z">σz</button><button type="button" data-v="X" aria-pressed="true">σx</button></div>
+            </div>
+            <div class="ctrl"><label for="pq-angle">Durée d’évolution ωt <output for="pq-angle"></output></label><input id="pq-angle" type="range" min="0" max="360" step="5" value="90"></div>
+            <div class="ctrl"><span class="lbl">③ Base de mesure (P3, P4)</span>
+              <div class="seg" data-seg="basis"><button type="button" data-v="Z" aria-pressed="true">Z : {|0⟩,|1⟩}</button><button type="button" data-v="X">X : {|+⟩,|−⟩}</button></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn ghost small" data-act="prep" type="button">① Préparer</button>
+              <button class="btn accent small" data-act="evolve" type="button">② Évoluer (U)</button>
+              <button class="btn small" data-act="measure" type="button">③ Mesurer</button>
+              <button class="btn ghost small" data-act="undo" type="button">Remonter (U†)</button>
+            </div>
+            <dl class="readout">
+              <div><dt style="text-transform:none">α (sur |0⟩)</dt><dd data-out="alpha"></dd></div>
+              <div><dt style="text-transform:none">β (sur |1⟩)</dt><dd data-out="beta"></dd></div>
+              <div><dt>⟨ψ|ψ⟩</dt><dd data-out="norm"></dd></div>
+            </dl>
+            <p class="legend" data-out="p" aria-live="polite"></p>
+            <p class="legend" data-out="log" aria-live="polite"></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Trois choses à vérifier. Préparez \(\ket0\) avec \(\hat H \propto \hat\sigma_z\) : α prend une phase, mais le vecteur ne bouge pas (état stationnaire). Après une évolution, U† ramène exactement l’état de départ : l’évolution est réversible. Après une mesure, U† ne ramène plus rien : la projection a effacé l’information. Enfin, mesurez deux fois de suite dans la même base : le second résultat répète le premier (P5).</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="3.1" data-num="0.6667" data-tol="0.01" data-ok="Exact : \(|\sqrt{2/3}|^2 = 2/3\). Juste après, l’état est \(\ket1\) (P5) : une nouvelle mesure redonne \(a_1\) avec certitude." data-ko="Appliquez la règle de Born au coefficient de \(\ket1\).">
+        <div class="exo-head"><span class="num">Exercice 3.1</span><h3>Born puis projection</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Un système est dans \(\ket\psi = \sqrt{1/3}\,\ket0 + \sqrt{2/3}\,\ket1\), avec \(\hat A\ket0 = a_0\ket0\) et \(\hat A\ket1 = a_1\ket1\). Quelle est la probabilité d’obtenir \(a_1\) ? Dans quel état est le système juste après ?</p>
+        <div class="num-answer"><label for="e31">P(a₁) =</label><input id="e31" type="text" autocomplete="off" placeholder="ex. 1/2"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 3.2 -->
+    <section class="section" id="s2">
+      <h2><span class="n">3.2</span>Évolution temporelle et équation de Schrödinger</h2>
+
+      <div class="box law rise">
+        <span class="box-title">Postulat 6 — Équation de Schrödinger</span>
+        <p>Entre deux mesures, l’état d’un système isolé évolue selon</p>
+        <div class="eq">$$i\hbar\,\frac{\mathrm d}{\mathrm dt}\ket{\psi(t)} = \hat H\ket{\psi(t)},$$</div>
+        <p>où \(\hat H\), l’hamiltonien, est l’opérateur hermitien associé à l’énergie. L’équation est du premier ordre en temps : \(\ket{\psi(t_0)}\) fixe \(\ket{\psi(t)}\) pour tout \(t &gt; t_0\). Le hasard n’intervient qu’à la mesure.</p>
+      </div>
+
+      <h3>Opérateur d’évolution</h3>
+      <p>Si \(\hat H\) ne dépend pas du temps, la solution s’écrit avec l’opérateur d’évolution :</p>
+      <div class="eq">$$\ket{\psi(t)} = \hat U(t,t_0)\ket{\psi(t_0)},\qquad \hat U(t,t_0) = e^{-i\hat H(t-t_0)/\hbar},\qquad \hat U^\dagger\hat U = \mathbb 1.$$</div>
+      <p>L’unitarité garantit \(\braket{\psi(t)|\psi(t)} = \braket{\psi(t_0)|\psi(t_0)} = 1\) : les probabilités restent normées à tout instant. Elle garantit aussi la réversibilité, car \(\hat U^\dagger(t,t_0) = \hat U(t_0,t)\) : on « remonte » l’évolution en appliquant \(\hat U^\dagger\).</p>
+
+      <div class="box def rise">
+        <span class="box-title">États stationnaires</span>
+        <p>Si \(\hat H\ket{\psi_n} = E_n\ket{\psi_n}\), alors \(\ket{\psi_n(t)} = e^{-iE_nt/\hbar}\ket{\psi_n(0)}\). Seule une phase globale tourne : aucune probabilité de mesure ne change. Une superposition d’états d’énergies <em>différentes</em> évolue, au rythme des écarts \((E_n - E_m)/\hbar\).</p>
+      </div>
+
+      <h3>Valeurs moyennes et grandeurs conservées</h3>
+      <p>En dérivant \(\langle A\rangle = \bra{\psi(t)}\hat A\ket{\psi(t)}\) et en utilisant l’équation de Schrödinger et sa conjuguée, on obtient, pour \(\hat A\) indépendant du temps :</p>
+      <div class="eq">$$\frac{\mathrm d\langle A\rangle}{\mathrm dt} = \frac{1}{i\hbar}\big\langle[\hat A,\hat H]\big\rangle.$$</div>
+      <p>Si \([\hat A,\hat H] = 0\), \(\langle A\rangle\) est constante : \(A\) est une grandeur conservée. Avec \(\hat A = \hat H\), on retrouve la conservation de l’énergie moyenne d’un système isolé.</p>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Le cours appelle cette relation « équation de Heisenberg ». C’est plutôt le <strong>théorème d’Ehrenfest</strong> : il porte sur des valeurs moyennes. L’équation de Heisenberg, \(\mathrm d\hat A_H/\mathrm dt = \tfrac{1}{i\hbar}[\hat A_H,\hat H]\), porte sur les opérateurs eux-mêmes, dans la représentation où ce sont eux qui évoluent.</p>
+        <p>Le résumé du cours affirme aussi que « seule l’énergie est immuable ». C’est trop restrictif : toute grandeur qui commute avec \(\hat H\) est conservée (impulsion d’une particule libre, \(\hat\sigma_z\) dans le labo 3.2…). De même, « seuls les états propres de l’énergie sont stationnaires » suppose qu’on compte comme état propre toute superposition d’états de <em>même</em> énergie (niveau dégénéré).</p>
+      </div>
+
+      <h3>Précession de Larmor</h3>
+      <p>Prenons \(\hat H = \tfrac{\hbar\omega}{2}\hat\sigma_z\) et \(\ket{\psi(0)} = \cos\tfrac\theta2\ket0 + e^{i\varphi_0}\sin\tfrac\theta2\ket1\). Les deux composantes prennent des phases opposées \(e^{\mp i\omega t/2}\) ; à une phase globale près,</p>
+      <div class="eq">$$\ket{\psi(t)} = \cos\tfrac\theta2\ket0 + e^{i(\varphi_0+\omega t)}\sin\tfrac\theta2\ket1 .$$</div>
+      <p>θ ne change pas, φ croît à vitesse ω : le vecteur de Bloch tourne autour de z. On en déduit \(\langle\sigma_x\rangle(t) = \sin\theta\cos(\varphi_0+\omega t)\), \(\langle\sigma_y\rangle(t) = \sin\theta\sin(\varphi_0+\omega t)\) et \(\langle\sigma_z\rangle = \cos\theta\), constant puisque \([\hat\sigma_z,\hat H] = 0\).</p>
+
+      <figure class="lab rise" data-lab="larmor" aria-labelledby="lab-lm-t">
+        <div class="lab-head"><h3 id="lab-lm-t">Précession de Larmor</h3><span class="tag">LABO 3.2</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"><span class="lab-hint">Glissez pour tourner la sphère</span></div>
+          <div class="lab-panel">
+            <div class="lab-stage plot" style="min-height:9rem;aspect-ratio:16/9;border:1px solid var(--rule-soft)"></div>
+            <p class="legend"><span><i class="acc"></i>⟨σx⟩(t)</span><span><i class="blu"></i>⟨σy⟩(t)</span><span><i class="dash"></i>⟨σz⟩ (constant)</span></p>
+            <div class="btn-row">
+              <button class="btn accent small" data-act="play" type="button">Pause</button>
+              <button class="btn ghost small" data-act="reset" type="button">t = 0</button>
+            </div>
+            <div class="ctrl"><label for="lm-theta">Inclinaison θ <output for="lm-theta"></output></label><input id="lm-theta" type="range" min="0" max="180" step="1" value="90"></div>
+            <div class="ctrl"><label for="lm-f">ω/2π <output for="lm-f"></output></label><input id="lm-f" type="range" min="-1" max="1" step="0.05" value="0.5"></div>
+            <dl class="readout">
+              <div><dt style="text-transform:none">⟨σx⟩</dt><dd data-out="sx"></dd></div>
+              <div><dt style="text-transform:none">⟨σy⟩</dt><dd data-out="sy"></dd></div>
+              <div><dt style="text-transform:none">⟨σz⟩</dt><dd data-out="sz"></dd></div>
+              <div><dt>Période</dt><dd data-out="T"></dd></div>
+            </dl>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>La flèche bleue est le vecteur rotation \(\omega\,\hat z\) : le vecteur de Bloch tourne dans le sens direct autour d’elle. Avec θ = 0 ou 180°, plus rien ne bouge : \(\ket0\) et \(\ket1\) sont les états stationnaires. Attention au signe : pour l’hamiltonien du cours \(E_0\ket0\bra0 + E_1\ket1\bra1\) avec \(E_1 &gt; E_0\), on a \(\omega = -(E_1-E_0)/\hbar &lt; 0\) et la rotation se fait dans le sens horaire. Le temps de l’animation est arbitraire : un proton dans l’IRM de 1,5 T précesse à environ 64 MHz.</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="3.2" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 3.2</span><h3>Reconnaître une évolution permise</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Laquelle de ces matrices peut être un opérateur d’évolution \(\hat U(t)\) ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : ses colonnes ne sont pas orthonormées. U|1⟩ = (1, 1) a une norme √2 : la probabilité totale ne serait plus 1."><input type="radio" name="e32" value="a">\(\begin{pmatrix}1 & 1\\ 0 & 1\end{pmatrix}\)</label></li>
+          <li><label class="choice" data-why="Exact : c’est e^{−iπσx/4} = cos(π/4) 1 − i sin(π/4) σx. On vérifie U†U = 1 : colonnes de norme 1 et orthogonales."><input type="radio" name="e32" value="b">\(\frac{1}{\sqrt2}\begin{pmatrix}1 & -i\\ -i & 1\end{pmatrix}\)</label></li>
+          <li><label class="choice" data-why="Non : son déterminant vaut bien 1, mais elle multiplie la norme de |0⟩ par 2. Un déterminant de module 1 ne suffit pas."><input type="radio" name="e32" value="c">\(\begin{pmatrix}2 & 0\\ 0 & 1/2\end{pmatrix}\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="3.3" data-answer="a">
+        <div class="exo-head"><span class="num">Exercice 3.3</span><h3>Un état propre qui « tourne »</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>À \(t = 0\), le système est dans un état propre \(\ket{\psi_1}\) de \(\hat H\), d’énergie \(E_1\). On mesure l’énergie à l’instant \(t\). Quelle est la probabilité d’obtenir \(E_1\) ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact : |ψ(t)⟩ = e^{−iE₁t/ħ}|ψ₁⟩ et |e^{−iE₁t/ħ}|² = 1. Une phase globale ne change aucune probabilité."><input type="radio" name="e33" value="a">1, à tout instant.</label></li>
+          <li><label class="choice" data-why="Non : le facteur e^{−iE₁t/ħ} a un module 1. Son « cosinus » n’apparaît dans aucune probabilité."><input type="radio" name="e33" value="b">\(\cos^2(E_1t/\hbar)\)</label></li>
+          <li><label class="choice" data-why="Non : l’évolution est unitaire, rien ne « fuit » d’un système isolé."><input type="radio" name="e33" value="c">Une valeur qui décroît avec le temps.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="3.4" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 3.4</span><h3>Qu’est-ce qui se conserve ?</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Avec \(\hat H = \tfrac{\hbar\omega}{2}\hat\sigma_z\) et \(\ket{\psi(0)} = \ket+\), laquelle de ces valeurs moyennes reste constante ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : ⟨σx⟩ = cos ωt. En effet [σx, σz] = −2iσy ≠ 0."><input type="radio" name="e34" value="a">\(\langle\sigma_x\rangle\)</label></li>
+          <li><label class="choice" data-why="Exact : [σz, H] = 0, donc d⟨σz⟩/dt = 0. Ici ⟨σz⟩ = 0 à tout instant. Vérifiez sur le labo 3.2 (courbe en tirets)."><input type="radio" name="e34" value="b">\(\langle\sigma_z\rangle\)</label></li>
+          <li><label class="choice" data-why="Non : ⟨σy⟩ = sin ωt, elle oscille en quadrature avec ⟨σx⟩."><input type="radio" name="e34" value="c">\(\langle\sigma_y\rangle\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <h3>L’effet Zénon quantique</h3>
+      <p>Mesurer souvent un système peut ralentir son évolution. Pour un temps court, la probabilité de quitter l’état initial croît comme \(t^2\) et non comme \(t\). Si l’on coupe l’intervalle en \(N\) morceaux séparés par des mesures, chaque morceau contribue \((t/N)^2\), soit \(N(t/N)^2 = t^2/N\) au total : la fuite tend vers zéro quand \(N\) grandit.</p>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Le cours illustre l’effet par un atome qui a « 50 % de chances de se désintégrer en 1 s », mesuré toutes les microsecondes. Deux réserves. D’abord, une désintégration suit une loi exponentielle : le régime en \(t^2\) n’existe qu’aux tout premiers instants, bien plus courts qu’une microseconde, et des mesures toutes les microsecondes ne changent rien à la demi-vie. Ensuite, l’état \(\tfrac{1}{\sqrt2}(\ket{\text{intact}} + \ket{\text{désintégré}})\) est une simplification : le produit de désintégration s’intrique avec la particule émise. L’expérience de référence (Itano et al., NIST, 1990) portait sur une transition de Rabi pilotée dans des ions piégés, exactement la situation de l’exercice 3.5.</p>
+      </div>
+
+      <article class="exo" data-id="3.5" data-num="0.5" data-tol="0.01" data-ok="Exact : \(P_1 = (V\delta t/\hbar)^2\) et \(P_2 \approx 2\,(V\delta t/2\hbar)^2 = P_1/2\). Une mesure intermédiaire divise la fuite par deux." data-ko="Calculez \(P_1 = |\bra B\hat U(\delta t)\ket A|^2\) au premier ordre, puis \(P_2\) comme la somme de deux étapes de durée \(\delta t/2\).">
+        <div class="exo-head"><span class="num">Exercice 3.5</span><h3>Zénon en deux étapes</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Deux niveaux \(\ket A, \ket B\), avec \(\bra A\hat H\ket A = \bra B\hat H\ket B = 0\) et \(\bra B\hat H\ket A = V\) réel. On part de \(\ket A\) et on utilise \(\hat U(\delta t) \approx \mathbb 1 - \tfrac{i}{\hbar}\hat H\delta t\). \(P_1\) est la probabilité de trouver \(\ket B\) après \(\delta t\) sans mesure ; \(P_2\) la même probabilité si l’on mesure dans \(\{\ket A, \ket B\}\) à \(\delta t/2\). Que vaut \(P_2/P_1\) au premier ordre non nul ?</p>
+        <div class="num-answer"><label for="e35">P₂/P₁ =</label><input id="e35" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>\(\hat U(\delta t)\ket A \approx \ket A - \tfrac{iV\delta t}{\hbar}\ket B\), donc \(P_1 = (V\delta t/\hbar)^2\). Avec la mesure : à \(\delta t/2\), on trouve \(\ket B\) avec la probabilité \(p = (V\delta t/2\hbar)^2\) et on y reste au premier ordre ; sinon on repart de \(\ket A\) et on gagne encore \(p\). Total : \(P_2 \approx 2p = P_1/2\). Avec \(N\) mesures, \(P_N \approx P_1/N\).</p>
+        </div></details>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — le parent qui surveille</span>
+        <p>Un parent demande sans arrêt à son enfant : « Tu n’as pas bougé, hein ? ». À force, l’enfant reste figé. Le cours compare ainsi l’effet Zénon à une attention constante qui fige l’évolution.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>L’enfant se fige par crainte : c’est une force, une influence qui s’ajoute. Dans l’effet Zénon, la mesure n’exerce aucune poussée ; elle projette l’état, et c’est la croissance en \(t^2\) des probabilités qui fait le reste. Si la probabilité croissait linéairement, comme pour une désintégration ordinaire, mesurer souvent ne changerait rien. Enfin, chaque mesure a une petite chance de trouver l’enfant… déjà parti : le gel n’est jamais total.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 3.3 -->
+    <section class="section" id="s3">
+      <h2><span class="n">3.3</span>La danse du qubit : oscillations de Rabi</h2>
+      <p>Un qubit a deux niveaux \(\ket0\) (fondamental) et \(\ket1\) (excité), séparés par \(\hbar\omega_0\) : \(\hat H_0 = E_0\ket0\bra0 + E_1\ket1\bra1\). Un champ oscillant de pulsation \(\omega\) proche de \(\omega_0\) (micro-onde, laser, radiofréquence) ajoute un couplage \(\hat V(t)\) entre les deux niveaux. En se plaçant dans le référentiel qui tourne avec le champ, et en négligeant les termes qui oscillent à \(\omega + \omega_0\), on obtient un hamiltonien indépendant du temps :</p>
+      <div class="eq">$$\tilde H = \frac{\hbar}{2}\big(\Omega\,\hat\sigma_x + \Delta\,\hat\sigma_z\big),\qquad \Omega' = \sqrt{\Omega^2+\Delta^2}.$$</div>
+      <p>\(\Omega\) est la pulsation de Rabi (fixée par l’amplitude du champ), \(\Delta\) le désaccord \(\pm(\omega-\omega_0)\), son signe dépendant de la convention. Comme pour Larmor, le vecteur de Bloch tourne, cette fois autour de l’axe \((\Omega, 0, \Delta)\), à la pulsation \(\Omega'\).</p>
+
+      <div class="box law rise">
+        <span class="box-title">Formule de Rabi</span>
+        <p>En partant de \(\ket0\) à \(t = 0\),</p>
+        <div class="eq">$$P_{1\leftarrow0}(t) = \frac{\Omega^2}{\Omega^2+\Delta^2}\,\sin^2\!\Big(\frac{\sqrt{\Omega^2+\Delta^2}}{2}\,t\Big).$$</div>
+        <p>À résonance (\(\Delta = 0\)), le transfert est complet. Une <strong>impulsion π</strong> (\(t = \pi/\Omega\)) envoie \(\ket0\) sur \(-i\ket1\) : c’est une porte X à une phase globale près. Une <strong>impulsion π/2</strong> (\(t = \pi/2\Omega\)) donne \(\tfrac{1}{\sqrt2}(\ket0 - i\ket1) = \ket{-i}\).</p>
+      </div>
+
+      <figure class="lab rise" data-lab="rabi" aria-labelledby="lab-rb-t">
+        <div class="lab-head"><h3 id="lab-rb-t">Oscillations de Rabi avec désaccord</h3><span class="tag">LABO 3.3</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"><span class="lab-hint">Glissez pour tourner la sphère</span></div>
+          <div class="lab-panel">
+            <div class="lab-stage plot" style="min-height:9rem;aspect-ratio:16/9;border:1px solid var(--rule-soft)"></div>
+            <p class="legend"><span><i class="acc"></i>\(P_1(t)\) prévue</span><span><i></i>fréquence sur 200 mesures</span></p>
+            <div class="btn-row">
+              <button class="btn accent small" data-act="play" type="button">Pause</button>
+              <button class="btn ghost small" data-act="pi2" type="button">Impulsion π/2</button>
+              <button class="btn ghost small" data-act="pi" type="button">Impulsion π</button>
+            </div>
+            <div class="btn-row">
+              <button class="btn small" data-act="shots" type="button">Mesurer 200 qubits à t</button>
+              <button class="btn ghost small" data-act="reset" type="button">t = 0</button>
+            </div>
+            <div class="ctrl"><label for="rb-O">Ω/2π (Rabi) <output for="rb-O"></output></label><input id="rb-O" type="range" min="0.1" max="1.5" step="0.05" value="0.5"></div>
+            <div class="ctrl"><label for="rb-D">Δ/2π (désaccord) <output for="rb-D"></output></label><input id="rb-D" type="range" min="-2" max="2" step="0.05" value="0"></div>
+            <dl class="readout">
+              <div><dt style="text-transform:none">P₁(t)</dt><dd data-out="p1"></dd></div>
+              <div><dt>t</dt><dd data-out="t"></dd></div>
+              <div><dt style="text-transform:none">P₁ max</dt><dd data-out="pmax"></dd></div>
+              <div><dt style="text-transform:none">Ω′/2π</dt><dd data-out="op"></dd></div>
+              <div><dt style="text-transform:none">t<sub>π</sub> = π/Ω</dt><dd data-out="tpi"></dd></div>
+            </dl>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>La flèche bleue est l’axe \((\Omega, 0, \Delta)\). À résonance, elle est horizontale et le vecteur passe par le pôle sud. Ajoutez un désaccord : l’axe se redresse, le cercle décrit rétrécit et \(P_1\) plafonne à \(\Omega^2/\Omega'^2\), mais l’oscillation s’accélère. Les boutons d’impulsion utilisent les durées calculées à résonance ; hors résonance, l’impulsion π ne retourne plus le qubit. Un vrai montage ne voit jamais la courbe : il la reconstruit point par point en mesurant beaucoup de qubits, comme le bouton « 200 qubits ».</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>La pulsation de Rabi est proportionnelle à l’<strong>amplitude</strong> du champ (\(\Omega = \gamma B_1\) pour un spin, \(\Omega = dE_0/\hbar\) pour un dipôle électrique), et non à son intensité, qui varie comme le carré de l’amplitude.</p>
+        <p>Le cours range les erreurs de durée et de fréquence des impulsions parmi les sources de « décohérence ». Ce sont des erreurs <strong>cohérentes</strong> : une rotation un peu trop longue reste une évolution unitaire, réversible et corrigeable par étalonnage. La décohérence désigne la perte d’information vers l’environnement, qu’aucune impulsion ne peut défaire.</p>
+      </div>
+
+      <article class="exo" data-id="3.6" data-num="5" data-tol="0.01" data-ok="Exact : les valeurs propres sont \(\pm\tfrac\hbar2\Omega'\), et \(\Omega'/2\pi = \sqrt{3^2+4^2} = 5\) MHz. Cet écart est aussi la fréquence des oscillations de \(P_1\)." data-ko="Les valeurs propres de \(a\hat\sigma_x + b\hat\sigma_z\) sont \(\pm\sqrt{a^2+b^2}\).">
+        <div class="exo-head"><span class="num">Exercice 3.6</span><h3>Valeurs propres de l’hamiltonien de Rabi</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Pour \(\tilde H = \tfrac\hbar2(\Omega\hat\sigma_x + \Delta\hat\sigma_z)\) avec \(\Omega/2\pi = 3\) MHz et \(\Delta/2\pi = 4\) MHz, calculez l’écart \((E_+ - E_-)/h\) en MHz.</p>
+        <div class="num-answer"><label for="e36">(E₊ − E₋)/h =</label><input id="e36" type="text" inputmode="decimal" autocomplete="off"><span>MHz</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="3.7" data-num="25" data-tol="0.01" data-ok="Exact : \(t = \pi/(2\Omega) = 1/(4 \times 10\ \text{MHz}) = 25\) ns." data-ko="Attention au \(2\pi\) : \(\Omega = 2\pi \times 10^7\ \text{s}^{-1}\), et \(t_{\pi/2} = \pi/(2\Omega)\).">
+        <div class="exo-head"><span class="num">Exercice 3.7</span><h3>Durée d’une impulsion π/2</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Un qubit supraconducteur est piloté à résonance avec \(\Omega/2\pi = 10\) MHz. Combien de temps doit durer l’impulsion qui crée la superposition \(\tfrac{1}{\sqrt2}(\ket0 - i\ket1)\) à partir de \(\ket0\) ? (en ns)</p>
+        <div class="num-answer"><label for="e37">t =</label><input id="e37" type="text" inputmode="decimal" autocomplete="off"><span>ns</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="3.8" data-num="0.1" data-tol="0.01" data-ok="Exact : \(\Omega^2/(\Omega^2 + 9\Omega^2) = 1/10\). C’est la courbe « δ = 3ω₁ » de la figure 3.3.1 du cours. Réglez Δ = 3Ω dans le labo 3.3 pour la voir." data-ko="Le maximum de \(\sin^2\) vaut 1 : il reste le préfacteur \(\Omega^2/(\Omega^2+\Delta^2)\).">
+        <div class="exo-head"><span class="num">Exercice 3.8</span><h3>Hors résonance</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>On pilote le qubit avec un désaccord \(\Delta = 3\Omega\). Quelle est la probabilité maximale de trouver le qubit dans \(\ket1\) ?</p>
+        <div class="num-answer"><label for="e38">P₁ max =</label><input id="e38" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — le tam-tam et la résonance</span>
+        <p>Le maître-tambour fait vibrer un tambour éloigné en frappant le sien à la bonne fréquence. De même, un champ à la fréquence de résonance fait passer l’atome d’un niveau à l’autre.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>Le tambour éloigné est un oscillateur classique : son amplitude de vibration prend n’importe quelle valeur et on la voit directement. Le qubit n’a que deux niveaux. Ce qui oscille, c’est une <em>probabilité</em> ; chaque mesure donne 0 ou 1, jamais « à moitié excité ». Et sous un champ maintenu, le qubit ne fait pas que monter : il redescend, se réexcite, et ainsi de suite. Le tambour, lui, n’est pas « désexcité » par la frappe qui l’a mis en vibration.</p>
+        </div></details>
+      </aside>
+
+      <h3>Des oscillations de Rabi aux horloges : la méthode de Ramsey</h3>
+      <p>Une horloge atomique asservit un oscillateur sur la fréquence \(\omega_0\) d’une transition. Elle a besoin d’une résonance la plus étroite possible. Avec une seule impulsion π, la largeur est de l’ordre de \(\Omega\). La méthode de Ramsey sépare deux impulsions π/2 par une précession libre de durée \(T\) : la phase accumulée \(\Delta T\) donne \(P_1 \approx \cos^2(\Delta T/2)\), des franges de largeur \(1/(2T)\) en fréquence, d’autant plus fines que \(T\) est long.</p>
+
+      <figure class="lab rise" data-lab="ramsey" aria-labelledby="lab-rm-t">
+        <div class="lab-head"><h3 id="lab-rm-t">Raie de Rabi contre franges de Ramsey</h3><span class="tag">LABO 3.4</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="rm-T">Temps libre T <output for="rm-T"></output></label><input id="rm-T" type="range" min="0.5" max="8" step="0.1" value="2"></div>
+            <div class="ctrl"><label for="rm-O">Ω/2π des impulsions <output for="rm-O"></output></label><input id="rm-O" type="range" min="0.5" max="3" step="0.05" value="1"></div>
+            <dl class="readout">
+              <div><dt>Largeur Rabi</dt><dd data-out="wrabi"></dd></div>
+              <div><dt>Largeur Ramsey</dt><dd data-out="wram"></dd></div>
+              <div><dt>1/(2T)</dt><dd data-out="th"></dd></div>
+            </dl>
+            <p class="legend"><span><i class="blu"></i>une impulsion π</span><span><i class="acc"></i>π/2 — T — π/2</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Les deux courbes sont calculées exactement, désaccord compris pendant les impulsions. Allongez T : la frange centrale de Ramsey s’affine comme \(1/(2T)\) sans toucher à la puissance des impulsions. Elle reste un peu plus étroite que \(1/(2T)\), car la phase \(\Delta t\) s’accumule aussi pendant les impulsions. C’est cette frange que suivent les fontaines à césium. Les largeurs affichées sont des largeurs totales à mi-hauteur.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Le cours écrit que « la seconde est définie comme 9 192 631 770 oscillations de Rabi du césium ». C’est inexact. Depuis 1967, la seconde est la durée de 9 192 631 770 <strong>périodes du rayonnement</strong> qui correspond à la transition hyperfine de l’état fondamental du césium 133. La fréquence de Rabi, elle, dépend de l’amplitude du champ appliqué : elle ne peut pas servir d’étalon. Les oscillations de Rabi (et surtout les franges de Ramsey) servent seulement à repérer la résonance.</p>
+        <p>L’exercice 3.3.3 du cours donne en outre \(\Delta E = 4{,}135\,667\times10^{-6}\) eV, ce qui conduit à 1 GHz et non à 9,19 GHz (voir l’exercice 3.9). La valeur correcte est \(\Delta E \approx 3{,}80\times10^{-5}\) eV.</p>
+        <p>Pour l’IRM (exercice 3.3.2 du cours), précisons qu’à 1,5 T et à température du corps, l’excès de protons « alignés » n’est que de quelques millionièmes. Le signal vient de la précession de l’aimantation de ce petit excès, détectée par induction dans une bobine ; ce n’est pas une mesure projective de spins individuels.</p>
+      </div>
+
+      <article class="exo" data-id="3.9" data-num="1" data-tol="0.01" data-ok="Exact : \(f_0 = \Delta E/h = 4{,}135\,667\times10^{-6} / 4{,}135\,667\times10^{-15} = 1{,}000\) GHz. C’est incohérent avec 9,19 GHz : la donnée du cours est fausse. Il faudrait \(\Delta E = h f_0 \approx 3{,}80\times10^{-5}\) eV." data-ko="Utilisez \(h = 4{,}135\,667\times10^{-15}\) eV·s et \(f_0 = \Delta E/h\), puis convertissez en GHz.">
+        <div class="exo-head"><span class="num">Exercice 3.9</span><h3>Vérifier une donnée</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Le cours propose \(\Delta E = 4{,}135\,667\times10^{-6}\) eV pour la transition d’horloge du césium. Calculez \(f_0 = \Delta E/h\) en GHz. Est-ce compatible avec la définition de la seconde (9 192 631 770 Hz) ?</p>
+        <div class="num-answer"><label for="e39">f₀ =</label><input id="e39" type="text" inputmode="decimal" autocomplete="off"><span>GHz</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 3.4 -->
+    <section class="section" id="s4">
+      <h2><span class="n">3.4</span>Exercices de synthèse</h2>
+
+      <article class="exo" data-id="3.10" data-num="250" data-tol="0.01" data-ok="Exact : \(\hat U(t) = e^{i\omega_0 t\hat\sigma_z/2}\), et pour \(\omega_0 t = \pi\), \(\hat U = i\hat Z\). Il faut \(\omega_0 t = \pi\), soit \(t = 1/(2\times 2\ \text{MHz}) = 250\) ns. Le facteur \(i\) est une phase globale, invisible à la mesure." data-ko="La précession tourne la phase relative de \(\omega_0 t\). Une porte Z correspond à un demi-tour : \(\omega_0 t = \pi\), avec \(\omega_0 = 2\pi\times 2\) MHz.">
+        <div class="exo-head"><span class="num">Exercice 3.10</span><h3>Une porte Z par précession de Larmor</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Un spin dans un champ statique \(B_0\) évolue sous \(\hat H = -\tfrac{\hbar\omega_0}{2}\hat\sigma_z\), avec \(\omega_0/2\pi = 2\) MHz. Pendant combien de temps faut-il laisser agir le champ pour réaliser, à une phase globale près, la porte \(Z : \ket k \mapsto (-1)^k\ket k\) ? (en ns, plus petite durée non nulle)</p>
+        <div class="num-answer"><label for="e310">t =</label><input id="e310" type="text" inputmode="decimal" autocomplete="off"><span>ns</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="3.11">
+        <div class="exo-head"><span class="num">Exercice 3.11</span><h3>L’impulsion « π/2 » de l’IRM</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Les spins partent de \(\ket0\). On applique \(R_y(\pi/2) = \tfrac{1}{\sqrt2}(\mathbb 1 - i\hat Y)\), avec \(\hat Y = \begin{pmatrix}0 & -i\\ i & 0\end{pmatrix}\). (a) Calculez l’état final et placez-le sur la sphère de Bloch. (b) Probabilités d’obtenir \(\pm\hbar/2\) pour \(S_z\) ? (c) Même question pour \(S_x\), d’états propres \(\ket\pm\).</p>
+        <details class="reveal"><summary>Indice</summary><div><p>\(-i\hat Y = \begin{pmatrix}0 & -1\\ 1 & 0\end{pmatrix}\) est réelle : il n’apparaîtra aucun nombre complexe.</p></div></details>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>(a) \(R_y(\pi/2)\ket0 = \tfrac{1}{\sqrt2}\binom{1}{1} = \ket+\), sur l’équateur, le long de +x. (b) 50 % et 50 %. (c) \(+\hbar/2\) avec certitude, puisque l’état est \(\ket+\) lui-même. Les mesures en Z ne distinguent pas \(\ket+\) d’un mélange 50/50 ; la mesure en X, si. Dans le labo 3.1, préparez \(\ket0\), choisissez \(\hat\sigma_x\) et 90° : vous obtenez \(\ket{-i}\), car une rotation autour de x et une rotation autour de y n’amènent pas au même point de l’équateur.</p>
+        </div></details>
+      </article>
+    </section>
+
+    <section class="section" id="actu">
+      <h2><span class="n">·</span>Où en est-on en 2026 ?</h2>
+      <div class="box news rise">
+        <span class="box-title">Quantum Echoes : U, puis U†</span>
+        <p>En octobre 2025, Google a publié dans <i>Nature</i> une mesure de corrélateurs hors ordre temporel sur 103 qubits de sa puce Willow. Le protocole fait évoluer le système « à l’aller » avec \(\hat U\), perturbe un qubit, puis le fait « revenir » avec \(\hat U^\dagger\) : exactement le bouton « Remonter » du labo 3.1, sur une machine bien plus grande. Google annonce un calcul 13 000 fois plus rapide que le meilleur algorithme classique connu. Ce facteur est une revendication relative aux algorithmes actuels : il peut diminuer si de meilleures méthodes classiques apparaissent.</p>
+        <cite>Google Research, 22 octobre 2025 — research.google/blog/a-verifiable-quantum-advantage</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Horloges : de l’atome au noyau</span>
+        <p>L’horloge à ion aluminium unique du NIST atteint une incertitude systématique relative de \(5{,}5\times10^{-19}\) (2025). Le 7 octobre 2026, deux équipes (TU Wien et une équipe chinoise) ont publié dans <i>Nature</i> les premières horloges nucléaires : un laser ultraviolet du vide, vers 148 nm, est asservi sur une transition du noyau de thorium 229 inséré dans un cristal. Leur stabilité reste inférieure à celle des meilleures horloges atomiques. Les horloges optiques surpassent déjà les fontaines à césium, mais la redéfinition de la seconde n’est pas attendue avant la Conférence générale des poids et mesures de 2030.</p>
+        <cite>NIST, juillet 2025 ; Nature, 7 octobre 2026 ; BIPM, FAQ sur la redéfinition de la seconde</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">La précession de Larmor au service du cerveau</span>
+        <p>Les magnétomètres atomiques à pompage optique mesurent un champ magnétique par la précession de spins atomiques polarisés, le phénomène du labo 3.2. Ils permettent une magnétoencéphalographie portable, sans le refroidissement cryogénique qu’exigent les SQUID.</p>
+        <cite>Revue de 2025 sur l’OPM-MEG — pmc.ncbi.nlm.nih.gov/articles/PMC12320009</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Un Nobel 2026 lié aux états non stationnaires</span>
+        <p>Le prix Nobel de physique 2026 récompense Francis Halzen pour l’observatoire de neutrinos IceCube. Ce n’est pas un prix d’informatique quantique, mais il touche ce chapitre : un neutrino créé avec une « saveur » donnée est une superposition d’états de masses, donc d’énergies, différentes. Cet état n’est pas stationnaire, et sa saveur oscille en se propageant.</p>
+        <cite>Communiqué du comité Nobel, 6 octobre 2026 — nobelprize.org</cite>
+      </div>
+    </section>
+
+    <footer class="chapter-foot">
+      <label class="done-toggle"><input type="checkbox" data-done> J’ai terminé ce chapitre</label>
+      <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/?chapitre=3">S’entraîner sur le quiz du chapitre 3 →</a>
+      <a class="pager" href="2-mesure-operateurs.html"><small>← Chapitre précédent</small>Mesure et opérateurs</a>
+      <a class="pager next" href="4-intrication.html"><small>Chapitre suivant →</small>Systèmes multi-qubits et intrication</a>
+    </footer>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Département de Physique, Faculté des Sciences, Université de Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Mis à jour en octobre 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Sources sur GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>
