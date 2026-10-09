@@ -18,5 +18,16 @@
     <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/">Aller au quiz</a>
   </div>
 </main>
+<script>
+  // Anciennes adresses chapters/chapterN.html (avant octobre 2026) : l'ancien découpage différait du cours
+  (() => {
+    const m = /chapters\/chapter(\d)\.html$/.exec(location.pathname);
+    const map = { 1: '1-etats-quantiques', 2: '2-mesure-operateurs', 3: '2-mesure-operateurs', 4: '3-dynamique', 5: '4-intrication', 6: '5-fonction-etat' };
+    if (!m || !map[m[1]]) return;
+    const a = document.querySelector('.btn.accent');
+    a.href = '/quantum-workbook/chapitres/' + map[m[1]] + '.html';
+    a.textContent = 'Ouvrir le chapitre correspondant';
+  })();
+</script>
 </body>
 </html>
