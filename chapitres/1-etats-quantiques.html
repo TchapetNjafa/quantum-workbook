@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 1 · États quantiques — Carnet PHY321</title>
+<meta name="description" content="Interférences à un quanton, amplitudes de probabilité, superposition et qubit : laboratoires interactifs et exercices corrigés du chapitre 1 de PHY321 (Université de Yaoundé I).">
+<meta property="og:title" content="États quantiques — Carnet PHY321">
+<meta property="og:description" content="Fentes d’Young photon par photon, interféromètre de Mach-Zehnder, sphère de Bloch : manipulez, mesurez, vérifiez.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script src="../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+<script defer src="../assets/js/labs/bloch.js"></script>
+<script defer src="../assets/js/labs/ch1.js"></script>
+</head>
+<body data-chapter="ch1">
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <a class="brand" href="../index.html"><b>Carnet PHY321</b><span>Mécanique quantique · UY1</span></a>
+  <nav aria-label="Chapitres">
+    <a href="1-etats-quantiques.html" aria-current="page">1 · États</a>
+    <a href="2-mesure-operateurs.html">2 · Mesure</a>
+    <a href="3-dynamique.html">3 · Dynamique</a>
+    <a href="4-intrication.html">4 · Intrication</a>
+    <a href="5-fonction-etat.html">5 · Espace continu</a>
+    <a href="6-oscillateur.html">6 · Oscillateur</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Thème">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+  <span class="readbar" aria-hidden="true"></span>
+</header>
+
+<div class="chapter-layout">
+  <aside class="toc" aria-label="Sommaire du chapitre">
+    <details>
+      <summary>Sommaire</summary>
+      <ol>
+        <li><a href="#s1"><span class="toc-num">1.1</span>Interférences à un quanton</a></li>
+        <li><a href="#s2"><span class="toc-num">1.2</span>Amplitudes de probabilité</a></li>
+        <li><a href="#s3"><span class="toc-num">1.3</span>Superposition, décohérence</a></li>
+        <li><a href="#s4"><span class="toc-num">1.4</span>Le qubit</a></li>
+        <li><a href="#s5"><span class="toc-num">1.5</span>Exercices de synthèse</a></li>
+        <li><a href="#actu"><span class="toc-num">·</span>Où en est-on en 2026 ?</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main id="contenu">
+    <header class="chapter-head">
+      <span class="big-num" aria-hidden="true">1</span>
+      <p class="eyebrow">Chapitre 1 · CM 4 h + TD 2 h</p>
+      <h1>États quantiques</h1>
+      <p class="lede">Un photon seul, deux chemins, et une figure d’interférence qui se dessine point par point. Tout le reste du cours découle de cette observation.</p>
+      <ul class="goals">
+        <li>Expliquer pourquoi des probabilités ne suffisent pas à décrire une interférence.</li>
+        <li>Calculer une probabilité de détection avec les règles des amplitudes.</li>
+        <li>Distinguer superposition et simple ignorance (mélange statistique).</li>
+        <li>Placer un état de qubit sur la sphère de Bloch et prédire les résultats d’une mesure.</li>
+      </ul>
+      <div class="listen">
+        <span class="listen-label">Résumé audio · 1 min 12</span>
+        <audio controls preload="none" src="../assets/audio/ch1.mp3"></audio>
+        <details class="reveal"><summary>Lire la transcription</summary><div class="transcript"><p>Envoyez des photons un par un vers deux fentes. Chacun arrive en un point précis de l'écran, comme une particule. Pourtant, après quelques milliers d'impacts, des franges apparaissent, comme pour une onde.</p><p>Pour décrire cela, on n'additionne pas des probabilités. On associe à chaque chemin une amplitude, un nombre complexe. Quand les chemins sont indiscernables, on additionne les amplitudes, puis on prend le module au carré : c'est la règle de Born. Deux amplitudes opposées s'annulent, et la frange est sombre.</p><p>Dès qu'une trace physique révèle le chemin suivi, les franges s'estompent. C'est aussi ce qui arrive au chat de Schrödinger : son environnement l'observe sans cesse. On appelle cela la décohérence.</p><p>Le qubit met cette idée au service de l'information. Son état s'écrit alpha zéro plus bêta un, avec module de alpha au carré plus module de bêta au carré égal à un. On le représente par un point sur la sphère de Bloch. Attention : une mesure ne donne qu'un résultat, et un qubit ne livre jamais plus d'un bit d'information classique.</p></div></details>
+      </div>
+    </header>
+
+    <!-- ===================================================== 1.1 -->
+    <section class="section" id="s1">
+      <h2><span class="n">1.1</span>Interférences à un quanton</h2>
+
+      <blockquote class="dialogue rise">
+        <p><b>Einstein</b>« Dieu ne joue pas aux dés. Chaque particule doit avoir une position et une vitesse bien définies, même si nous ne les connaissons pas. »</p>
+        <p><b>Bohr</b>« Albert, arrête de dire à Dieu ce qu’il doit faire. Un quanton n’est ni une onde ni un corpuscule : il nous montre l’un ou l’autre visage selon la question qu’on lui pose. »</p>
+      </blockquote>
+
+      <p>Thomas Young fait passer de la lumière par deux fentes en 1801 : des franges brillantes et sombres apparaissent, signature d’une onde. Refaisons l’expérience en envoyant les photons <em>un par un</em>. L’intuition classique prédit deux taches, une derrière chaque fente. Ce n’est pas ce qu’on observe.</p>
+      <ul>
+        <li>Chaque photon arrive en un point précis du détecteur, comme une particule.</li>
+        <li>Les premiers impacts semblent jetés au hasard : on ne peut pas prédire où tombera le suivant.</li>
+        <li>Après quelques milliers d’impacts, les franges réapparaissent.</li>
+      </ul>
+
+      <figure class="lab rise" data-lab="young" aria-labelledby="lab-young-t">
+        <div class="lab-head"><h3 id="lab-young-t">Fentes d’Young, photon par photon</h3><span class="tag">LABO 1.1</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent" data-act="play" type="button">Envoyer des photons</button>
+              <button class="btn ghost small" data-act="one" type="button">Un seul</button>
+              <button class="btn ghost small" data-act="clear" type="button">Effacer</button>
+            </div>
+            <div class="ctrl"><label for="young-rate">Débit <output for="young-rate"></output></label><input id="young-rate" type="range" min="0" max="3.5" step="0.05" value="1.8"></div>
+            <div class="ctrl"><label for="young-d">Écart entre les fentes <output for="young-d"></output></label><input id="young-d" type="range" min="1.5" max="8" step="0.1" value="4"></div>
+            <div class="ctrl"><label for="young-D"><span>Information de chemin <i>D</i></span> <output for="young-D"></output></label><input id="young-D" type="range" min="0" max="1" step="0.01" value="0"></div>
+            <dl class="readout">
+              <div><dt>Visibilité <i>V</i></dt><dd data-out="V">1.00</dd></div>
+            </dl>
+            <p class="legend"><span><i></i>impacts comptés</span><span><i class="dash"></i>loi de probabilité</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Poussez <i>D</i> vers 1 : un détecteur placé derrière les fentes indique de plus en plus sûrement le chemin suivi, et les franges s’effacent. La relation de complémentarité \(D^2 + V^2 \le 1\) (Englert, 1996) interdit de connaître parfaitement le chemin tout en gardant des franges contrastées.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box law rise">
+        <span class="box-title">Principe 1.1 — Indiscernabilité des chemins</span>
+        <p>Les interférences apparaissent lorsque plusieurs chemins <strong>indiscernables</strong> mènent à la même détection. Plus une trace physique rend le chemin connaissable, plus les franges s’estompent ; elles disparaissent complètement quand le chemin est parfaitement déterminable.</p>
+      </div>
+
+      <h3>L’interféromètre de Mach-Zehnder</h3>
+      <p>Pour contrôler les chemins avec précision, on utilise deux séparatrices 50/50 (BS), deux miroirs (M) et une lame de phase qui ajoute un déphasage \(\varphi = 2\pi\,\Delta\ell/\lambda\) sur un bras. Le cours décrit quatre montages :</p>
+      <ul>
+        <li><strong>MZ1 et MZ2</strong> : les chemins restent discernables. 50 % / 50 % (ou 25 % sur chaque sortie), pas d’interférence.</li>
+        <li><strong>MZ3</strong> (interféromètre équilibré, \(\varphi = 0\)) : tous les photons sortent par le même détecteur.</li>
+        <li><strong>MZ4</strong> (interféromètre déséquilibré) : \(P(D_x) = \cos^2(\varphi/2)\) et \(P(D_y) = \sin^2(\varphi/2)\).</li>
+      </ul>
+
+      <figure class="lab rise" data-lab="mz" aria-labelledby="lab-mz-t">
+        <div class="lab-head"><h3 id="lab-mz-t">Mach-Zehnder : un photon, deux bras</h3><span class="tag">LABO 1.2</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent" data-act="one" type="button">Envoyer un photon</button>
+              <button class="btn ghost small" data-act="burst" type="button">+500 photons</button>
+              <button class="btn ghost small" data-act="reset" type="button">Remettre à zéro</button>
+            </div>
+            <div class="ctrl"><label for="mz-phi">Déphasage φ <output for="mz-phi"></output></label><input id="mz-phi" type="range" min="0" max="360" step="5" value="0"></div>
+            <label class="check-row"><input id="mz-bs2" type="checkbox" checked> Seconde séparatrice BS₂ en place</label>
+            <label class="check-row"><input id="mz-which" type="checkbox"> Détecteur de chemin sur un bras</label>
+            <div class="bars" aria-live="polite">
+              <div class="bar" data-bar="0"><span>Dx</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+              <div class="bar" data-bar="1"><span>Dy</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+            </div>
+            <dl class="readout">
+              <div><dt>P(Dx) prévue</dt><dd data-out="pth">100 %</dd></div>
+              <div><dt>Photons</dt><dd data-out="N">0</dd></div>
+            </dl>
+            <p class="legend"><span><i></i>fréquence mesurée</span><span><i class="acc"></i>probabilité prévue</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Sans détecteur de chemin, le photon est représenté sur les deux bras à la fois : seule la recombinaison sur BS₂ fixe les probabilités. Ajoutez le détecteur, ou retirez BS₂ : on retrouve 50/50, quel que soit φ.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box history rise">
+        <p>L’interférence d’un photon <em>unique</em> dans un Mach-Zehnder a été démontrée proprement par Grangier, Roger et Aspect en 1986, avec une source qui n’émet vraiment qu’un photon à la fois. En 1999, l’équipe d’Arndt et Zeilinger à Vienne a observé des interférences avec des molécules de fullerène C<sub>60</sub>, soit 60 atomes de carbone et environ 1 080 nucléons et électrons.</p>
+      </div>
+
+      <article class="exo" data-id="1.1" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 1.1</span><h3>Le détecteur espion</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Dans un Mach-Zehnder équilibré (\(\varphi = 0\)), on place un détecteur parfait sur l’un des bras. Il signale le passage du photon sans l’absorber. Quelles probabilités observe-t-on aux sorties ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : 100 % en Dx suppose que les deux chemins interfèrent, donc qu’ils sont indiscernables. Le détecteur les rend discernables."><input type="radio" name="e11" value="a">100 % en Dx, comme sans détecteur.</label></li>
+          <li><label class="choice" data-why="Exact. Les deux chemins sont discernables : on additionne les probabilités, ½·½ + ½·½ = ½ pour chaque sortie. Essayez dans le labo 1.2."><input type="radio" name="e11" value="b">50 % en Dx, 50 % en Dy.</label></li>
+          <li><label class="choice" data-why="Non : le détecteur ne bloque pas le photon, il ne fait que révéler le chemin."><input type="radio" name="e11" value="c">50 % en Dx, 0 % en Dy, 50 % des photons perdus.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — Kirikou Odyssey</span>
+        <p>Imaginez un jeu vidéo inspiré de la cosmologie dogon, où le héros existe à la fois à l’état <em>vivant</em> (il pousse des rochers : aspect particule) et à l’état <em>esprit</em> (il traverse des obstacles et occupe plusieurs lieux : aspect onde). Certains objets du jeu le forcent à « choisir » une seule réalité.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>Dans le jeu, le résultat du « choix » est écrit dans le code : il est déterminé. Une mesure quantique donne en général un résultat <em>réellement</em> aléatoire, dont seule la probabilité est fixée (sauf si l’état est déjà un état propre de la grandeur mesurée). Autre limite : le héros ne peut pas interférer avec lui-même. Or c’est l’interférence entre les deux « possibles » qui fait la signature quantique.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 1.2 -->
+    <section class="section" id="s2">
+      <h2><span class="n">1.2</span>Amplitudes de probabilité</h2>
+      <p>Une probabilité est un nombre réel positif : deux probabilités ne peuvent pas s’annuler. Pour décrire une frange sombre, il faut un objet qui s’ajoute <em>ou se retranche</em>, comme une vague. On associe donc à chaque chemin un nombre complexe : l’amplitude.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Définitions 1.2 — Vecteur d’état et amplitude</span>
+        <p>L’état d’un système est décrit par un <strong>ket</strong> \(\ket{\psi}\). La transition d’un état \(\ket{i}\) vers un état \(\ket{f}\) est décrite (en l’absence d’évolution intermédiaire) par l’amplitude complexe</p>
+        <div class="eq">$$\mathcal{A}(f \leftarrow i) = \braket{f|i}.$$</div>
+        <p><strong>Règle de Born</strong> : \(P(f \leftarrow i) = |\braket{f|i}|^2\).</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">Les règles du jeu</span>
+        <p><strong>Chemins en parallèle</strong> (indiscernables) : on <em>additionne</em> les amplitudes. <strong>Étapes en série</strong> : on <em>multiplie</em> les amplitudes. <strong>Probabilité</strong> : on prend le <em>module au carré</em> de l’amplitude totale.</p>
+      </div>
+
+      <figure class="lab rise" data-lab="phasors" aria-labelledby="lab-ph-t">
+        <div class="lab-head"><h3 id="lab-ph-t">Additionner deux amplitudes</h3><span class="tag">LABO 1.3</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"></div>
+          <div class="lab-panel">
+            <p style="margin:0">Glissez les extrémités de \(\mathcal A_1\) et \(\mathcal A_2\), ou partez d’un cas du cours :</p>
+            <div class="btn-row">
+              <button class="btn ghost small" data-preset="plus" type="button">1 + 1</button>
+              <button class="btn ghost small" data-preset="minus" type="button">1 − 1</button>
+              <button class="btn ghost small" data-preset="i" type="button">1 + i</button>
+              <button class="btn ghost small" data-preset="mz" type="button">MZ, φ = 0</button>
+            </div>
+            <dl class="readout">
+              <div><dt>A₁</dt><dd data-out="a1"></dd></div>
+              <div><dt>A₂</dt><dd data-out="a2"></dd></div>
+              <div><dt>|A₁|² + |A₂|²</dt><dd data-out="cl"></dd></div>
+              <div><dt>|A₁ + A₂|²</dt><dd data-out="qu"></dd></div>
+              <div><dt>Terme croisé</dt><dd data-out="int"></dd></div>
+            </dl>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Les amplitudes ne sont pas normalisées ici : lisez les carrés comme des intensités relatives. La différence entre « somme des probabilités » et « carré de la somme » est le terme d’interférence \(2\,\mathrm{Re}(\mathcal A_1 \mathcal A_2^*)\). Il est positif quand les phases s’accordent, négatif quand elles s’opposent. C’est tout le secret des franges.</p>
+        </figcaption>
+      </figure>
+
+      <h3>Retour au Mach-Zehnder</h3>
+      <p>Une séparatrice transmet avec l’amplitude \(1/\sqrt2\) et réfléchit avec \(i/\sqrt2\) (déphasage de \(\pi/2\) à la réflexion). En suivant les quatre chemins du MZ4, le cours obtient</p>
+      <div class="eq">$$\mathcal A(x) = -e^{i\varphi/2}\cos\frac{\varphi}{2},\qquad \mathcal A(y) = -e^{i\varphi/2}\sin\frac{\varphi}{2},\qquad P(x) + P(y) = 1.$$</div>
+
+      <article class="exo" data-id="1.2" data-num="0.75" data-tol="0.01" data-ok="Exact : \(\cos^2(\pi/6) = 3/4\)." data-ko="Utilisez \(P(D_x) = \cos^2(\varphi/2)\) avec \(\varphi = \pi/3\).">
+        <div class="exo-head"><span class="num">Exercice 1.2</span><h3>Régler un interféromètre</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>La lame de phase introduit \(\varphi = \pi/3\). Quelle est la probabilité de détection en \(D_x\) ? (réponse décimale ou fraction)</p>
+        <div class="num-answer"><label for="e12">P(Dx) =</label><input id="e12" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Indice</summary><div><p>Réglez φ sur 60° dans le labo 1.2 et envoyez 500 photons : la barre rouge indique la valeur attendue.</p></div></details>
+      </article>
+
+      <article class="exo" data-id="1.3" data-num="3.14159" data-tol="0.005" data-ok="Oui : \(\varphi = \pi\). Les deux amplitudes sont opposées : la transmission par ces deux chemins s’annule." data-ko="Cherchez \(\varphi\) tel que \(1 + e^{i\varphi} = 0\).">
+        <div class="exo-head"><span class="num">Exercice 1.3</span><h3>Un défaut qui rend le cristal isolant</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Un électron traverse une maille par deux chemins d’amplitudes égales \(\mathcal A_0\). Un défaut déphase l’un d’eux : \(\mathcal A_\text{tot} = \mathcal A_0(1 + e^{i\varphi})\). Montrez que \(P = 4|\mathcal A_0|^2\cos^2(\varphi/2)\), puis donnez la plus petite valeur \(\varphi > 0\) (en radians) qui annule la transmission.</p>
+        <div class="num-answer"><label for="e13">φ =</label><input id="e13" type="text" autocomplete="off" placeholder="ex. pi/2"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Pour aller plus loin</summary><div><p>Quand un désordre aléatoire rend ces annulations systématiques, l’électron reste piégé : c’est la <em>localisation d’Anderson</em> (prix Nobel 1977).</p></div></details>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — le Ndolé quantique</span>
+        <p>Dans un Ndolé réussi, l’amertume des feuilles et la douceur de l’arachide se compensent ou se renforcent selon les quantités <em>et</em> le moment où on les ajoute. Quantité ↔ module de l’amplitude ; moment ↔ phase.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>Deux saveurs ne s’<em>annulent</em> jamais complètement : aucune ne vaut « moins une ». Les amplitudes, elles, peuvent être exactement opposées et donner une probabilité nulle. Et une recette bien suivie donne toujours le même plat, alors qu’une mesure quantique bien préparée donne des résultats aléatoires.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 1.3 -->
+    <section class="section" id="s3">
+      <h2><span class="n">1.3</span>Superposition et décohérence</h2>
+      <p>En 1935, Schrödinger imagine un chat enfermé avec un atome radioactif, un compteur Geiger et une fiole de poison. Si l’on applique la théorie à la lettre, le chat se retrouve décrit par</p>
+      <div class="eq">$$\ket{\psi_\text{chat}} = \tfrac{1}{\sqrt2}\left(\ket{\text{mort}} + \ket{\text{vivant}}\right).$$</div>
+      <p>Plus précisément, le chat est <em>intriqué</em> avec l’atome : l’état global est \(\tfrac{1}{\sqrt2}\big(\ket{\text{désintégré},\text{mort}} + \ket{\text{intact},\text{vivant}}\big)\) (voir chapitre 4). Schrödinger voulait montrer l’absurdité de l’interprétation de Copenhague. Ironie de l’histoire : son chat est devenu l’illustration standard de la superposition.</p>
+
+      <div class="box law rise">
+        <span class="box-title">Piège courant — superposition ≠ ignorance</span>
+        <div class="table-wrap" style="margin:.4rem 0 0">
+          <table>
+            <thead><tr><th></th><th>Superposition (le ET)</th><th>Mélange statistique (le OU)</th></tr></thead>
+            <tbody>
+              <tr><td>Nature</td><td>Un seul état qui combine A et B</td><td>A ou B, mais on ne sait pas lequel</td></tr>
+              <tr><td>Exemple</td><td>\(\tfrac{1}{\sqrt2}(\ket{0} + \ket{1})\)</td><td>Pièce cachée : pile ou face</td></tr>
+              <tr><td>Interférences</td><td>Oui, les amplitudes se combinent</td><td>Non, les probabilités s’additionnent</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3>Décohérence</h3>
+      <p>Un chat n’est jamais isolé : molécules d’air et photons infrarouges l’« observent » en permanence. Chaque interaction emporte un peu d’information de chemin dans l’environnement. C’est exactement ce que fait le curseur <i>D</i> du labo 1.1 : quand l’information fuit, la visibilité des franges tombe à zéro et l’état se comporte comme un mélange statistique. Pour un objet macroscopique, cela prend un temps infime. C’est aussi le premier ennemi des ordinateurs quantiques.</p>
+
+      <article class="exo" data-id="1.4" data-answer="c">
+        <div class="exo-head"><span class="num">Exercice 1.4</span><h3>Superposition ou mélange ?</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>On prépare 1 000 qubits dans \(\tfrac{1}{\sqrt2}(\ket0 + \ket1)\), et 1 000 autres en tirant chacun à pile ou face entre \(\ket0\) et \(\ket1\). Quelle expérience permet de distinguer les deux lots ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : dans les deux lots, une mesure dans la base {|0⟩, |1⟩} donne 50/50."><input type="radio" name="e14" value="a">Mesurer chaque qubit dans la base \(\{\ket0, \ket1\}\).</label></li>
+          <li><label class="choice" data-why="Non : on ne peut pas « regarder » un état quantique sans le mesurer."><input type="radio" name="e14" value="b">Observer les qubits sans les mesurer.</label></li>
+          <li><label class="choice" data-why="Exact. La superposition est l’état |+⟩ : 100 % de « + ». Le mélange donne 50/50 dans toutes les bases. Vérifiez avec le labo 1.4 (bouton « mesurer 1 000 copies »)."><input type="radio" name="e14" value="c">Mesurer dans la base \(\{\ket+, \ket-\}\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">La gomme quantique</span>
+        <p>On « marque » le chemin de chaque photon, et les franges disparaissent. Si l’on <em>efface</em> ensuite ce marquage et que l’on trie les impacts selon le résultat de l’effacement, les franges réapparaissent dans chaque sous-ensemble. Cela ne permet pas d’envoyer un message dans le passé : sans le tri, fait après coup avec une information transmise classiquement, l’écran ne montre qu’une tache sans franges.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================== 1.4 -->
+    <section class="section" id="s4">
+      <h2><span class="n">1.4</span>Le qubit</h2>
+      <div class="box def rise">
+        <span class="box-title">Définition 1.4 — Qubit</span>
+        <p>Un qubit est un système quantique à deux niveaux, d’états de base \(\ket0\) et \(\ket1\). Un état pur s’écrit</p>
+        <div class="eq">$$\ket\psi = \alpha\ket0 + \beta\ket1,\qquad |\alpha|^2 + |\beta|^2 = 1,\qquad \alpha,\beta\in\mathbb C.$$</div>
+        <p>À une phase globale près (sans effet physique), on peut toujours écrire \(\alpha = \cos\frac\theta2\) et \(\beta = e^{i\varphi}\sin\frac\theta2\) : un point \((\theta, \varphi)\) sur la <strong>sphère de Bloch</strong>. Les mélanges statistiques (chapitre 4) occupent l’intérieur de la sphère.</p>
+      </div>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>On lit parfois qu’un qubit « stocke une infinité d’information » parce que \(\alpha\) et \(\beta\) sont continus. C’est trompeur : on ne peut pas extraire plus d’<strong>un bit</strong> d’information classique d’un qubit (borne de Holevo), et une mesure projette l’état sur l’un des résultats possibles. La puissance du calcul quantique vient des interférences entre amplitudes, pas d’une lecture de « tous les résultats en parallèle ».</p>
+      </div>
+
+      <figure class="lab rise" data-lab="qubit" aria-labelledby="lab-q-t">
+        <div class="lab-head"><h3 id="lab-q-t">Préparer et mesurer un qubit</h3><span class="tag">LABO 1.4</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"><span class="lab-hint">Glissez pour tourner la sphère</span></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="q-theta">θ (latitude depuis |0⟩) <output for="q-theta"></output></label><input id="q-theta" type="range" min="0" max="180" step="1" value="60"></div>
+            <div class="ctrl"><label for="q-phi">φ (phase relative) <output for="q-phi"></output></label><input id="q-phi" type="range" min="0" max="359" step="1" value="45"></div>
+            <div class="btn-row" aria-label="États usuels">
+              <button class="btn ghost small" data-state="0" type="button">|0⟩</button>
+              <button class="btn ghost small" data-state="1" type="button">|1⟩</button>
+              <button class="btn ghost small" data-state="+" type="button">|+⟩</button>
+              <button class="btn ghost small" data-state="-" type="button">|−⟩</button>
+              <button class="btn ghost small" data-state="+i" type="button">|+i⟩</button>
+              <button class="btn ghost small" data-state="-i" type="button">|−i⟩</button>
+            </div>
+            <dl class="readout">
+              <div><dt>α</dt><dd data-out="alpha"></dd></div>
+              <div><dt>β</dt><dd data-out="beta"></dd></div>
+              <div><dt>|α|²</dt><dd data-out="p0"></dd></div>
+              <div><dt>|β|²</dt><dd data-out="p1"></dd></div>
+            </dl>
+            <div class="ctrl"><span class="lbl">Base de mesure</span>
+              <div class="seg" data-seg="basis"><button type="button" data-v="Z" aria-pressed="true">Z : {|0⟩,|1⟩}</button><button type="button" data-v="X">X : {|+⟩,|−⟩}</button><button type="button" data-v="Y">Y : {|±i⟩}</button></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn accent small" data-act="measure" type="button">Mesurer une fois</button>
+              <button class="btn ghost small" data-act="many" type="button">Mesurer 1 000 copies</button>
+            </div>
+            <div class="bars" aria-live="polite">
+              <div class="bar" data-bar="0"><span class="k">|0⟩</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+              <div class="bar" data-bar="1"><span class="k">|1⟩</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+            </div>
+            <p class="legend" data-out="last" aria-live="polite"></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Les états \(\ket+\) et \(\ket{+i}\) donnent tous deux 50/50 en base Z, mais pas en base X ou Y : la phase relative φ est invisible dans une base et décisive dans une autre.</p>
+        </figcaption>
+      </figure>
+
+      <h3>L’espace de Hilbert en trois idées</h3>
+      <ul>
+        <li><strong>Ket et bra</strong> : \(\ket\psi = \binom{\alpha}{\beta}\) et \(\bra\psi = (\alpha^*\ \ \beta^*)\), le conjugué hermitien.</li>
+        <li><strong>Produit scalaire</strong> : \(\braket{\phi|\psi} = \gamma^*\alpha + \delta^*\beta\), qui est l’amplitude de trouver \(\ket\psi\) dans l’état \(\ket\phi\).</li>
+        <li><strong>Base orthonormée et fermeture</strong> : \(\braket{i|j} = \delta_{ij}\) et \(\sum_i \ket i\bra i = \mathbb 1\), d’où \(\ket\psi = \sum_i \braket{i|\psi}\ket i\).</li>
+      </ul>
+
+      <article class="exo" data-id="1.5" data-num="0.25" data-tol="0.01" data-ok="Oui : \(|i/2|^2 = (i/2)(-i/2) = 1/4\). N’oubliez jamais le conjugué." data-ko="Calculez \(|\alpha|^2 = \alpha\,\alpha^*\), pas \(\alpha^2\).">
+        <div class="exo-head"><span class="num">Exercice 1.5</span><h3>Règle de Born</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Soit \(\ket{\psi} = \frac{i}{2}\ket0 + \frac{\sqrt3}{2}\ket1\). Quelle est la probabilité d’obtenir \(0\) ?</p>
+        <div class="num-answer"><label for="e15">P(0) =</label><input id="e15" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="1.6" data-num="120" data-tol="0.01" data-ok="Exact : \(\cos^2(\theta/2) = 1/4\), donc \(\theta/2 = 60°\)." data-ko="Résolvez \(\cos^2(\theta/2) = 1/4\), avec θ en degrés.">
+        <div class="exo-head"><span class="num">Exercice 1.6</span><h3>Viser un point de la sphère</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>On veut un qubit qui donne \(0\) une fois sur quatre en base Z. Quel angle θ (en degrés) faut-il ? Vérifiez ensuite dans le labo 1.4 avec 1 000 copies.</p>
+        <div class="num-answer"><label for="e16">θ =</label><input id="e16" type="text" inputmode="decimal" autocomplete="off"><span>°</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="1.7" data-answer="a">
+        <div class="exo-head"><span class="num">Exercice 1.7</span><h3>La porte de Hadamard</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>La porte \(H\) agit par \(H\ket k = \frac{1}{\sqrt2}\big((-1)^k\ket k + \ket{1-k}\big)\). Que devient \(\ket0\) ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact : k = 0 donne (|0⟩ + |1⟩)/√2 = |+⟩, sur l’équateur de la sphère. Mesuré en base Z : 50/50."><input type="radio" name="e17" value="a">\(\ket+ = \frac{1}{\sqrt2}(\ket0 + \ket1)\)</label></li>
+          <li><label class="choice" data-why="Non : c’est l’image de |1⟩, à cause du facteur (−1)^k."><input type="radio" name="e17" value="b">\(\ket- = \frac{1}{\sqrt2}(\ket0 - \ket1)\)</label></li>
+          <li><label class="choice" data-why="Non : H crée une superposition, elle n’échange pas simplement 0 et 1."><input type="radio" name="e17" value="c">\(\ket1\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 1.5 -->
+    <section class="section" id="s5">
+      <h2><span class="n">1.5</span>Exercices de synthèse</h2>
+      <article class="exo" data-id="1.8" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 1.8</span><h3>Concevoir un capteur de champ magnétique</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Dans un interféromètre à atomes froids, \(\varphi = kB\) et \(P_1(B) = \sin^2(kB/2)\). Pour la meilleure sensibilité, on se place au point où \(|\mathrm dP_1/\mathrm dB|\) est maximal. Quel champ de polarisation \(B_0\) choisir ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : en B = 0, la courbe est plate (dérivée nulle). Un petit champ n’y change presque rien."><input type="radio" name="e18" value="a">\(B_0 = 0\)</label></li>
+          <li><label class="choice" data-why="Exact. dP₁/dB = (k/2) sin(kB), maximal pour kB = π/2. On travaille à P = 50 %, sur la pente la plus raide de la frange."><input type="radio" name="e18" value="b">\(B_0 = \pi/(2k)\)</label></li>
+          <li><label class="choice" data-why="Non : en kB = π, P₁ = 1 est au sommet de la frange, où la pente est nulle."><input type="radio" name="e18" value="c">\(B_0 = \pi/k\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="1.9">
+        <div class="exo-head"><span class="num">Exercice 1.9</span><h3>Le Mach-Zehnder en matrices</h3><span class="stars" aria-label="difficulté 3 sur 3">★★★</span></div>
+        <p>Dans la base \(\{\ket x, \ket y\}\), la séparatrice s’écrit \(B = \frac{1}{\sqrt2}\begin{pmatrix}1 & i\\ i & 1\end{pmatrix}\), la paire de miroirs \(M = \begin{pmatrix}0 & i\\ i & 0\end{pmatrix}\) et la lame \(\Phi = \mathrm{diag}(e^{i\varphi}, 1)\). Calculez \(\ket{\psi_\text{out}} = B\,M\,\Phi\,B\ket x\) et retrouvez \(P(x) = \cos^2(\varphi/2)\) (à l’étiquetage des sorties près).</p>
+        <details class="reveal"><summary>Indice</summary><div><p>Commencez par \(B\ket x = \frac{1}{\sqrt2}\binom{1}{i}\). Gardez \(e^{i\varphi}\) factorisé jusqu’au bout, puis utilisez \(1 + e^{i\varphi} = 2e^{i\varphi/2}\cos(\varphi/2)\).</p></div></details>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>\(\Phi B\ket x = \frac{1}{\sqrt2}\binom{e^{i\varphi}}{i}\), puis \(M\Phi B\ket x = \frac{1}{\sqrt2}\binom{-1}{ie^{i\varphi}}\), et enfin</p>
+          <div class="eq">$$B M \Phi B\ket x = \frac12\begin{pmatrix}-1 - e^{i\varphi}\\ -i + ie^{i\varphi}\end{pmatrix} = -e^{i\varphi/2}\begin{pmatrix}\cos(\varphi/2)\\ \sin(\varphi/2)\end{pmatrix}.$$</div>
+          <p>Donc \(P(x) = \cos^2(\varphi/2)\) et \(P(y) = \sin^2(\varphi/2)\), comme dans le cours.</p>
+        </div></details>
+      </article>
+    </section>
+
+    <section class="section" id="actu">
+      <h2><span class="n">·</span>Où en est-on en 2026 ?</h2>
+      <div class="box news rise">
+        <span class="box-title">Prix Nobel de physique 2025</span>
+        <p>John Clarke, Michel Devoret et John Martinis ont été récompensés « pour la découverte de l’effet tunnel quantique macroscopique et de la quantification de l’énergie dans un circuit électrique ». Leurs circuits supraconducteurs des années 1980 sont les ancêtres directs des qubits de Google et d’IBM.</p>
+        <cite>Communiqué du comité Nobel, 7 octobre 2025 — nobelprize.org</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Des qubits qui corrigent leurs erreurs</span>
+        <p>En 2024, Google a montré sur sa puce Willow que l’erreur d’un qubit logique diminue quand on agrandit le code correcteur : elle est divisée par environ 2,1 à chaque augmentation de la distance du code. En novembre 2025, Quantinuum a présenté Helios (98 ions de baryum, portes à deux qubits fidèles à 99,92 %). Attention à ne pas confondre les centaines de qubits <em>physiques</em> de ces machines avec les quelques qubits <em>logiques</em> réellement protégés.</p>
+        <cite>Nature 638, 920 (2025) ; Nature 655, 81 (2026)</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Interférométrie sur le terrain</span>
+        <p>La formule \(P = \cos^2(\varphi/2)\) du Mach-Zehnder est au cœur de gravimètres à atomes froids vendus dans le commerce, qui mesurent \(g\) à environ \(10^{-8}\ \mathrm{m/s^2}\) près, et de magnétomètres atomiques pour l’imagerie du cerveau sans cryogénie.</p>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Après l’Année internationale du quantique</span>
+        <p>L’Année internationale de la science et des technologies quantiques (2025) s’est close à Accra (Ghana) en février 2026. Le bilan de l’UNESCO note que l’activité a été plus de sept fois moins dense en Afrique qu’en Europe et en Amérique du Nord. Combler cet écart passe aussi par des cours comme celui-ci.</p>
+        <cite>UNESCO, <i>The Quantum moment: a global report</i>, mai 2026</cite>
+      </div>
+    </section>
+
+    <footer class="chapter-foot">
+      <label class="done-toggle"><input type="checkbox" data-done> J’ai terminé ce chapitre</label>
+      <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/?chapitre=1">S’entraîner sur le quiz du chapitre 1 →</a>
+      <a class="pager" href="../index.html"><small>← Sommaire</small>Carnet PHY321</a>
+      <a class="pager next" href="2-mesure-operateurs.html"><small>Chapitre suivant →</small>Mesure et opérateurs</a>
+    </footer>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Département de Physique, Faculté des Sciences, Université de Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Mis à jour en octobre 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Sources sur GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

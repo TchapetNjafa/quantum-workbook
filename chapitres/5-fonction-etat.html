@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 5 · Fonction d’état et espace continu — Carnet PHY321</title>
+<meta name="description" content="Fonction d’état, densité de probabilité, représentation en impulsion, relation [X, P] = iħ, équation de Schrödinger, paquet d’ondes et effet tunnel : laboratoires interactifs et exercices corrigés du chapitre 5 de PHY321 (Université de Yaoundé I).">
+<meta property="og:title" content="Fonction d’état et espace continu — Carnet PHY321">
+<meta property="og:description" content="Aire sous |ψ|², transformée de Fourier, paquet d’ondes qui s’étale, effet tunnel simulé : manipulez, mesurez, vérifiez.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script src="../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+<script defer src="../assets/js/labs/ch5.js"></script>
+</head>
+<body data-chapter="ch5">
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <a class="brand" href="../index.html"><b>Carnet PHY321</b><span>Mécanique quantique · UY1</span></a>
+  <nav aria-label="Chapitres">
+    <a href="1-etats-quantiques.html">1 · États</a>
+    <a href="2-mesure-operateurs.html">2 · Mesure</a>
+    <a href="3-dynamique.html">3 · Dynamique</a>
+    <a href="4-intrication.html">4 · Intrication</a>
+    <a href="5-fonction-etat.html" aria-current="page">5 · Espace continu</a>
+    <a href="6-oscillateur.html">6 · Oscillateur</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Thème">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+  <span class="readbar" aria-hidden="true"></span>
+</header>
+
+<div class="chapter-layout">
+  <aside class="toc" aria-label="Sommaire du chapitre">
+    <details>
+      <summary>Sommaire</summary>
+      <ol>
+        <li><a href="#s1"><span class="toc-num">5.1</span>Fonction d’état</a></li>
+        <li><a href="#s2"><span class="toc-num">5.2</span>Représentation en impulsion</a></li>
+        <li><a href="#s3"><span class="toc-num">5.3</span>Opérateurs en espace continu</a></li>
+        <li><a href="#s4"><span class="toc-num">5.4</span>Dynamique de la fonction d’état</a></li>
+        <li><a href="#s5"><span class="toc-num">5.5</span>Paquet d’ondes en mouvement</a></li>
+        <li><a href="#s6"><span class="toc-num">5.6</span>Exercices de synthèse</a></li>
+        <li><a href="#actu"><span class="toc-num">·</span>Où en est-on en 2026 ?</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main id="contenu">
+    <header class="chapter-head">
+      <span class="big-num" aria-hidden="true">5</span>
+      <p class="eyebrow">Chapitre 5 · CM 4 h + TD 3 h</p>
+      <h1>Fonction d’état et espace continu</h1>
+      <p class="lede">Un électron n’a pas deux positions possibles, il en a une infinité. Le ket devient une fonction, les sommes deviennent des intégrales, et la position et l’impulsion se révèlent être deux faces d’un même objet.</p>
+      <ul class="goals">
+        <li>Normaliser une fonction d’état et calculer une probabilité de présence sur un intervalle.</li>
+        <li>Calculer \(\langle x\rangle\), \(\Delta x\) et, par transformée de Fourier, la distribution d’impulsion.</li>
+        <li>Établir \([X, P] = i\hbar\) à partir des translations et en déduire \(\Delta x\,\Delta p \ge \hbar/2\).</li>
+        <li>Prévoir le mouvement et l’étalement d’un paquet d’ondes libre, et estimer une probabilité de passage par effet tunnel.</li>
+      </ul>
+      <div class="listen">
+        <span class="listen-label">Résumé audio · 1 min 18</span>
+        <audio controls preload="none" src="../assets/audio/ch5.mp3"></audio>
+        <details class="reveal"><summary>Lire la transcription</summary><div class="transcript"><p>Pour un quanton qui se déplace sur une ligne, l'état devient une fonction, psi de x. Le module au carré de psi est une densité de probabilité : la probabilité de trouver la particule entre a et b est l'aire sous cette courbe.</p><p>La même information peut s'écrire en impulsion. On passe de l'une à l'autre par une transformée de Fourier. Un paquet étroit en position est large en impulsion, et inversement. Pour un paquet gaussien, le produit des écarts-types vaut exactement h barre sur deux : c'est le minimum permis par la relation d'indétermination. Celle-ci découle directement du commutateur entre position et impulsion, égal à i h barre.</p><p>L'évolution est donnée par l'équation de Schrödinger. Un paquet libre avance à la vitesse de groupe, p sur m, et s'étale, parce que ses différentes composantes n'ont pas la même vitesse. Pour un électron localisé sur un nanomètre, la largeur double en une trentaine de femtosecondes. Pour une bille d'un gramme, il faudrait des durées bien plus longues que l'âge de l'Univers.</p><p>Face à une barrière plus haute que son énergie, une particule peut tout de même passer : c'est l'effet tunnel, utilisé dans le microscope à effet tunnel.</p></div></details>
+      </div>
+    </header>
+
+    <!-- ===================================================== 5.1 -->
+    <section class="section" id="s1">
+      <h2><span class="n">5.1</span>Fonction d’état et nuage de présence</h2>
+
+      <div class="box history rise">
+        <p>En 1924, Louis de Broglie propose qu’une particule matérielle soit accompagnée d’une onde. La confirmation arrive en 1927 aux laboratoires Bell : Clinton Davisson et Lester Germer envoient des électrons sur un cristal de nickel et observent une figure de diffraction. Leur échantillon avait recristallisé par accident après un chauffage, ce qui a rendu la diffraction visible.</p>
+      </div>
+
+      <p>Pour un qubit, l’état se décompose sur deux kets \(\ket0\) et \(\ket1\). Pour un quanton sur un axe, on le décompose sur une infinité de kets \(\ket x\), un par position. Les règles restent les mêmes, avec trois substitutions :</p>
+      <ul>
+        <li>la somme \(\sum_i\) devient une intégrale \(\int \mathrm dx\) ;</li>
+        <li>le delta de Kronecker \(\delta_{ij}\) devient la distribution de Dirac : \(\braket{x'|x} = \delta(x'-x)\) ;</li>
+        <li>la fermeture \(\sum_i \ket i\bra i = \mathbb 1\) devient \(\int \mathrm dx\,\ket x\bra x = \mathbb 1\).</li>
+      </ul>
+      <p>Les kets \(\ket x\) ne sont pas normalisables : ce sont des outils de calcul, pas des états qu’on peut préparer. La propriété à retenir sur \(\delta\) est \(\int_{x_1}^{x_2} f(x)\,\delta(x - x_0)\,\mathrm dx = f(x_0)\) si \(x_0 \in [x_1, x_2]\), et 0 sinon.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Définition 5.1 — Fonction d’état</span>
+        <p>La fonction d’état est la composante du ket sur la base des positions :</p>
+        <div class="eq">$$\psi(x) = \braket{x|\psi},\qquad \ket\psi = \int_{-\infty}^{+\infty} \mathrm dx\,\psi(x)\ket x.$$</div>
+        <p>C’est une <strong>amplitude de densité de probabilité</strong>, complexe en général, de carré intégrable (\(\psi\in L^2(\mathbb R)\)). Le nom courant « fonction d’onde » vient du rapprochement historique avec les ondes classiques.</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">Principe 5.1 — Règle de Born continue</span>
+        <p>\(|\psi(x)|^2\) est une <strong>densité</strong> de probabilité (unité : m<sup>−1</sup>). La probabilité de trouver le quanton dans \([a, b]\) vaut</p>
+        <div class="eq">$$P([a,b]) = \int_a^b |\psi(x)|^2\,\mathrm dx,\qquad \text{avec}\quad \int_{-\infty}^{+\infty} |\psi(x)|^2\,\mathrm dx = 1.$$</div>
+        <p>La probabilité de trouver le quanton en un point exact est nulle. Seule une probabilité sur un intervalle a un sens.</p>
+      </div>
+
+      <p>Moyenne et dispersion se calculent comme pour n’importe quelle distribution statistique : \(\langle x\rangle = \int x\,|\psi|^2\,\mathrm dx\) et \((\Delta x)^2 = \langle x^2\rangle - \langle x\rangle^2\).</p>
+
+      <figure class="lab rise" data-lab="density" aria-labelledby="lab-dens-t">
+        <div class="lab-head"><h3 id="lab-dens-t">L’aire sous le nuage de présence</h3><span class="tag">LABO 5.1</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"><span class="lab-hint">Glissez les bornes a et b</span></div>
+          <div class="lab-panel">
+            <div class="ctrl"><span class="lbl">Fonction d’état</span>
+              <div class="seg" data-seg="state"><button type="button" data-v="g" aria-pressed="true">Gaussienne</button><button type="button" data-v="gg">Deux gaussiennes</button><button type="button" data-v="box">Boîte</button></div>
+            </div>
+            <div class="ctrl" data-for="sigma"><label for="dens-sigma">Largeur σ <output for="dens-sigma"></output></label><input id="dens-sigma" type="range" min="0.3" max="1.2" step="0.01" value="0.8"></div>
+            <div class="ctrl" data-for="d" hidden><label for="dens-d">Écart entre les centres <output for="dens-d"></output></label><input id="dens-d" type="range" min="0" max="3" step="0.1" value="2.4"></div>
+            <div class="ctrl" data-for="n" hidden><label for="dens-n">Niveau n <output for="dens-n"></output></label><input id="dens-n" type="range" min="1" max="4" step="1" value="1"></div>
+            <div class="btn-row">
+              <button class="btn ghost small" data-preset="mid" type="button" hidden>Tiers central</button>
+              <button class="btn ghost small" data-preset="quart" type="button" hidden>Premier quart</button>
+              <button class="btn ghost small" data-bounds="all" type="button">Tout l’axe</button>
+            </div>
+            <dl class="readout">
+              <div><dt>P([a, b])</dt><dd data-out="P"></dd></div>
+              <div><dt>∫|ψ|² dx</dt><dd data-out="norm"></dd></div>
+              <div><dt>⟨x⟩</dt><dd data-out="mean"></dd></div>
+              <div><dt>Δx</dt><dd data-out="sd"></dd></div>
+            </dl>
+            <p class="legend"><span><i></i>|ψ(x)|² (densité)</span><span><i class="blu"></i>ψ(x) (amplitude, tirets)</span><span data-out="ab"></span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>La gaussienne est \(\psi = (\pi\sigma^2)^{-1/4}e^{-x^2/2\sigma^2}\), dont l’écart-type vaut \(\Delta x = \sigma/\sqrt2\). Pour la boîte de largeur \(L\), \(\psi_n = \sqrt{2/L}\,\sin(n\pi x/L)\) : au niveau \(n = 2\), \(\psi\) change de signe au centre, mais \(|\psi|^2\) ne voit pas ce signe. Les intégrales sont calculées numériquement : \(\int|\psi|^2\) affiche 1,000 dans tous les cas.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box law rise">
+        <span class="box-title">Piège courant — amplitude ou probabilité ?</span>
+        <p>\(\psi(x)\) n’est pas une probabilité : c’est un nombre complexe qui porte une phase. Deux fonctions d’état peuvent avoir la même densité \(|\psi|^2\) et des phases différentes, donc des interférences et des distributions d’impulsion différentes (labo 5.2).</p>
+      </div>
+
+      <article class="exo" data-id="5.1" data-num="-25" data-tol="0.01" data-ok="Exact : \(\delta(x+2)\) sélectionne \(x = -2\), qui est bien dans \([-3, 1]\), et \(-8 - 12 - 4 - 1 = -25\)." data-ko="Repérez où s’annule l’argument de \(\delta\), vérifiez que ce point est dans l’intervalle, puis évaluez le polynôme en ce point.">
+        <div class="exo-head"><span class="num">Exercice 5.1</span><h3>Manipuler le delta de Dirac</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Calculez \(\displaystyle\int_{-3}^{1} (x^3 - 3x^2 + 2x - 1)\,\delta(x+2)\,\mathrm dx\).</p>
+        <div class="num-answer"><label for="e51">Résultat =</label><input id="e51" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Et si l’intervalle était [−1, 1] ?</summary><div><p>Le point \(x = -2\) sort de l’intervalle : l’intégrale vaut 0. C’est le cas de \(\int_{-1}^{1} e^{|x|+3}\,\delta(x-2)\,\mathrm dx\) dans le cours.</p></div></details>
+      </article>
+
+      <article class="exo" data-id="5.2" data-num="0.609" data-tol="0.005" data-ok="Exact : \(P = \tfrac13 + \tfrac{\sqrt3}{2\pi} \approx 0{,}609\). Plus que le tiers « classique » : le quanton est plus souvent au centre de la boîte." data-ko="Utilisez \(\sin^2 u = (1 - \cos 2u)/2\), puis évaluez entre \(L/3\) et \(2L/3\). Le labo 5.1 (mode Boîte, bouton « Tiers central ») donne la valeur.">
+        <div class="exo-head"><span class="num">Exercice 5.2</span><h3>Le tiers central de la boîte</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Un quanton est dans l’état \(\psi(x) = \sqrt{2/L}\,\sin(\pi x/L)\) sur \([0, L]\) (nul ailleurs). Vérifiez la normalisation, puis calculez la probabilité de le trouver entre \(L/3\) et \(2L/3\) (trois décimales).</p>
+        <div class="num-answer"><label for="e52">P =</label><input id="e52" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>Une primitive de \(\tfrac2L\sin^2(\pi x/L)\) est \(\tfrac xL - \tfrac{1}{2\pi}\sin(2\pi x/L)\). Sur \([0, L]\) elle donne 1 : la fonction est normalisée. Sur \([L/3, 2L/3]\) : \(\tfrac13 - \tfrac{1}{2\pi}\big(\sin\tfrac{4\pi}3 - \sin\tfrac{2\pi}3\big) = \tfrac13 + \tfrac{\sqrt3}{2\pi} \approx 0{,}609\). Sur le premier quart \([0, L/4]\), on trouve \(\tfrac14 - \tfrac1{2\pi} \approx 0{,}091\).</p>
+        </div></details>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — le nuage</span>
+        <p>Le cours compare \(|\psi(x)|^2\) à la densité d’un nuage : épais là où l’on a des chances de trouver le quanton, transparent ailleurs.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>Un nuage réel est fait de gouttelettes qui ont chacune une position : son flou vient de notre ignorance des détails. Le flou de \(|\psi|^2\) n’est pas de ce type : avant la mesure, le quanton n’a pas de position cachée qu’il suffirait de lire. Autre différence : deux nuages qui se rencontrent s’additionnent, alors que deux amplitudes peuvent s’annuler.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 5.2 -->
+    <section class="section" id="s2">
+      <h2><span class="n">5.2</span>L’autre visage : la représentation en impulsion</h2>
+      <p>On peut tout aussi bien décomposer \(\ket\psi\) sur les kets \(\ket p\) d’impulsion définie, avec \(\braket{p'|p} = \delta(p'-p)\) et \(\int\mathrm dp\,\ket p\bra p = \mathbb 1\). La composante \(\varphi(p) = \braket{p|\psi}\) est la fonction d’état en impulsion. Pour passer de l’une à l’autre, il suffit de connaître l’onde plane \(\braket{x|p} = e^{ipx/\hbar}/\sqrt{2\pi\hbar}\).</p>
+
+      <div class="box law rise">
+        <span class="box-title">Principe 5.2 — Les deux visages sont liés par Fourier</span>
+        <div class="eq">$$\varphi(p) = \frac{1}{\sqrt{2\pi\hbar}}\int_{-\infty}^{+\infty}\mathrm dx\,\psi(x)\,e^{-ipx/\hbar},$$</div>
+        <div class="eq">$$\psi(x) = \frac{1}{\sqrt{2\pi\hbar}}\int_{-\infty}^{+\infty}\mathrm dp\,\varphi(p)\,e^{ipx/\hbar}.$$</div>
+        <p>\(|\varphi(p)|^2\) est la densité de probabilité d’impulsion, et la norme est la même des deux côtés (théorème de Plancherel) : \(\int|\psi|^2\,\mathrm dx = \int|\varphi|^2\,\mathrm dp = 1\).</p>
+      </div>
+
+      <p>Pour la gaussienne \(\psi(x) = (\pi\sigma^2)^{-1/4}e^{-x^2/2\sigma^2}\), on complète le carré dans l’exponentielle et on obtient une autre gaussienne :</p>
+      <div class="eq">$$\varphi(p) = \left(\frac{\sigma^2}{\pi\hbar^2}\right)^{1/4} e^{-p^2\sigma^2/2\hbar^2}.$$</div>
+      <p>Plus \(\sigma\) est petit, plus \(\varphi\) est large : un quanton très localisé a une impulsion très mal définie.</p>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Le cours écrit \(\sigma_x\sigma_p = \hbar\) en prenant \(\sigma\) et \(\hbar/\sigma\) comme « largeurs ». Avec les écarts-types, qui sont ceux de la relation de Heisenberg, \(|\psi|^2 \propto e^{-x^2/\sigma^2}\) donne \(\Delta x = \sigma/\sqrt2\) et \(|\varphi|^2\propto e^{-p^2\sigma^2/\hbar^2}\) donne \(\Delta p = \hbar/(\sigma\sqrt2)\). Le produit vaut exactement \(\hbar/2\) : la gaussienne atteint la borne. Sur la diapositive correspondante, la constante \((1/\pi\sigma^2)^{1/4}\) accompagne \(e^{-x^2/4\sigma^2}\) : avec cette exponentielle, il faut \((1/2\pi\sigma^2)^{1/4}\) pour que l’état soit normalisé.</p>
+      </div>
+
+      <figure class="lab rise" data-lab="duality" aria-labelledby="lab-dual-t">
+        <div class="lab-head"><h3 id="lab-dual-t">Position et impulsion, côte à côte</h3><span class="tag">LABO 5.2</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"></div>
+          <div class="lab-panel">
+            <div class="ctrl"><span class="lbl">État</span>
+              <div class="seg" data-seg="pair"><button type="button" data-v="g" aria-pressed="true">Gaussienne</button><button type="button" data-v="p">Deux en phase</button><button type="button" data-v="m">Deux en opposition</button></div>
+            </div>
+            <div class="ctrl"><label for="dual-sigma">Largeur σ <output for="dual-sigma"></output></label><input id="dual-sigma" type="range" min="0.3" max="2.5" step="0.01" value="1"></div>
+            <div class="ctrl" data-for="d2" hidden><label for="dual-d">Écart d entre les deux gaussiennes <output for="dual-d"></output></label><input id="dual-d" type="range" min="0" max="5" step="0.1" value="3"></div>
+            <dl class="readout">
+              <div><dt>Δx</dt><dd data-out="dx"></dd></div>
+              <div><dt>Δp</dt><dd data-out="dp"></dd></div>
+              <div><dt>Δx·Δp</dt><dd data-out="prod"></dd></div>
+            </dl>
+            <p class="legend"><span><i></i>|ψ(x)|²</span><span><i class="acc"></i>|φ(p)|²</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Unités réduites \(\hbar = 1\). Pour la gaussienne seule, le produit reste à 0,500 quel que soit σ. Pour \(\psi \propto g(x - d/2) \pm g(x + d/2)\), on a \(|\varphi(p)|^2 \propto e^{-p^2\sigma^2}(1 \pm \cos pd)\) : des franges apparaissent en impulsion, et le produit dépasse \(\hbar/2\). Les deux états « en phase » et « en opposition » ont presque la même densité \(|\psi(x)|^2\) quand \(d\) est grand, mais pas la même \(|\varphi(p)|^2\) : c’est la phase qui fait la différence.</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="5.3" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 5.3</span><h3>La largeur d’une gaussienne</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Pour \(\psi(x) = (\pi\sigma^2)^{-1/4}e^{-x^2/2\sigma^2}\), que vaut l’écart-type \(\Delta x\) ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : σ est l’écart-type de ψ vue comme une courbe, pas celui de la densité |ψ|² ∝ e^{−x²/σ²}."><input type="radio" name="e53" value="a">\(\sigma\)</label></li>
+          <li><label class="choice" data-why="Exact. |ψ|² ∝ e^{−x²/σ²} est une gaussienne de variance σ²/2. Le labo 5.1 affiche Δx = 0,566 pour σ = 0,8."><input type="radio" name="e53" value="b">\(\sigma/\sqrt2\)</label></li>
+          <li><label class="choice" data-why="Non : la variance d’une densité en e^{−x²/2s²} est s². Ici le carré a divisé l’échelle par √2, pas multiplié."><input type="radio" name="e53" value="c">\(\sigma\sqrt2\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — les jumeaux Nommo de la cosmogonie dogon</span>
+        <p>Le cours propose de rapprocher la paire position/impulsion du principe de gémellité de la cosmogonie dogon (Mali) : deux principes opposés et complémentaires, tous deux nécessaires à l’équilibre du monde.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>D’abord une correction : dans les récits recueillis chez les Dogon, Amma est le dieu créateur, et les Nommo sont les êtres jumeaux qu’il engendre. Amma et Nommo ne forment donc pas une paire de jumeaux, contrairement à ce que suggère l’énoncé du cours. Ensuite, la complémentarité quantique est quantitative : \(\psi\) et \(\varphi\) contiennent exactement la même information, liée par une transformée de Fourier, et la borne \(\Delta x\,\Delta p \ge \hbar/2\) se calcule. Une dualité mythologique ne fournit ni cette équivalence ni cette borne.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 5.3 -->
+    <section class="section" id="s3">
+      <h2><span class="n">5.3</span>Opérateurs en espace continu</h2>
+      <p>« Où es-tu ? » : l’opérateur position multiplie la fonction d’état par \(x\), \((X\psi)(x) = x\,\psi(x)\). Ses états propres sont les \(\delta(x - x_0)\).</p>
+      <p>« Où vas-tu ? » : l’impulsion est définie par son rôle géométrique. L’opérateur de translation \(T(a)\) décale l’état, \((T(a)\psi)(x) = \psi(x-a)\). Pour un petit déplacement, \(T(\mathrm da) \approx \mathbb 1 - \tfrac{i\,\mathrm da}{\hbar}P\), donc \(T(a) = e^{-iaP/\hbar}\). En développant \(\psi(x - \mathrm da) \approx \psi(x) - \mathrm da\,\psi'(x)\), on obtient la forme différentielle.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Définitions 5.3 — Position, impulsion, commutateur</span>
+        <div class="eq">$$(X\psi)(x) = x\,\psi(x),\qquad (P\psi)(x) = -i\hbar\,\frac{\mathrm d\psi}{\mathrm dx},\qquad [X, P] = i\hbar\,\mathbb 1.$$</div>
+        <p>La relation de commutation se déduit de \(T^\dagger(a)\,X\,T(a) = X + a\,\mathbb 1\) au premier ordre en \(a\). Elle entraîne, pour tout état, \(\Delta x\,\Delta p \ge \hbar/2\).</p>
+      </div>
+
+      <p>Les valeurs moyennes s’écrivent \(\langle X\rangle = \int x\,|\psi|^2\,\mathrm dx\) et \(\langle P\rangle = \int \psi^*(x)\,(-i\hbar\,\psi'(x))\,\mathrm dx\). L’indétermination n’est pas un défaut des instruments : aucun état ne donne simultanément des distributions étroites en \(x\) et en \(p\).</p>
+
+      <article class="exo" data-id="5.4" data-answer="a">
+        <div class="exo-head"><span class="num">Exercice 5.4</span><h3>Commutateur appliqué à une fonction</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Calculez \([X, P]\psi = XP\psi - PX\psi\) avec \(P = -i\hbar\,\mathrm d/\mathrm dx\). Que trouve-t-on ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact. XPψ = −iħ x ψ′ et PXψ = −iħ(ψ + x ψ′). La différence vaut iħ ψ, quelle que soit ψ."><input type="radio" name="e54" value="a">\(i\hbar\,\psi(x)\)</label></li>
+          <li><label class="choice" data-why="Non : c’est [P, X]ψ. Attention à l’ordre des opérateurs."><input type="radio" name="e54" value="b">\(-i\hbar\,\psi(x)\)</label></li>
+          <li><label class="choice" data-why="Non : en dérivant x ψ, la règle du produit fait apparaître un terme ψ qui ne se compense pas."><input type="radio" name="e54" value="c">0</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="5.5" data-answer="c">
+        <div class="exo-head"><span class="num">Exercice 5.5</span><h3>Impulsion moyenne d’une fonction réelle</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Une fonction d’état normalisée \(\psi(x)\) est réelle (par exemple la gaussienne ou un état de la boîte). Que vaut \(\langle P\rangle\) ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : ⟨P⟩ ne dépend pas de la position moyenne. Un état centré en x₀ ≠ 0 peut très bien être immobile."><input type="radio" name="e55" value="a">Elle dépend de \(\langle x\rangle\).</label></li>
+          <li><label class="choice" data-why="Non : ⟨P⟩ est réel pour tout état, car P est hermitien. Ici on peut aller plus loin."><input type="radio" name="e55" value="b">C’est un imaginaire pur.</label></li>
+          <li><label class="choice" data-why="Exact. ⟨P⟩ = −iħ ∫ ψ ψ′ dx = −(iħ/2)[ψ²] = 0, puisque ψ s’annule à l’infini. Pour mettre un paquet en mouvement, il faut une phase : ψ(x) e^{ip₀x/ħ} donne ⟨P⟩ = p₀."><input type="radio" name="e55" value="c">\(\langle P\rangle = 0\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="5.6" data-num="5.27" data-tol="0.02" data-ok="Exact : \(\Delta p \ge \hbar/(2\Delta x) = 1{,}055\times10^{-34}/(2\times10^{-10}) \approx 5{,}3\times10^{-25}\ \mathrm{kg\,m/s}\), soit une dispersion de vitesse d’environ \(6\times10^{5}\) m/s." data-ko="Appliquez \(\Delta p_\text{min} = \hbar/(2\Delta x)\) avec \(\hbar = 1{,}055\times10^{-34}\) J s et \(\Delta x = 10^{-10}\) m, puis exprimez le résultat en unités de \(10^{-25}\) kg m/s.">
+        <div class="exo-head"><span class="num">Exercice 5.6</span><h3>Ordre de grandeur de Δp</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Un électron est localisé à l’échelle d’un atome, \(\Delta x = 0{,}1\) nm. Quelle est la plus petite dispersion d’impulsion compatible avec Heisenberg ? Donnez-la en unités de \(10^{-25}\ \mathrm{kg\,m/s}\).</p>
+        <div class="num-answer"><label for="e56">Δp =</label><input id="e56" type="text" inputmode="decimal" autocomplete="off"><span>× 10⁻²⁵ kg m/s</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 5.4 -->
+    <section class="section" id="s4">
+      <h2><span class="n">5.4</span>Dynamique de la fonction d’état</h2>
+
+      <div class="box law rise">
+        <span class="box-title">Principe 5.4 — Équation de Schrödinger</span>
+        <div class="eq">$$i\hbar\,\frac{\partial\psi(x,t)}{\partial t} = \left(-\frac{\hbar^2}{2m}\frac{\partial^2}{\partial x^2} + V(x)\right)\psi(x,t).$$</div>
+        <p>Elle est du premier ordre en temps (l’état initial fixe tout l’avenir, entre deux mesures) et linéaire (toute superposition de solutions est une solution).</p>
+      </div>
+
+      <p>Un état d’énergie définie \(E_n\) évolue par une simple phase, \(\psi_n(x,t) = \phi_n(x)\,e^{-iE_nt/\hbar}\), où \(\phi_n\) vérifie l’équation stationnaire \(-\tfrac{\hbar^2}{2m}\phi_n'' + V\phi_n = E_n\phi_n\). Sa densité \(|\psi_n|^2 = |\phi_n|^2\) ne bouge pas. « Stationnaire » ne veut pas dire « immobile » : une onde plane \(e^{i(kx - \omega t)}\) a une densité uniforme et constante, mais transporte un courant de probabilité.</p>
+
+      <h3>L’effet tunnel</h3>
+      <p>Devant une barrière de hauteur \(V_0\) supérieure à son énergie \(E\), une bille classique rebrousse chemin. La fonction d’état, elle, ne s’annule pas brutalement : elle décroît comme \(e^{-\kappa x}\) dans la barrière, avec \(\kappa = \sqrt{2m(V_0 - E)}/\hbar\). Si la barrière est assez fine, une partie de l’onde ressort de l’autre côté. Pour une barrière rectangulaire de largeur \(a\) et \(E &lt; V_0\) :</p>
+      <div class="eq">$$T(E) = \left[1 + \frac{V_0^2\,\sinh^2(\kappa a)}{4E(V_0 - E)}\right]^{-1},$$</div>
+      <p>qui devient, pour une barrière épaisse (\(\kappa a \gg 1\)),</p>
+      <div class="eq">$$T(E) \approx 16\,\frac{E}{V_0}\Big(1 - \frac{E}{V_0}\Big)e^{-2\kappa a}.$$</div>
+
+      <figure class="lab rise" data-lab="tunnel" aria-labelledby="lab-tn-t">
+        <div class="lab-head"><h3 id="lab-tn-t">Un paquet d’ondes contre une barrière</h3><span class="tag">LABO 5.4</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent" data-act="play" type="button">Lancer</button>
+            </div>
+            <div class="ctrl"><label for="tn-V0">Hauteur de la barrière V₀ <output for="tn-V0"></output></label><input id="tn-V0" type="range" min="0" max="2.5" step="0.05" value="1"></div>
+            <div class="ctrl"><label for="tn-a">Largeur a <output for="tn-a"></output></label><input id="tn-a" type="range" min="0.2" max="3" step="0.05" value="1"></div>
+            <div class="ctrl"><label for="tn-p0">Impulsion moyenne p₀ <output for="tn-p0"></output></label><input id="tn-p0" type="range" min="0.6" max="2.2" step="0.05" value="1.2"></div>
+            <dl class="readout">
+              <div><dt>E = p₀²/2</dt><dd data-out="E"></dd></div>
+              <div><dt>P(x &gt; a) simulé</dt><dd data-out="Tnum"></dd></div>
+              <div><dt>P(x &lt; 0) simulé</dt><dd data-out="R"></dd></div>
+              <div><dt>T̄ prévu</dt><dd data-out="Tth"></dd></div>
+              <div><dt>T(E) onde plane</dt><dd data-out="Tpw"></dd></div>
+            </dl>
+            <p class="legend"><span><i class="acc"></i>|ψ(x, t)|²</span><span><i class="blu"></i>énergie E</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Unités réduites \(\hbar = m = 1\), paquet de largeur \(\Delta x_0 = 5\). L’équation de Schrödinger est résolue pas à pas par la méthode « split-operator » (transformée de Fourier rapide sur 1 024 points). La prévision \(\bar T = \int|\varphi(p)|^2\,T(p^2/2)\,\mathrm dp\) moyenne \(T(E)\) sur les impulsions présentes dans le paquet. Au départ, tout le paquet est à gauche (\(P(x&lt;0) = 1\)). En fin de course, \(P(x&gt;a)\) est la probabilité de transmission : elle diffère de la prévision de moins de 0,01. Doublez \(a\) avec \(E &lt; V_0\) : la transmission chute d’un facteur proche de \(e^{2\kappa a}\).</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Application — le microscope à effet tunnel</span>
+        <p>Une pointe métallique balaie une surface conductrice à quelques ångströms. Le vide entre les deux joue le rôle de la barrière, avec \(V_0 - E\) égal au travail de sortie, environ 4,5 eV. Le courant est proportionnel à \(e^{-2\kappa L}\) : il dépend si fortement de la distance \(L\) qu’on distingue les atomes un par un.</p>
+      </div>
+
+      <article class="exo" data-id="5.7" data-num="8.8" data-tol="0.03" data-ok="Exact : \(\kappa = \sqrt{2m_e\cdot 4{,}5\ \mathrm{eV}}/\hbar \approx 1{,}09\times10^{10}\ \mathrm{m^{-1}}\), donc \(e^{2\kappa\Delta L} = e^{2{,}18} \approx 8{,}9\). Un ångström de relief multiplie le courant par près de 9 : c’est ce qui rend les atomes visibles." data-ko="Calculez d’abord \(\kappa\) en m⁻¹ (4,5 eV = 7,2 × 10⁻¹⁹ J), puis \(I_\text{dessus}/I_\text{loin} = e^{2\kappa\,\Delta L}\) avec \(\Delta L = 10^{-10}\) m.">
+        <div class="exo-head"><span class="num">Exercice 5.7</span><h3>Sensibilité du courant tunnel</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Avec \(T \approx C e^{-2\kappa L}\), \(V_0 - E = 4{,}5\) eV, \(m_e = 9{,}11\times10^{-31}\) kg et \(\hbar = 1{,}05\times10^{-34}\) J s, la pointe passe au-dessus d’un atome et la distance diminue de \(\Delta L = 0{,}1\) nm. Que vaut le rapport \(I_\text{dessus}/I_\text{loin}\) ?</p>
+        <div class="num-answer"><label for="e57">Rapport =</label><input id="e57" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>L’exercice du cours sur la LED bleue (puits de 3 nm, transition \(n = 1 \to n = 0\)) mène à une masse effective d’environ \(0{,}045\,m_e\). Le calcul est juste, mais l’interprétation physique ne l’est pas : dans une LED à puits quantiques InGaN, la lumière bleue vient de la recombinaison d’un électron de la bande de conduction avec un trou de la bande de valence. L’énergie du photon est donc d’abord celle de la bande interdite (environ 2,7 eV), à laquelle s’ajoutent les énergies de confinement de l’électron et du trou. Une transition entre deux niveaux de la même bande dans un puits de quelques nanomètres tombe dans l’infrarouge : c’est le principe des lasers à cascade quantique, pas celui des LED.</p>
+      </div>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogie à critiquer — le maître-tambour</span>
+        <p>Le cours rapproche les états stationnaires des rythmes que le maître-tambour des traditions yoruba ou akan tient pendant toute une cérémonie : des « modes » stables et reconnaissables. Plus concrètement, une peau de tambour tendue ne vibre de façon durable que selon certains modes propres, chacun avec sa fréquence.</p>
+        <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
+          <p>Les modes d’une peau de tambour sont réels et se voient : la peau bouge. Dans un état stationnaire, rien d’observable ne bouge, seule une phase globale tourne, sans effet mesurable. Le rapprochement avec les modes propres tient ; celui avec des rythmes rituels relève du symbole et ne prédit rien. Un rythme est en outre une suite d’événements dans le temps, alors qu’un état stationnaire est précisément ce qui ne change pas dans le temps.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 5.5 -->
+    <section class="section" id="s5">
+      <h2><span class="n">5.5</span>Paquet d’ondes en mouvement</h2>
+      <p>Une onde plane a une impulsion parfaite mais s’étend sur tout l’espace ; un delta de Dirac est parfaitement localisé mais contient toutes les impulsions. Un quanton réel est entre les deux : un <strong>paquet d’ondes</strong>, superposition d’ondes planes d’impulsions voisines qui interfèrent constructivement dans une petite région. Pour un quanton libre, chaque composante évolue avec \(E(p) = p^2/2m\) :</p>
+      <div class="eq">$$\psi(x,t) = \frac{1}{\sqrt{2\pi\hbar}}\int\mathrm dp\,\varphi(p)\,e^{i(px - E(p)t)/\hbar}.$$</div>
+
+      <div class="box def rise">
+        <span class="box-title">Définitions 5.5 — Deux vitesses, un étalement</span>
+        <p>La <strong>vitesse de groupe</strong>, celle de l’enveloppe, est \(v_g = \mathrm dE/\mathrm dp = p_0/m\) : c’est la vitesse classique. La <strong>vitesse de phase</strong>, celle des crêtes de l’onde porteuse, est \(v_\varphi = E/p = p_0/2m = v_g/2\). Pour un paquet gaussien de largeur initiale \(\Delta x_0\) (écart-type) :</p>
+        <div class="eq">$$\Delta x(t) = \Delta x_0\sqrt{1 + \left(\frac{t}{t_0}\right)^2},$$</div>
+        <div class="eq">$$t_0 = \frac{2m\,(\Delta x_0)^2}{\hbar}.$$</div>
+      </div>
+
+      <figure class="lab rise" data-lab="packet" aria-labelledby="lab-pk-t">
+        <div class="lab-head"><h3 id="lab-pk-t">Le paquet libre avance et s’étale</h3><span class="tag">LABO 5.5</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent" data-act="play" type="button">Lancer</button>
+              <button class="btn ghost small" data-act="reset" type="button">t = 0</button>
+            </div>
+            <div class="ctrl"><label for="pk-s0">Largeur initiale Δx₀ <output for="pk-s0"></output></label><input id="pk-s0" type="range" min="0.3" max="2" step="0.01" value="0.8"></div>
+            <div class="ctrl"><label for="pk-p0">Impulsion moyenne p₀ <output for="pk-p0"></output></label><input id="pk-p0" type="range" min="0" max="6" step="0.1" value="3"></div>
+            <dl class="readout">
+              <div><dt>t</dt><dd data-out="t"></dd></div>
+              <div><dt>⟨x⟩</dt><dd data-out="mean"></dd></div>
+              <div><dt>Δx (calculé)</dt><dd data-out="sd"></dd></div>
+              <div><dt>Δx (formule)</dt><dd data-out="sdth"></dd></div>
+              <div><dt>v_g</dt><dd data-out="vg"></dd></div>
+              <div><dt>v_φ</dt><dd data-out="vphi"></dd></div>
+              <div><dt>t₀</dt><dd data-out="t0"></dd></div>
+            </dl>
+            <p class="legend"><span><i class="acc"></i>|ψ|²</span><span><i class="blu"></i>Re ψ</span><span><i style="background:var(--muted)"></i>Im ψ</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Solution exacte de l’équation de Schrödinger libre, en unités \(\hbar = m = 1\) ; les courbes sont rapportées à leur maximum à \(t = 0\). Le triangle rouge avance à \(v_g = p_0\) et reste au centre du paquet ; le bleu suit une crête de la porteuse à \(v_\varphi = p_0/2\) et se fait doubler. Prenez \(p_0 = 0\) et \(\Delta x_0 = 0{,}3\) : le paquet ne se déplace pas mais s’effondre en hauteur en quelques unités de temps.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>Le cours attribue l’étalement au fait que la vitesse de phase \(p/2m\) dépend de \(p\). Ce qui compte, c’est que les composantes du paquet n’ont pas la même vitesse de groupe \(p/m\) : en un temps \(t\), elles se séparent d’environ \(\Delta p\,t/m\). On retrouve le comportement aux temps longs, \(\Delta x(t) \approx \Delta p\,t/m\) avec \(\Delta p = \hbar/(2\Delta x_0)\).</p>
+        <p>Dans l’exercice 5.6.1 du cours, si \(\Delta x_0\) et \(\Delta k\) sont des écarts-types (\(\Delta x_0\,\Delta k = 1/2\)), le terme sous la racine s’écrit \(\hbar t/(2m\Delta x_0^2) = 2\hbar(\Delta k)^2t/m\), et non \(\hbar(\Delta k)^2t/2m\). Le temps d’étalement vaut alors \(t_0 = 2m\Delta x_0^2/\hbar = m/(2\hbar\Delta k^2)\).</p>
+        <p>Enfin, la phrase « aucune action inférieure à \(\hbar/2\) n’est observée » ne découle pas de \(\Delta x\,\Delta p \ge \hbar/2\). Cette inégalité porte sur les écarts-types d’un même état, pas sur une action minimale.</p>
+      </div>
+
+      <article class="exo" data-id="5.8" data-answer="a">
+        <div class="exo-head"><span class="num">Exercice 5.8</span><h3>Qui va le plus vite ?</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Pour un électron libre non relativiste d’impulsion moyenne \(p_0\), comparez la vitesse de phase et la vitesse de groupe.</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact. v_φ = E/p = p₀/2m et v_g = dE/dp = p₀/m. Les crêtes avancent deux fois moins vite que l’enveloppe : elles naissent à l’arrière du paquet et meurent à l’avant (labo 5.5)."><input type="radio" name="e58" value="a">\(v_\varphi = v_g/2\)</label></li>
+          <li><label class="choice" data-why="Non : c’est le cas de la lumière dans le vide, où E = pc donne E/p = dE/dp = c."><input type="radio" name="e58" value="b">\(v_\varphi = v_g\)</label></li>
+          <li><label class="choice" data-why="Non : ce serait le cas pour une relation E(p) qui croît moins vite que p (ondes de gravité en eau profonde, par exemple)."><input type="radio" name="e58" value="c">\(v_\varphi = 2v_g\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="5.9" data-num="29.9" data-tol="0.03" data-ok="Exact : \(t_0 = 2m_e\Delta x_0^2/\hbar \approx 1{,}73\times10^{-14}\) s, et la largeur double quand \(t = \sqrt3\,t_0 \approx 3{,}0\times10^{-14}\) s, soit 30 fs." data-ko="Écrivez \(\sqrt{1 + (\tau/t_0)^2} = 2\), d’où \(\tau = \sqrt3\,t_0\), avec \(t_0 = 2m_e\Delta x_0^2/\hbar\). Donnez le résultat en femtosecondes (\(10^{-15}\) s).">
+        <div class="exo-head"><span class="num">Exercice 5.9</span><h3>Un électron qui s’étale</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Un électron libre (\(m_e = 9{,}11\times10^{-31}\) kg) est préparé dans un paquet gaussien de largeur \(\Delta x_0 = 1\) nm. Au bout de combien de temps sa largeur a-t-elle doublé ? (en fs)</p>
+        <div class="num-answer"><label for="e59">τ =</label><input id="e59" type="text" inputmode="decimal" autocomplete="off"><span>fs</span><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Et pour une bille de 1 g localisée à 1 mm ?</summary><div>
+          <p>\(t_0 = 2\times10^{-3}\times(10^{-3})^2/1{,}055\times10^{-34} \approx 1{,}9\times10^{25}\) s, donc \(\tau \approx 3\times10^{25}\) s, environ \(10^{18}\) ans. C’est près de \(10^8\) fois l’âge de l’Univers (\(4\times10^{17}\) s). L’étalement d’un objet macroscopique isolé est donc invisible.</p>
+        </div></details>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Précision</span>
+        <p>La diapositive « Application quantitative » annonce \(\tau \approx 30\) fs pour \(\Delta x_0 = 0{,}1\) nm. Ce chiffre correspond à \(\Delta x_0 = 1\) nm (exercice 5.9). Pour 0,1 nm, \(t_0\) est cent fois plus petit et \(\tau \approx 0{,}3\) fs. Pour la bille de 1 g, la même diapositive écrit « \(10^{18}\) fois l’âge de l’Univers » : il s’agit en fait de \(10^{18}\) <em>ans</em>, soit environ \(10^8\) fois l’âge de l’Univers.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================== 5.6 -->
+    <section class="section" id="s6">
+      <h2><span class="n">5.6</span>Exercices de synthèse</h2>
+
+      <article class="exo" data-id="5.10">
+        <div class="exo-head"><span class="num">Exercice 5.10</span><h3>De la gaussienne à Heisenberg</h3><span class="stars" aria-label="difficulté 3 sur 3">★★★</span></div>
+        <p>Partez de \(\psi(x) = (\pi\sigma^2)^{-1/4}e^{-x^2/2\sigma^2}e^{ip_0x/\hbar}\).</p>
+        <ol>
+          <li>Montrez que \(\langle P\rangle = p_0\) et que \(\Delta x = \sigma/\sqrt2\).</li>
+          <li>Calculez \(\varphi(p)\) en complétant le carré, puis \(\Delta p\).</li>
+          <li>Vérifiez que \(\Delta x\,\Delta p = \hbar/2\). Que devient \(\Delta p\) au cours du temps pour un quanton libre ? Et \(\Delta x\) ?</li>
+        </ol>
+        <details class="reveal"><summary>Indice</summary><div><p>Le facteur \(e^{ip_0x/\hbar}\) décale simplement \(\varphi\) : \(\varphi(p) \to \varphi(p - p_0)\). Pour la dernière question, regardez comment chaque composante \(\varphi(p)\) évolue dans le temps.</p></div></details>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>\(P\psi = -i\hbar\psi' = \big(p_0 + i\hbar x/\sigma^2\big)\psi\) ; le second terme est impair en \(x\) et donne une moyenne nulle, d’où \(\langle P\rangle = p_0\). On trouve \(\varphi(p) = (\sigma^2/\pi\hbar^2)^{1/4}e^{-(p-p_0)^2\sigma^2/2\hbar^2}\), donc \(|\varphi|^2 \propto e^{-(p-p_0)^2\sigma^2/\hbar^2}\) et \(\Delta p = \hbar/(\sigma\sqrt2)\). Le produit vaut \(\hbar/2\).</p>
+          <p>Pour un quanton libre, \(\varphi(p,t) = \varphi(p,0)\,e^{-ip^2t/2m\hbar}\) : seule la phase change, \(|\varphi(p,t)|^2\) et \(\Delta p\) restent constants. En revanche \(\Delta x(t)\) croît (labo 5.5), et le produit \(\Delta x\,\Delta p\) dépasse \(\hbar/2\) dès que \(t &gt; 0\).</p>
+        </div></details>
+      </article>
+    </section>
+
+    <section class="section" id="actu">
+      <h2><span class="n">·</span>Où en est-on en 2026 ?</h2>
+      <div class="box news rise">
+        <span class="box-title">Prix Nobel de physique 2025 : l’effet tunnel devient macroscopique</span>
+        <p>John Clarke, Michel Devoret et John Martinis ont reçu le prix « pour la découverte de l’effet tunnel quantique macroscopique et de la quantification de l’énergie dans un circuit électrique ». Dans leurs expériences menées à Berkeley au milieu des années 1980, ce n’est pas un électron qui franchit une barrière comme dans le labo 5.4, mais une grandeur collective d’un circuit supraconducteur à jonction Josephson. Ces circuits sont les ancêtres directs des qubits supraconducteurs de Google et d’IBM.</p>
+        <cite>Communiqué du comité Nobel, 7 octobre 2025 — nobelprize.org</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Des ondes de matière pour mesurer la pesanteur</span>
+        <p>Des gravimètres absolus commerciaux font interférer les ondes de matière d’atomes refroidis par laser. Ils mesurent \(g\) à environ \(10^{-8}\ \mathrm{m/s^2}\) près et fonctionnent en continu sur le terrain. C’est le cas de l’AQG d’Exail (France), issu des laboratoires LP2N et LNE-SYRTE. Les paquets d’ondes atomiques y sont séparés puis recombinés, comme les photons du Mach-Zehnder du chapitre 1.</p>
+        <cite>Fiche constructeur Exail, consultée en octobre 2026</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Horloges : de l’atome au noyau</span>
+        <p>L’horloge à ion aluminium unique du NIST atteint une incertitude systématique relative de \(5{,}5\times10^{-19}\) (<i>Phys. Rev. Lett.</i>, juillet 2025). Tout récemment, deux équipes (TU Wien et Chine) ont fait fonctionner les premières horloges nucléaires, asservies sur une transition du thorium 229 vers 148 nm ; leur stabilité reste pour l’instant inférieure à celle des meilleures horloges atomiques (<i>Nature</i>, 7 octobre 2026). Une redéfinition de la seconde n’est pas attendue avant la Conférence générale des poids et mesures de 2030.</p>
+        <cite>NIST, juillet 2025 ; Nature, octobre 2026 ; BIPM, feuille de route de la redéfinition de la seconde</cite>
+      </div>
+    </section>
+
+    <footer class="chapter-foot">
+      <label class="done-toggle"><input type="checkbox" data-done> J’ai terminé ce chapitre</label>
+      <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/?chapitre=5">S’entraîner sur le quiz du chapitre 5 →</a>
+      <a class="pager" href="4-intrication.html"><small>← Chapitre précédent</small>Systèmes multi-qubits et intrication</a>
+      <a class="pager next" href="6-oscillateur.html"><small>Chapitre suivant →</small>Oscillateur harmonique quantique</a>
+    </footer>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Département de Physique, Faculté des Sciences, Université de Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Mis à jour en octobre 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Sources sur GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>
