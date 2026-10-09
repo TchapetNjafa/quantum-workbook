@@ -1,0 +1,46 @@
+name: Signaler une erreur dans le Carnet
+description: Formule fausse, exercice mal corrigé, labo qui se comporte mal, faute…
+title: "[chapitre] "
+labels: ["erreur signalée"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci. Chaque signalement est relu par l'équipe pédagogique de PHY321 avant correction.
+        Un compte GitHub (gratuit) est nécessaire pour envoyer ce formulaire.
+  - type: input
+    id: section
+    attributes:
+      label: Chapitre et section
+      description: Rempli automatiquement depuis la page (ex. 3.3 Oscillations de Rabi).
+    validations:
+      required: true
+  - type: dropdown
+    id: nature
+    attributes:
+      label: Nature du problème
+      options:
+        - Erreur de physique ou de formule
+        - Exercice mal corrigé (réponse acceptée ou refusée à tort)
+        - Laboratoire (simulation) incorrect ou bloqué
+        - Affichage sur téléphone
+        - Faute de français
+        - Autre
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Ce qui ne va pas
+      description: Citez le passage, ou décrivez ce que vous avez fait dans le labo et ce que vous avez observé.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Correction proposée (facultatif)
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Rempli automatiquement.

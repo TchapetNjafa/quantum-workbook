@@ -55,6 +55,25 @@ sw.js, manifest.json    mode hors connexion et installation sur téléphone
 
 Pour un QCM : `data-answer="b"` sur l'article, et `data-why="…"` sur chaque `<label class="choice">`.
 
+## Résumés audio
+
+Chaque chapitre propose un résumé parlé d'environ 1 min 20 (`assets/audio/chN.mp3`, 48 kb/s mono).
+La source unique est la transcription affichée sous le lecteur (`<div class="transcript">` dans la page).
+Après avoir modifié ce texte :
+
+```bash
+pip install edge-tts      # ffmpeg doit aussi être installé
+python3 outils/generer_audio.py 3     # régénère le chapitre 3 (sans argument : tous)
+```
+
+Pensez ensuite à changer `VERSION` dans `sw.js` pour que les navigateurs récupèrent les nouveaux fichiers.
+
+## Signalements d'erreurs
+
+Le lien « Signaler une erreur dans ce chapitre », en bas de chaque chapitre, ouvre un formulaire d'issue
+GitHub prérempli (section et adresse de la page). Les signalements arrivent dans l'onglet *Issues*
+avec l'étiquette `erreur signalée`. Les étudiants ont besoin d'un compte GitHub gratuit.
+
 ## Auteurs et licence
 
 S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou — Université de Yaoundé I.

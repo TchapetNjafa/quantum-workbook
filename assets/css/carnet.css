@@ -343,3 +343,11 @@ details.reveal > div { padding: 0 0 1rem 1.5rem; animation: unfold .3s var(--eas
   .topbar nav { -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); mask-image: linear-gradient(90deg, #000 82%, transparent); }
   .topbar nav a { padding: .4rem .5rem; }
 }
+
+/* ---------- résumé audio du chapitre ---------- */
+.listen { margin-top: 2rem; max-width: 40rem; display: grid; gap: .5rem; }
+.listen-label { font-family: var(--sans); font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.listen audio { width: 100%; height: 2.6rem; }
+.transcript p { font-size: .98rem; color: var(--ink-2); }
+.report-link { grid-column: 1 / -1; justify-self: start; font-family: var(--sans); font-size: .82rem; color: var(--muted); }
+.report-link:hover { color: var(--accent); }

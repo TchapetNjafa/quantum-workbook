@@ -114,6 +114,30 @@
     }));
   }
 
+  /* ---------- signaler une erreur (formulaire d'issue GitHub prérempli) ---------- */
+  function initReport() {
+    const foot = document.querySelector('.chapter-foot');
+    if (!foot || !chapterId) return;
+    const a = document.createElement('a');
+    a.className = 'report-link';
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'Signaler une erreur dans ce chapitre';
+    const update = () => {
+      const active = document.querySelector('.toc a.is-active');
+      const section = active ? [...active.childNodes].map(n => n.textContent.trim()).filter(Boolean).join(' ') : 'Chapitre ' + chapterId.slice(2);
+      const params = new URLSearchParams({
+        template: 'erreur.yml', title: `[${section}] `, section,
+        page: location.href.split('#')[0] + (active ? active.hash : '')
+      });
+      a.href = 'https://github.com/TchapetNjafa/quantum-workbook/issues/new?' + params;
+    };
+    a.addEventListener('pointerdown', update);
+    a.addEventListener('focus', update);
+    update();
+    foot.append(a);
+  }
+
   /* ---------- évaluation sûre d'une réponse numérique ----------
      Accepte : 0.5, 1/2, 1/sqrt(2), 2*pi, 3e-4, π, √2, virgule décimale.
      Liste blanche stricte de caractères avant toute évaluation. */
@@ -300,6 +324,6 @@
   window.Lab = { canvas, loop, bind, seg, drag, draw, rand, palette, reduceMotion, parseNumber };
   window.Carnet = { store, markExercise };
 
-  const ready = () => { initReading(); initRise(); initExercises(); initDone(); };
+  const ready = () => { initReading(); initRise(); initExercises(); initDone(); initReport(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready); else ready();
 })();
