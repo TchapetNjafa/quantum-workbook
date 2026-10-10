@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 5 · Wave function and continuous space — PHY321 Notebook</title>
+<meta name="description" content="Wave function, probability density, momentum representation, the relation [X, P] = iħ, the Schrödinger equation, wave packets and tunnelling: interactive labs and worked exercises for chapter 5 of PHY321 (University of Yaoundé I).">
+<meta property="og:title" content="Wave function and continuous space — PHY321 Notebook">
+<meta property="og:description" content="Area under |ψ|², Fourier transform, a spreading wave packet, simulated tunnelling: manipulate, measure, check.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../../manifest.json">
+<link rel="alternate" hreflang="fr" href="../../chapitres/5-fonction-etat.html">
+<link rel="alternate" hreflang="en" href="5-wave-function.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../../assets/css/carnet.css">
+<script src="../../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../../assets/js/carnet.js"></script>
+<script defer src="../../assets/js/labs/ch5.js"></script>
+</head>
+<body data-chapter="ch5">
+<a class="skip" href="#contenu">Skip to content</a>
+
+<header class="topbar">
+  <a class="brand" href="../index.html"><b>PHY321 Notebook</b><span>Quantum mechanics · UY1</span></a>
+  <nav aria-label="Chapters">
+    <a href="1-quantum-states.html">1 · States</a>
+    <a href="2-measurement-operators.html">2 · Measurement</a>
+    <a href="3-quantum-dynamics.html">3 · Dynamics</a>
+    <a href="4-entanglement.html">4 · Entanglement</a>
+    <a href="5-wave-function.html" aria-current="page">5 · Continuous space</a>
+    <a href="6-harmonic-oscillator.html">6 · Oscillator</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+  <span class="readbar" aria-hidden="true"></span>
+</header>
+
+<div class="chapter-layout">
+  <aside class="toc" aria-label="Chapter contents">
+    <details>
+      <summary>Contents</summary>
+      <ol>
+        <li><a href="#s1"><span class="toc-num">5.1</span>Wave function</a></li>
+        <li><a href="#s2"><span class="toc-num">5.2</span>Momentum representation</a></li>
+        <li><a href="#s3"><span class="toc-num">5.3</span>Operators in continuous space</a></li>
+        <li><a href="#s4"><span class="toc-num">5.4</span>Dynamics of the wave function</a></li>
+        <li><a href="#s5"><span class="toc-num">5.5</span>A wave packet in motion</a></li>
+        <li><a href="#s6"><span class="toc-num">5.6</span>Review exercises</a></li>
+        <li><a href="#actu"><span class="toc-num">·</span>Where do things stand in 2026?</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main id="contenu">
+    <header class="chapter-head">
+      <span class="big-num" aria-hidden="true">5</span>
+      <p class="eyebrow">Chapter 5 · Lectures 4 h + Tutorials 3 h</p>
+      <h1>Wave function and continuous space</h1>
+      <p class="lede">An electron does not have two possible positions; it has infinitely many. The ket becomes a function, sums become integrals, and position and momentum turn out to be two faces of the same object.</p>
+      <ul class="goals">
+        <li>Normalise a wave function and compute the probability of finding the particle in an interval.</li>
+        <li>Compute \(\langle x\rangle\), \(\Delta x\) and, by Fourier transform, the momentum distribution.</li>
+        <li>Derive \([X, P] = i\hbar\) from translations and deduce \(\Delta x\,\Delta p \ge \hbar/2\).</li>
+        <li>Predict the motion and spreading of a free wave packet, and estimate a tunnelling probability.</li>
+      </ul>
+      <div class="listen">
+        <span class="listen-label">Audio summary · 1:20</span>
+        <audio controls preload="none" src="../../assets/audio/en/ch5.mp3"></audio>
+        <details class="reveal"><summary>Read the transcript</summary><div class="transcript"><p>For a quantum object moving along a line, the state becomes a function, psi of x. The squared modulus of psi is a probability density: the probability of finding the particle between a and b is the area under this curve.</p><p>The same information can be written in terms of momentum. We go from one to the other with a Fourier transform. A packet that is narrow in position is broad in momentum, and the other way round. For a Gaussian packet, the product of the two standard deviations is exactly h-bar over two: the minimum allowed by the uncertainty relation. That relation follows directly from the commutator of position and momentum, which equals i h-bar.</p><p>The evolution is given by the Schrödinger equation. A free packet moves at the group velocity, p over m, and spreads out, because its different components do not travel at the same speed. For an electron localised within one nanometre, the width doubles in about thirty femtoseconds. For a one-gram marble, it would take far longer than the age of the Universe.</p><p>Faced with a barrier higher than its energy, a particle can still get through. This is tunnelling, and the scanning tunnelling microscope relies on it.</p></div></details>
+      </div>
+    </header>
+
+    <!-- ===================================================== 5.1 -->
+    <section class="section" id="s1">
+      <h2><span class="n">5.1</span>The wave function and the presence cloud</h2>
+
+      <div class="box history rise">
+        <p>In 1924, Louis de Broglie proposed that a material particle is accompanied by a wave. Confirmation came in 1927 at Bell Laboratories: Clinton Davisson and Lester Germer fired electrons at a nickel crystal and observed a diffraction pattern. Their sample had recrystallised by accident after being heated, which made the diffraction visible.</p>
+      </div>
+
+      <p>For a qubit, the state is expanded on two kets \(\ket0\) and \(\ket1\). For a quantum object on a line, it is expanded on infinitely many kets \(\ket x\), one per position. The rules stay the same, with three substitutions:</p>
+      <ul>
+        <li>the sum \(\sum_i\) becomes an integral \(\int \mathrm dx\);</li>
+        <li>the Kronecker delta \(\delta_{ij}\) becomes the Dirac delta: \(\braket{x'|x} = \delta(x'-x)\);</li>
+        <li>the closure relation \(\sum_i \ket i\bra i = \mathbb 1\) becomes \(\int \mathrm dx\,\ket x\bra x = \mathbb 1\).</li>
+      </ul>
+      <p>The kets \(\ket x\) cannot be normalised: they are computational tools, not states that can be prepared. The property of \(\delta\) to remember is \(\int_{x_1}^{x_2} f(x)\,\delta(x - x_0)\,\mathrm dx = f(x_0)\) if \(x_0 \in [x_1, x_2]\), and 0 otherwise.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Definition 5.1 — Wave function</span>
+        <p>The wave function is the component of the ket in the position basis:</p>
+        <div class="eq">$$\psi(x) = \braket{x|\psi},\qquad \ket\psi = \int_{-\infty}^{+\infty} \mathrm dx\,\psi(x)\ket x.$$</div>
+        <p>It is a <strong>probability density amplitude</strong>, complex in general, and square-integrable (\(\psi\in L^2(\mathbb R)\)). The lecture notes call it the “state function”; the usual name “wave function” comes from the historical comparison with classical waves.</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">Principle 5.1 — Born rule in the continuum</span>
+        <p>\(|\psi(x)|^2\) is a probability <strong>density</strong> (unit: m<sup>−1</sup>). The probability of finding the quantum object in \([a, b]\) is</p>
+        <div class="eq">$$P([a,b]) = \int_a^b |\psi(x)|^2\,\mathrm dx,\qquad \text{with}\quad \int_{-\infty}^{+\infty} |\psi(x)|^2\,\mathrm dx = 1.$$</div>
+        <p>The probability of finding the quantum object at one exact point is zero. Only a probability over an interval is meaningful.</p>
+      </div>
+
+      <p>Mean and spread are computed as for any statistical distribution: \(\langle x\rangle = \int x\,|\psi|^2\,\mathrm dx\) and \((\Delta x)^2 = \langle x^2\rangle - \langle x\rangle^2\).</p>
+
+      <figure class="lab rise" data-lab="density" aria-labelledby="lab-dens-t">
+        <div class="lab-head"><h3 id="lab-dens-t">The area under the presence cloud</h3><span class="tag">LAB 5.1</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"><span class="lab-hint">Drag the bounds a and b</span></div>
+          <div class="lab-panel">
+            <div class="ctrl"><span class="lbl">Wave function</span>
+              <div class="seg" data-seg="state"><button type="button" data-v="g" aria-pressed="true">Gaussian</button><button type="button" data-v="gg">Two Gaussians</button><button type="button" data-v="box">Box</button></div>
+            </div>
+            <div class="ctrl" data-for="sigma"><label for="dens-sigma">Width σ <output for="dens-sigma"></output></label><input id="dens-sigma" type="range" min="0.3" max="1.2" step="0.01" value="0.8"></div>
+            <div class="ctrl" data-for="d" hidden><label for="dens-d">Distance between centres <output for="dens-d"></output></label><input id="dens-d" type="range" min="0" max="3" step="0.1" value="2.4"></div>
+            <div class="ctrl" data-for="n" hidden><label for="dens-n">Level n <output for="dens-n"></output></label><input id="dens-n" type="range" min="1" max="4" step="1" value="1"></div>
+            <div class="btn-row">
+              <button class="btn ghost small" data-preset="mid" type="button" hidden>Middle third</button>
+              <button class="btn ghost small" data-preset="quart" type="button" hidden>First quarter</button>
+              <button class="btn ghost small" data-bounds="all" type="button">Whole axis</button>
+            </div>
+            <dl class="readout">
+              <div><dt>P([a, b])</dt><dd data-out="P"></dd></div>
+              <div><dt>∫|ψ|² dx</dt><dd data-out="norm"></dd></div>
+              <div><dt>⟨x⟩</dt><dd data-out="mean"></dd></div>
+              <div><dt>Δx</dt><dd data-out="sd"></dd></div>
+            </dl>
+            <p class="legend"><span><i></i>|ψ(x)|² (density)</span><span><i class="blu"></i>ψ(x) (amplitude, dashed)</span><span data-out="ab"></span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>The Gaussian is \(\psi = (\pi\sigma^2)^{-1/4}e^{-x^2/2\sigma^2}\), whose standard deviation is \(\Delta x = \sigma/\sqrt2\). For the box of width \(L\), \(\psi_n = \sqrt{2/L}\,\sin(n\pi x/L)\): at level \(n = 2\), \(\psi\) changes sign at the centre, but \(|\psi|^2\) does not see this sign. The integrals are computed numerically: \(\int|\psi|^2\) shows 1.000 in every case.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box law rise">
+        <span class="box-title">Common pitfall — amplitude or probability?</span>
+        <p>\(\psi(x)\) is not a probability: it is a complex number that carries a phase. Two wave functions can have the same density \(|\psi|^2\) and different phases, hence different interference and different momentum distributions (lab 5.2).</p>
+      </div>
+
+      <article class="exo" data-id="5.1" data-num="-25" data-tol="0.01" data-ok="Correct: \(\delta(x+2)\) selects \(x = -2\), which does lie in \([-3, 1]\), and \(-8 - 12 - 4 - 1 = -25\)." data-ko="Find where the argument of \(\delta\) vanishes, check that this point lies in the interval, then evaluate the polynomial there.">
+        <div class="exo-head"><span class="num">Exercise 5.1</span><h3>Working with the Dirac delta</h3><span class="stars" aria-label="difficulty 1 out of 3">★☆☆</span></div>
+        <p>Compute \(\displaystyle\int_{-3}^{1} (x^3 - 3x^2 + 2x - 1)\,\delta(x+2)\,\mathrm dx\).</p>
+        <div class="num-answer"><label for="e51">Result =</label><input id="e51" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>What if the interval were [−1, 1]?</summary><div><p>The point \(x = -2\) lies outside the interval, so the integral is 0. This is the case of \(\int_{-1}^{1} e^{|x|+3}\,\delta(x-2)\,\mathrm dx\) in the lecture notes.</p></div></details>
+      </article>
+
+      <article class="exo" data-id="5.2" data-num="0.609" data-tol="0.005" data-ok="Correct: \(P = \tfrac13 + \tfrac{\sqrt3}{2\pi} \approx 0.609\). More than the “classical” third: the quantum object is found more often at the centre of the box." data-ko="Use \(\sin^2 u = (1 - \cos 2u)/2\), then evaluate between \(L/3\) and \(2L/3\). Lab 5.1 (Box mode, “Middle third” button) gives the value.">
+        <div class="exo-head"><span class="num">Exercise 5.2</span><h3>The middle third of the box</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>A quantum object is in the state \(\psi(x) = \sqrt{2/L}\,\sin(\pi x/L)\) on \([0, L]\) (zero elsewhere). Check the normalisation, then compute the probability of finding it between \(L/3\) and \(2L/3\) (three decimal places).</p>
+        <div class="num-answer"><label for="e52">P =</label><input id="e52" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>An antiderivative of \(\tfrac2L\sin^2(\pi x/L)\) is \(\tfrac xL - \tfrac{1}{2\pi}\sin(2\pi x/L)\). On \([0, L]\) it gives 1: the function is normalised. On \([L/3, 2L/3]\): \(\tfrac13 - \tfrac{1}{2\pi}\big(\sin\tfrac{4\pi}3 - \sin\tfrac{2\pi}3\big) = \tfrac13 + \tfrac{\sqrt3}{2\pi} \approx 0.609\). On the first quarter \([0, L/4]\), one finds \(\tfrac14 - \tfrac1{2\pi} \approx 0.091\).</p>
+        </div></details>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogy to critique — the cloud</span>
+        <p>The lecture notes compare \(|\psi(x)|^2\) to the density of a cloud: thick where the quantum object is likely to be found, transparent elsewhere.</p>
+        <details class="reveal"><summary>Where does the analogy break down?</summary><div>
+          <p>A real cloud is made of droplets, each of which has a position: its blur comes from our ignorance of the details. The blur of \(|\psi|^2\) is not of this kind: before measurement, the quantum object has no hidden position that we would simply need to read off. Another difference: two clouds that meet add up, whereas two amplitudes can cancel.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 5.2 -->
+    <section class="section" id="s2">
+      <h2><span class="n">5.2</span>The other face: the momentum representation</h2>
+      <p>We can just as well expand \(\ket\psi\) on the kets \(\ket p\) of definite momentum, with \(\braket{p'|p} = \delta(p'-p)\) and \(\int\mathrm dp\,\ket p\bra p = \mathbb 1\). The component \(\varphi(p) = \braket{p|\psi}\) is the wave function in momentum space. To go from one to the other, all we need is the plane wave \(\braket{x|p} = e^{ipx/\hbar}/\sqrt{2\pi\hbar}\).</p>
+
+      <div class="box law rise">
+        <span class="box-title">Principle 5.2 — The two faces are linked by Fourier</span>
+        <div class="eq">$$\varphi(p) = \frac{1}{\sqrt{2\pi\hbar}}\int_{-\infty}^{+\infty}\mathrm dx\,\psi(x)\,e^{-ipx/\hbar},$$</div>
+        <div class="eq">$$\psi(x) = \frac{1}{\sqrt{2\pi\hbar}}\int_{-\infty}^{+\infty}\mathrm dp\,\varphi(p)\,e^{ipx/\hbar}.$$</div>
+        <p>\(|\varphi(p)|^2\) is the momentum probability density, and the norm is the same on both sides (Plancherel’s theorem): \(\int|\psi|^2\,\mathrm dx = \int|\varphi|^2\,\mathrm dp = 1\).</p>
+      </div>
+
+      <p>For the Gaussian \(\psi(x) = (\pi\sigma^2)^{-1/4}e^{-x^2/2\sigma^2}\), completing the square in the exponent gives another Gaussian:</p>
+      <div class="eq">$$\varphi(p) = \left(\frac{\sigma^2}{\pi\hbar^2}\right)^{1/4} e^{-p^2\sigma^2/2\hbar^2}.$$</div>
+      <p>The smaller \(\sigma\), the broader \(\varphi\): a sharply localised quantum object has a poorly defined momentum.</p>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification</span>
+        <p>The lecture notes write \(\sigma_x\sigma_p = \hbar\), taking \(\sigma\) and \(\hbar/\sigma\) as “widths”. With standard deviations, which are the ones in the Heisenberg relation, \(|\psi|^2 \propto e^{-x^2/\sigma^2}\) gives \(\Delta x = \sigma/\sqrt2\) and \(|\varphi|^2\propto e^{-p^2\sigma^2/\hbar^2}\) gives \(\Delta p = \hbar/(\sigma\sqrt2)\). The product is exactly \(\hbar/2\): the Gaussian reaches the bound. On the corresponding slide, the constant \((1/\pi\sigma^2)^{1/4}\) accompanies \(e^{-x^2/4\sigma^2}\): with that exponential, \((1/2\pi\sigma^2)^{1/4}\) is needed for the state to be normalised.</p>
+      </div>
+
+      <figure class="lab rise" data-lab="duality" aria-labelledby="lab-dual-t">
+        <div class="lab-head"><h3 id="lab-dual-t">Position and momentum, side by side</h3><span class="tag">LAB 5.2</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"></div>
+          <div class="lab-panel">
+            <div class="ctrl"><span class="lbl">State</span>
+              <div class="seg" data-seg="pair"><button type="button" data-v="g" aria-pressed="true">Gaussian</button><button type="button" data-v="p">Two in phase</button><button type="button" data-v="m">Two in antiphase</button></div>
+            </div>
+            <div class="ctrl"><label for="dual-sigma">Width σ <output for="dual-sigma"></output></label><input id="dual-sigma" type="range" min="0.3" max="2.5" step="0.01" value="1"></div>
+            <div class="ctrl" data-for="d2" hidden><label for="dual-d">Distance d between the two Gaussians <output for="dual-d"></output></label><input id="dual-d" type="range" min="0" max="5" step="0.1" value="3"></div>
+            <dl class="readout">
+              <div><dt>Δx</dt><dd data-out="dx"></dd></div>
+              <div><dt>Δp</dt><dd data-out="dp"></dd></div>
+              <div><dt>Δx·Δp</dt><dd data-out="prod"></dd></div>
+            </dl>
+            <p class="legend"><span><i></i>|ψ(x)|²</span><span><i class="acc"></i>|φ(p)|²</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Reduced units \(\hbar = 1\). For the single Gaussian, the product stays at 0.500 whatever σ. For \(\psi \propto g(x - d/2) \pm g(x + d/2)\), one has \(|\varphi(p)|^2 \propto e^{-p^2\sigma^2}(1 \pm \cos pd)\): fringes appear in momentum, and the product exceeds \(\hbar/2\). The “in phase” and “in antiphase” states have almost the same density \(|\psi(x)|^2\) when \(d\) is large, but not the same \(|\varphi(p)|^2\): the phase makes the difference.</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="5.3" data-answer="b">
+        <div class="exo-head"><span class="num">Exercise 5.3</span><h3>The width of a Gaussian</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>For \(\psi(x) = (\pi\sigma^2)^{-1/4}e^{-x^2/2\sigma^2}\), what is the standard deviation \(\Delta x\)?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: σ is the standard deviation of ψ viewed as a curve, not that of the density |ψ|² ∝ e^{−x²/σ²}."><input type="radio" name="e53" value="a">\(\sigma\)</label></li>
+          <li><label class="choice" data-why="Correct. |ψ|² ∝ e^{−x²/σ²} is a Gaussian of variance σ²/2. Lab 5.1 shows Δx = 0.566 for σ = 0.8."><input type="radio" name="e53" value="b">\(\sigma/\sqrt2\)</label></li>
+          <li><label class="choice" data-why="No: the variance of a density in e^{−x²/2s²} is s². Here squaring divided the scale by √2; it did not multiply it."><input type="radio" name="e53" value="c">\(\sigma\sqrt2\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogy to critique — the Nommo twins of Dogon cosmogony</span>
+        <p>The lecture notes suggest comparing the position/momentum pair with the principle of twinness in Dogon cosmogony (Mali): two opposite and complementary principles, both needed for the balance of the world.</p>
+        <details class="reveal"><summary>Where does the analogy break down?</summary><div>
+          <p>First, a correction: in the accounts collected among the Dogon, Amma is the creator god, and the Nommo are the twin beings he begets. Amma and Nommo therefore do not form a pair of twins, contrary to what the lecture notes suggest. Second, quantum complementarity is quantitative: \(\psi\) and \(\varphi\) contain exactly the same information, linked by a Fourier transform, and the bound \(\Delta x\,\Delta p \ge \hbar/2\) can be calculated. A mythological duality provides neither this equivalence nor this bound.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 5.3 -->
+    <section class="section" id="s3">
+      <h2><span class="n">5.3</span>Operators in continuous space</h2>
+      <p>“Where are you?”: the position operator multiplies the wave function by \(x\), \((X\psi)(x) = x\,\psi(x)\). Its eigenstates are the \(\delta(x - x_0)\).</p>
+      <p>“Where are you going?”: momentum is defined by its geometric role. The translation operator \(T(a)\) shifts the state, \((T(a)\psi)(x) = \psi(x-a)\). For a small displacement, \(T(\mathrm da) \approx \mathbb 1 - \tfrac{i\,\mathrm da}{\hbar}P\), so \(T(a) = e^{-iaP/\hbar}\). Expanding \(\psi(x - \mathrm da) \approx \psi(x) - \mathrm da\,\psi'(x)\) gives the differential form.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Definitions 5.3 — Position, momentum, commutator</span>
+        <div class="eq">$$(X\psi)(x) = x\,\psi(x),\qquad (P\psi)(x) = -i\hbar\,\frac{\mathrm d\psi}{\mathrm dx},\qquad [X, P] = i\hbar\,\mathbb 1.$$</div>
+        <p>The commutation relation follows from \(T^\dagger(a)\,X\,T(a) = X + a\,\mathbb 1\) to first order in \(a\). It implies, for every state, \(\Delta x\,\Delta p \ge \hbar/2\).</p>
+      </div>
+
+      <p>The expectation values are \(\langle X\rangle = \int x\,|\psi|^2\,\mathrm dx\) and \(\langle P\rangle = \int \psi^*(x)\,(-i\hbar\,\psi'(x))\,\mathrm dx\). The uncertainty is not a flaw of the instruments: no state gives narrow distributions in both \(x\) and \(p\) at the same time.</p>
+
+      <article class="exo" data-id="5.4" data-answer="a">
+        <div class="exo-head"><span class="num">Exercise 5.4</span><h3>A commutator acting on a function</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>Compute \([X, P]\psi = XP\psi - PX\psi\) with \(P = -i\hbar\,\mathrm d/\mathrm dx\). What do you find?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Correct. XPψ = −iħ x ψ′ and PXψ = −iħ(ψ + x ψ′). The difference is iħ ψ, whatever ψ."><input type="radio" name="e54" value="a">\(i\hbar\,\psi(x)\)</label></li>
+          <li><label class="choice" data-why="No: that is [P, X]ψ. Watch the order of the operators."><input type="radio" name="e54" value="b">\(-i\hbar\,\psi(x)\)</label></li>
+          <li><label class="choice" data-why="No: when you differentiate x ψ, the product rule produces a ψ term that does not cancel."><input type="radio" name="e54" value="c">0</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="5.5" data-answer="c">
+        <div class="exo-head"><span class="num">Exercise 5.5</span><h3>Mean momentum of a real function</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>A normalised wave function \(\psi(x)\) is real (for example the Gaussian or a box state). What is \(\langle P\rangle\)?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: ⟨P⟩ does not depend on the mean position. A state centred at x₀ ≠ 0 can perfectly well be at rest."><input type="radio" name="e55" value="a">It depends on \(\langle x\rangle\).</label></li>
+          <li><label class="choice" data-why="No: ⟨P⟩ is real for every state, because P is Hermitian. Here you can go further."><input type="radio" name="e55" value="b">It is purely imaginary.</label></li>
+          <li><label class="choice" data-why="Correct. ⟨P⟩ = −iħ ∫ ψ ψ′ dx = −(iħ/2)[ψ²] = 0, since ψ vanishes at infinity. To set a packet in motion you need a phase: ψ(x) e^{ip₀x/ħ} gives ⟨P⟩ = p₀."><input type="radio" name="e55" value="c">\(\langle P\rangle = 0\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="5.6" data-num="5.27" data-tol="0.02" data-ok="Correct: \(\Delta p \ge \hbar/(2\Delta x) = 1.055\times10^{-34}/(2\times10^{-10}) \approx 5.3\times10^{-25}\ \mathrm{kg\,m/s}\), that is, a velocity spread of about \(6\times10^{5}\) m/s." data-ko="Apply \(\Delta p_\text{min} = \hbar/(2\Delta x)\) with \(\hbar = 1.055\times10^{-34}\) J s and \(\Delta x = 10^{-10}\) m, then express the result in units of \(10^{-25}\) kg m/s.">
+        <div class="exo-head"><span class="num">Exercise 5.6</span><h3>Order of magnitude of Δp</h3><span class="stars" aria-label="difficulty 1 out of 3">★☆☆</span></div>
+        <p>An electron is localised on the scale of an atom, \(\Delta x = 0.1\) nm. What is the smallest momentum spread compatible with Heisenberg? Give it in units of \(10^{-25}\ \mathrm{kg\,m/s}\).</p>
+        <div class="num-answer"><label for="e56">Δp =</label><input id="e56" type="text" inputmode="decimal" autocomplete="off"><span>× 10⁻²⁵ kg m/s</span><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 5.4 -->
+    <section class="section" id="s4">
+      <h2><span class="n">5.4</span>Dynamics of the wave function</h2>
+
+      <div class="box law rise">
+        <span class="box-title">Principle 5.4 — Schrödinger equation</span>
+        <div class="eq">$$i\hbar\,\frac{\partial\psi(x,t)}{\partial t} = \left(-\frac{\hbar^2}{2m}\frac{\partial^2}{\partial x^2} + V(x)\right)\psi(x,t).$$</div>
+        <p>It is first order in time (the initial state fixes the whole future, between two measurements) and linear (any superposition of solutions is a solution).</p>
+      </div>
+
+      <p>A state of definite energy \(E_n\) evolves by a mere phase, \(\psi_n(x,t) = \phi_n(x)\,e^{-iE_nt/\hbar}\), where \(\phi_n\) satisfies the time-independent equation \(-\tfrac{\hbar^2}{2m}\phi_n'' + V\phi_n = E_n\phi_n\). Its density \(|\psi_n|^2 = |\phi_n|^2\) does not move. “Stationary” does not mean “motionless”: a plane wave \(e^{i(kx - \omega t)}\) has a uniform, constant density, yet it carries a probability current.</p>
+
+      <h3>Tunnelling</h3>
+      <p>Facing a barrier of height \(V_0\) greater than its energy \(E\), a classical ball turns back. The wave function, however, does not drop abruptly to zero: it decays as \(e^{-\kappa x}\) inside the barrier, with \(\kappa = \sqrt{2m(V_0 - E)}/\hbar\). If the barrier is thin enough, part of the wave emerges on the other side. For a rectangular barrier of width \(a\) and \(E &lt; V_0\):</p>
+      <div class="eq">$$T(E) = \left[1 + \frac{V_0^2\,\sinh^2(\kappa a)}{4E(V_0 - E)}\right]^{-1},$$</div>
+      <p>which, for a thick barrier (\(\kappa a \gg 1\)), becomes</p>
+      <div class="eq">$$T(E) \approx 16\,\frac{E}{V_0}\Big(1 - \frac{E}{V_0}\Big)e^{-2\kappa a}.$$</div>
+
+      <figure class="lab rise" data-lab="tunnel" aria-labelledby="lab-tn-t">
+        <div class="lab-head"><h3 id="lab-tn-t">A wave packet against a barrier</h3><span class="tag">LAB 5.4</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent" data-act="play" type="button">Start</button>
+            </div>
+            <div class="ctrl"><label for="tn-V0">Barrier height V₀ <output for="tn-V0"></output></label><input id="tn-V0" type="range" min="0" max="2.5" step="0.05" value="1"></div>
+            <div class="ctrl"><label for="tn-a">Width a <output for="tn-a"></output></label><input id="tn-a" type="range" min="0.2" max="3" step="0.05" value="1"></div>
+            <div class="ctrl"><label for="tn-p0">Mean momentum p₀ <output for="tn-p0"></output></label><input id="tn-p0" type="range" min="0.6" max="2.2" step="0.05" value="1.2"></div>
+            <dl class="readout">
+              <div><dt>E = p₀²/2</dt><dd data-out="E"></dd></div>
+              <div><dt>P(x &gt; a) simulated</dt><dd data-out="Tnum"></dd></div>
+              <div><dt>P(x &lt; 0) simulated</dt><dd data-out="R"></dd></div>
+              <div><dt>T̄ predicted</dt><dd data-out="Tth"></dd></div>
+              <div><dt>T(E) plane wave</dt><dd data-out="Tpw"></dd></div>
+            </dl>
+            <p class="legend"><span><i class="acc"></i>|ψ(x, t)|²</span><span><i class="blu"></i>energy E</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Reduced units \(\hbar = m = 1\), packet of width \(\Delta x_0 = 5\). The Schrödinger equation is solved step by step with the split-operator method (fast Fourier transform on 1,024 points). The prediction \(\bar T = \int|\varphi(p)|^2\,T(p^2/2)\,\mathrm dp\) averages \(T(E)\) over the momenta present in the packet. At the start, the whole packet is on the left (\(P(x&lt;0) = 1\)). At the end of the run, \(P(x&gt;a)\) is the transmission probability: it differs from the prediction by less than 0.01. Double \(a\) with \(E &lt; V_0\): the transmission drops by a factor close to \(e^{2\kappa a}\).</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Application — the scanning tunnelling microscope</span>
+        <p>A metal tip scans a conducting surface a few ångströms away. The vacuum between them acts as the barrier, with \(V_0 - E\) equal to the work function, about 4.5 eV. The current is proportional to \(e^{-2\kappa L}\): it depends so strongly on the distance \(L\) that individual atoms can be distinguished.</p>
+      </div>
+
+      <article class="exo" data-id="5.7" data-num="8.8" data-tol="0.03" data-ok="Correct: \(\kappa = \sqrt{2m_e\cdot 4.5\ \mathrm{eV}}/\hbar \approx 1.09\times10^{10}\ \mathrm{m^{-1}}\), so \(e^{2\kappa\Delta L} = e^{2.18} \approx 8.9\). One ångström of relief multiplies the current by almost 9: this is what makes atoms visible." data-ko="First compute \(\kappa\) in m⁻¹ (4.5 eV = 7.2 × 10⁻¹⁹ J), then \(I_\text{above}/I_\text{far} = e^{2\kappa\,\Delta L}\) with \(\Delta L = 10^{-10}\) m.">
+        <div class="exo-head"><span class="num">Exercise 5.7</span><h3>Sensitivity of the tunnelling current</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>With \(T \approx C e^{-2\kappa L}\), \(V_0 - E = 4.5\) eV, \(m_e = 9.11\times10^{-31}\) kg and \(\hbar = 1.05\times10^{-34}\) J s, the tip passes over an atom and the distance decreases by \(\Delta L = 0.1\) nm. What is the ratio \(I_\text{above}/I_\text{far}\)?</p>
+        <div class="num-answer"><label for="e57">Ratio =</label><input id="e57" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification</span>
+        <p>The exercise in the lecture notes on the blue LED (3 nm well, transition \(n = 1 \to n = 0\)) leads to an effective mass of about \(0.045\,m_e\). The calculation is correct, but the physical interpretation is not: in an InGaN quantum-well LED, blue light comes from the recombination of a conduction-band electron with a valence-band hole. The photon energy is therefore mainly that of the band gap (about 2.7 eV), to which the confinement energies of the electron and the hole are added. A transition between two levels of the same band in a well a few nanometres wide falls in the infrared: that is the principle of quantum cascade lasers, not of LEDs.</p>
+      </div>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogy to critique — the master drummer</span>
+        <p>The lecture notes compare stationary states to the rhythms that the master drummer of Yoruba or Akan traditions keeps up throughout a ceremony: stable, recognisable “modes”. More concretely, a stretched drumhead vibrates in a lasting way only in certain normal modes, each with its own frequency.</p>
+        <details class="reveal"><summary>Where does the analogy break down?</summary><div>
+          <p>The modes of a drumhead are real and visible: the skin moves. In a stationary state, nothing observable moves; only a global phase rotates, with no measurable effect. The comparison with normal modes holds; the one with ritual rhythms is symbolic and predicts nothing. Moreover, a rhythm is a sequence of events in time, whereas a stationary state is precisely what does not change in time.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 5.5 -->
+    <section class="section" id="s5">
+      <h2><span class="n">5.5</span>A wave packet in motion</h2>
+      <p>A plane wave has a perfectly defined momentum but extends over all space; a Dirac delta is perfectly localised but contains every momentum. A real quantum object lies in between: a <strong>wave packet</strong>, a superposition of plane waves with neighbouring momenta that interfere constructively in a small region. For a free quantum object, each component evolves with \(E(p) = p^2/2m\):</p>
+      <div class="eq">$$\psi(x,t) = \frac{1}{\sqrt{2\pi\hbar}}\int\mathrm dp\,\varphi(p)\,e^{i(px - E(p)t)/\hbar}.$$</div>
+
+      <div class="box def rise">
+        <span class="box-title">Definitions 5.5 — Two velocities, one spreading</span>
+        <p>The <strong>group velocity</strong>, that of the envelope, is \(v_g = \mathrm dE/\mathrm dp = p_0/m\): it is the classical velocity. The <strong>phase velocity</strong>, that of the crests of the carrier wave, is \(v_\varphi = E/p = p_0/2m = v_g/2\). For a Gaussian packet of initial width \(\Delta x_0\) (standard deviation):</p>
+        <div class="eq">$$\Delta x(t) = \Delta x_0\sqrt{1 + \left(\frac{t}{t_0}\right)^2},$$</div>
+        <div class="eq">$$t_0 = \frac{2m\,(\Delta x_0)^2}{\hbar}.$$</div>
+      </div>
+
+      <figure class="lab rise" data-lab="packet" aria-labelledby="lab-pk-t">
+        <div class="lab-head"><h3 id="lab-pk-t">The free packet moves forward and spreads</h3><span class="tag">LAB 5.5</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent" data-act="play" type="button">Start</button>
+              <button class="btn ghost small" data-act="reset" type="button">t = 0</button>
+            </div>
+            <div class="ctrl"><label for="pk-s0">Initial width Δx₀ <output for="pk-s0"></output></label><input id="pk-s0" type="range" min="0.3" max="2" step="0.01" value="0.8"></div>
+            <div class="ctrl"><label for="pk-p0">Mean momentum p₀ <output for="pk-p0"></output></label><input id="pk-p0" type="range" min="0" max="6" step="0.1" value="3"></div>
+            <dl class="readout">
+              <div><dt>t</dt><dd data-out="t"></dd></div>
+              <div><dt>⟨x⟩</dt><dd data-out="mean"></dd></div>
+              <div><dt>Δx (computed)</dt><dd data-out="sd"></dd></div>
+              <div><dt>Δx (formula)</dt><dd data-out="sdth"></dd></div>
+              <div><dt>v_g</dt><dd data-out="vg"></dd></div>
+              <div><dt>v_φ</dt><dd data-out="vphi"></dd></div>
+              <div><dt>t₀</dt><dd data-out="t0"></dd></div>
+            </dl>
+            <p class="legend"><span><i class="acc"></i>|ψ|²</span><span><i class="blu"></i>Re ψ</span><span><i style="background:var(--muted)"></i>Im ψ</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Exact solution of the free Schrödinger equation, in units \(\hbar = m = 1\); the curves are scaled to their maximum at \(t = 0\). The red triangle moves at \(v_g = p_0\) and stays at the centre of the packet; the blue one follows a crest of the carrier at \(v_\varphi = p_0/2\) and gets overtaken. Take \(p_0 = 0\) and \(\Delta x_0 = 0.3\): the packet does not move, but its height collapses within a few time units.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification</span>
+        <p>The lecture notes attribute the spreading to the fact that the phase velocity \(p/2m\) depends on \(p\). What matters is that the components of the packet do not share the same group velocity \(p/m\): in a time \(t\), they separate by about \(\Delta p\,t/m\). This recovers the long-time behaviour, \(\Delta x(t) \approx \Delta p\,t/m\) with \(\Delta p = \hbar/(2\Delta x_0)\).</p>
+        <p>In exercise 5.6.1 of the lecture notes, if \(\Delta x_0\) and \(\Delta k\) are standard deviations (\(\Delta x_0\,\Delta k = 1/2\)), the term under the square root reads \(\hbar t/(2m\Delta x_0^2) = 2\hbar(\Delta k)^2t/m\), not \(\hbar(\Delta k)^2t/2m\). The spreading time is then \(t_0 = 2m\Delta x_0^2/\hbar = m/(2\hbar\Delta k^2)\).</p>
+        <p>Finally, the sentence “no action smaller than \(\hbar/2\) is observed” does not follow from \(\Delta x\,\Delta p \ge \hbar/2\). This inequality concerns the standard deviations of a single state, not a minimum action.</p>
+      </div>
+
+      <article class="exo" data-id="5.8" data-answer="a">
+        <div class="exo-head"><span class="num">Exercise 5.8</span><h3>Which is faster?</h3><span class="stars" aria-label="difficulty 1 out of 3">★☆☆</span></div>
+        <p>For a free non-relativistic electron with mean momentum \(p_0\), compare the phase velocity and the group velocity.</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Correct. v_φ = E/p = p₀/2m and v_g = dE/dp = p₀/m. The crests move half as fast as the envelope: they appear at the back of the packet and die out at the front (lab 5.5)."><input type="radio" name="e58" value="a">\(v_\varphi = v_g/2\)</label></li>
+          <li><label class="choice" data-why="No: that is the case of light in vacuum, where E = pc gives E/p = dE/dp = c."><input type="radio" name="e58" value="b">\(v_\varphi = v_g\)</label></li>
+          <li><label class="choice" data-why="No: that would be the case for a relation E(p) that grows more slowly than p (deep-water gravity waves, for example)."><input type="radio" name="e58" value="c">\(v_\varphi = 2v_g\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="5.9" data-num="29.9" data-tol="0.03" data-ok="Correct: \(t_0 = 2m_e\Delta x_0^2/\hbar \approx 1.73\times10^{-14}\) s, and the width doubles when \(t = \sqrt3\,t_0 \approx 3.0\times10^{-14}\) s, that is, 30 fs." data-ko="Write \(\sqrt{1 + (\tau/t_0)^2} = 2\), hence \(\tau = \sqrt3\,t_0\), with \(t_0 = 2m_e\Delta x_0^2/\hbar\). Give the result in femtoseconds (\(10^{-15}\) s).">
+        <div class="exo-head"><span class="num">Exercise 5.9</span><h3>An electron that spreads out</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>A free electron (\(m_e = 9.11\times10^{-31}\) kg) is prepared in a Gaussian packet of width \(\Delta x_0 = 1\) nm. After how long has its width doubled? (in fs)</p>
+        <div class="num-answer"><label for="e59">τ =</label><input id="e59" type="text" inputmode="decimal" autocomplete="off"><span>fs</span><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>And for a 1 g marble localised to within 1 mm?</summary><div>
+          <p>\(t_0 = 2\times10^{-3}\times(10^{-3})^2/1.055\times10^{-34} \approx 1.9\times10^{25}\) s, so \(\tau \approx 3\times10^{25}\) s, about \(10^{18}\) years. That is nearly \(10^8\) times the age of the Universe (\(4\times10^{17}\) s). The spreading of an isolated macroscopic object is therefore invisible.</p>
+        </div></details>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification</span>
+        <p>The “Quantitative application” slide gives \(\tau \approx 30\) fs for \(\Delta x_0 = 0.1\) nm. That figure corresponds to \(\Delta x_0 = 1\) nm (exercise 5.9). For 0.1 nm, \(t_0\) is a hundred times smaller and \(\tau \approx 0.3\) fs. For the 1 g marble, the same slide says “\(10^{18}\) times the age of the Universe”: it is in fact \(10^{18}\) <em>years</em>, about \(10^8\) times the age of the Universe.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================== 5.6 -->
+    <section class="section" id="s6">
+      <h2><span class="n">5.6</span>Review exercises</h2>
+
+      <article class="exo" data-id="5.10">
+        <div class="exo-head"><span class="num">Exercise 5.10</span><h3>From the Gaussian to Heisenberg</h3><span class="stars" aria-label="difficulty 3 out of 3">★★★</span></div>
+        <p>Start from \(\psi(x) = (\pi\sigma^2)^{-1/4}e^{-x^2/2\sigma^2}e^{ip_0x/\hbar}\).</p>
+        <ol>
+          <li>Show that \(\langle P\rangle = p_0\) and that \(\Delta x = \sigma/\sqrt2\).</li>
+          <li>Compute \(\varphi(p)\) by completing the square, then \(\Delta p\).</li>
+          <li>Check that \(\Delta x\,\Delta p = \hbar/2\). What happens to \(\Delta p\) over time for a free quantum object? And to \(\Delta x\)?</li>
+        </ol>
+        <details class="reveal"><summary>Hint</summary><div><p>The factor \(e^{ip_0x/\hbar}\) simply shifts \(\varphi\): \(\varphi(p) \to \varphi(p - p_0)\). For the last question, look at how each component \(\varphi(p)\) evolves in time.</p></div></details>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>\(P\psi = -i\hbar\psi' = \big(p_0 + i\hbar x/\sigma^2\big)\psi\); the second term is odd in \(x\) and averages to zero, hence \(\langle P\rangle = p_0\). One finds \(\varphi(p) = (\sigma^2/\pi\hbar^2)^{1/4}e^{-(p-p_0)^2\sigma^2/2\hbar^2}\), so \(|\varphi|^2 \propto e^{-(p-p_0)^2\sigma^2/\hbar^2}\) and \(\Delta p = \hbar/(\sigma\sqrt2)\). The product is \(\hbar/2\).</p>
+          <p>For a free quantum object, \(\varphi(p,t) = \varphi(p,0)\,e^{-ip^2t/2m\hbar}\): only the phase changes, so \(|\varphi(p,t)|^2\) and \(\Delta p\) stay constant. On the other hand, \(\Delta x(t)\) grows (lab 5.5), and the product \(\Delta x\,\Delta p\) exceeds \(\hbar/2\) as soon as \(t &gt; 0\).</p>
+        </div></details>
+      </article>
+    </section>
+
+    <section class="section" id="actu">
+      <h2><span class="n">·</span>Where do things stand in 2026?</h2>
+      <div class="box news rise">
+        <span class="box-title">2025 Nobel Prize in Physics: tunnelling goes macroscopic</span>
+        <p>John Clarke, Michel Devoret and John Martinis received the prize “for the discovery of macroscopic quantum mechanical tunnelling and energy quantisation in an electric circuit”. In their experiments at Berkeley in the mid-1980s, what crossed the barrier was not an electron, as in lab 5.4, but a collective variable of a superconducting circuit with a Josephson junction. These circuits are the direct ancestors of the superconducting qubits of Google and IBM.</p>
+        <cite>Nobel Committee press release, 7 October 2025 — nobelprize.org</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Matter waves to measure gravity</span>
+        <p>Commercial absolute gravimeters make the matter waves of laser-cooled atoms interfere. They measure \(g\) to within about \(10^{-8}\ \mathrm{m/s^2}\) and operate continuously in the field. One example is the AQG from Exail (France), which grew out of the LP2N and LNE-SYRTE laboratories. The atomic wave packets are split and then recombined, like the photons in the Mach–Zehnder interferometer of chapter 1.</p>
+        <cite>Exail product sheet, accessed October 2026</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Clocks: from the atom to the nucleus</span>
+        <p>NIST’s single aluminium-ion clock reaches a relative systematic uncertainty of \(5.5\times10^{-19}\) (<i>Phys. Rev. Lett.</i>, July 2025). Very recently, two teams (TU Wien and China) operated the first nuclear clocks, locked to a transition of thorium-229 near 148 nm; for now their stability remains below that of the best atomic clocks (<i>Nature</i>, 7 October 2026). A redefinition of the second is not expected before the 2030 General Conference on Weights and Measures.</p>
+        <cite>NIST, July 2025; Nature, October 2026; BIPM, roadmap for the redefinition of the second</cite>
+      </div>
+    </section>
+
+    <footer class="chapter-foot">
+      <label class="done-toggle"><input type="checkbox" data-done> I have finished this chapter</label>
+      <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/en/?chapter=5">Practise with the chapter 5 quiz →</a>
+      <a class="pager" href="4-entanglement.html"><small>← Previous chapter</small>Multi-qubit systems and entanglement</a>
+      <a class="pager next" href="6-harmonic-oscillator.html"><small>Next chapter →</small>The quantum harmonic oscillator</a>
+    </footer>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Department of Physics, Faculty of Science, University of Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Updated October 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Source on GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

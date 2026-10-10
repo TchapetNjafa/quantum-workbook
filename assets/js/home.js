@@ -1,7 +1,7 @@
 /* Accueil : figure d'interférence qui se construit photon par photon + progression de l'étudiant. */
 (() => {
   'use strict';
-  const { canvas, loop, draw: D, rand, reduceMotion } = window.Lab;
+  const { canvas, loop, draw: D, rand, reduceMotion, t, LOCALE } = window.Lab;
 
   /* ---------- figure de couverture ---------- */
   const stage = document.getElementById('hero-stage');
@@ -28,7 +28,7 @@
         ctx.fillStyle = fresh ? c.accent : D.alpha(c.ink, 0.62);
         ctx.fillRect(((hits[i][0] + 1) / 2) * w - r, h * 0.14 + hits[i][1] * h * 0.8 - r, 2 * r, 2 * r);
       }
-      D.text(ctx, `N = ${n.toLocaleString('fr-FR')}`, 12, h - 12, { font: c.mono, color: c.muted });
+      D.text(ctx, `N = ${n.toLocaleString(LOCALE)}`, 12, h - 12, { font: c.mono, color: c.muted });
     }
     const add = k => {
       for (let j = 0; j < k; j++) {
@@ -57,15 +57,15 @@
     const countEl = li.querySelector('[data-exos]');
     const total = countEl ? Number(countEl.dataset.exos) : 0;
     if (n || s.done) last = li;
-    prog.textContent = s.done ? 'terminé' : (n ? `${n}${total ? ' / ' + total : ''} exercices réussis` : '');
+    prog.textContent = s.done ? t('terminé', 'finished') : (n ? `${n}${total ? ' / ' + total : ''} ${t('exercices réussis', 'exercises solved')}` : '');
     prog.classList.toggle('done', !!s.done);
   });
   if (last) {
     const resume = document.getElementById('resume');
     resume.href = last.querySelector('a').getAttribute('href');
-    resume.textContent = `Reprendre au chapitre ${last.querySelector('.ch-num').textContent}`;
+    resume.textContent = `${t('Reprendre au chapitre', 'Resume at chapter')} ${last.querySelector('.ch-num').textContent}`;
     const line = document.getElementById('progress-line');
     line.hidden = false;
-    line.textContent = 'Votre progression est enregistrée dans ce navigateur uniquement.';
+    line.textContent = t('Votre progression est enregistrée dans ce navigateur uniquement.', 'Your progress is saved in this browser only.');
   }
 })();

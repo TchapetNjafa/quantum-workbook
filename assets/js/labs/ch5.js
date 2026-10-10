@@ -2,7 +2,7 @@
    paquet d'ondes libre, effet tunnel. Unités réduites ħ = m = 1 partout. */
 (() => {
   'use strict';
-  const { canvas, loop, bind, seg, drag, draw: D } = window.Lab;
+  const { canvas, loop, bind, seg, drag, draw: D, t: tr } = window.Lab;
   const $ = (root, s) => root.querySelector(s);
   const f3 = v => (Math.abs(v) < 5e-4 ? 0 : v).toFixed(3);
 
@@ -284,7 +284,7 @@
         ctx.restore();
       };
       panel(0, XS, rx, 'x', c.ink, '|ψ(x)|²');
-      panel(hh, PS, rp, 'p (unités de ħ)', c.accent, '|φ(p)|²');
+      panel(hh, PS, rp, tr('p (unités de ħ)', 'p (units of ħ)'), c.accent, '|φ(p)|²');
     });
 
     seg($(root, '[data-seg="pair"]'), v => { mode = v; root.querySelectorAll('[data-for="d2"]').forEach(e => { e.hidden = v === 'g'; e.style.display = v === 'g' ? 'none' : ''; }); build(); });
@@ -348,7 +348,7 @@
     }, { autoplay: false });
 
     const playBtn = $(root, '[data-act="play"]');
-    playBtn.addEventListener('click', () => { const on = anim.toggle(); playBtn.textContent = on ? 'Pause' : 'Lancer'; });
+    playBtn.addEventListener('click', () => { const on = anim.toggle(); playBtn.textContent = on ? 'Pause' : tr('Lancer', 'Start'); });
     $(root, '[data-act="reset"]').addEventListener('click', () => { t = 0; compute(); view.redraw(); });
     const speeds = () => {
       $(root, '[data-out="vg"]').textContent = p0.toFixed(2);
@@ -409,16 +409,16 @@
       if (!sim || done) return;
       const per = Math.max(1, Math.ceil(tStop / DT / 300));     // ≈ 5 s d'animation, quel que soit p0
       sim.step(per);
-      if (sim.t >= tStop) { done = true; anim.pause(); playBtn.textContent = 'Relancer'; }
+      if (sim.t >= tStop) { done = true; anim.pause(); playBtn.textContent = tr('Relancer', 'Restart'); }
       out(); view.redraw();
     }, { autoplay: false });
 
     const playBtn = $(root, '[data-act="play"]');
     playBtn.addEventListener('click', () => {
       if (done) { reset(); anim.play(); playBtn.textContent = 'Pause'; return; }
-      const on = anim.toggle(); playBtn.textContent = on ? 'Pause' : 'Lancer';
+      const on = anim.toggle(); playBtn.textContent = on ? 'Pause' : tr('Lancer', 'Start');
     });
-    const changed = () => { anim.pause(); playBtn.textContent = 'Lancer'; reset(); };
+    const changed = () => { anim.pause(); playBtn.textContent = tr('Lancer', 'Start'); reset(); };
     bind($(root, '#tn-V0'), v => { V0 = v; if (sim) changed(); }, v => v.toFixed(2));
     bind($(root, '#tn-a'), v => { a = v; if (sim) changed(); }, v => v.toFixed(2));
     bind($(root, '#tn-p0'), v => { p0 = v; if (sim) changed(); }, v => v.toFixed(2));

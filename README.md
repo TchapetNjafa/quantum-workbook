@@ -55,6 +55,26 @@ sw.js, manifest.json    mode hors connexion et installation sur téléphone
 
 Pour un QCM : `data-answer="b"` sur l'article, et `data-why="…"` sur chaque `<label class="choice">`.
 
+## Version anglaise (bilingue FR / EN)
+
+Le Carnet existe en anglais : <https://tchapetnjafa.github.io/quantum-workbook/en/>.
+Un bouton **FR / EN** dans la barre du haut bascule vers la page équivalente (même section).
+
+| Français | Anglais |
+|---|---|
+| `index.html` | `en/index.html` |
+| `chapitres/1-etats-quantiques.html` … `6-oscillateur.html` | `en/chapters/1-quantum-states.html` … `6-harmonic-oscillator.html` |
+| `assets/audio/chN.mp3` | `assets/audio/en/chN.mp3` |
+
+- Chaque page déclare sa traduction : `<link rel="alternate" hreflang="fr|en" href="…">` ; le bouton s'en sert.
+- Styles, simulations et exercices sont **partagés** : les textes affichés par le JavaScript passent par
+  `Lab.t('texte français', 'English text')` (langue lue sur `<html lang>`).
+- Les ancres `#sN`, les `data-id` et les réponses des exercices sont identiques dans les deux langues.
+- La progression est commune aux deux langues.
+- Audio : `python3 outils/generer_audio.py --lang en 3` (voix en-GB-SoniaNeural) ; `--lang tout` pour les deux.
+
+**Règle : toute modification doit être faite dans les deux langues.**
+
 ## Résumés audio
 
 Chaque chapitre propose un résumé parlé d'environ 1 min 20 (`assets/audio/chN.mp3`, 48 kb/s mono).

@@ -1,7 +1,7 @@
 /* Chapitre 4 — laboratoires : états à deux qubits, jeu CHSH, état de Werner, protocole BB84. */
 (() => {
   'use strict';
-  const { canvas, loop, bind, seg, draw: D } = window.Lab;
+  const { canvas, loop, bind, seg, draw: D, t, LOCALE } = window.Lab;
   const $ = (root, s) => root.querySelector(s);
   const out = (root, k, v) => { const el = $(root, `[data-out="${k}"]`); if (el) el.textContent = v; };
   const f = (x, d = 3) => (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x).toFixed(d).replace('-', '−');
@@ -43,7 +43,7 @@
       const cell = Math.min(P1.w * 0.34, (P1.h - 76) / 2), mx = P1.x + P1.w / 2;
       const gx = mx - cell + 12, gy = P1.y + (P1.h - 2 * cell) / 2 + 10;
       D.text(ctx, 'amplitudes c_ab', mx + 6, P1.y + 16, { font: c.sans, color: c.muted, align: 'center' });
-      D.text(ctx, 'Bob : 0', gx + cell / 2, gy - 8, { font: c.mono, color: c.muted, align: 'center' });
+      D.text(ctx, t('Bob : 0', 'Bob: 0'), gx + cell / 2, gy - 8, { font: c.mono, color: c.muted, align: 'center' });
       D.text(ctx, '1', gx + cell * 1.5, gy - 8, { font: c.mono, color: c.muted, align: 'center' });
       D.text(ctx, 'Alice 0', gx - 6, gy + cell / 2 + 4, { font: c.mono, color: c.muted, align: 'right' });
       D.text(ctx, '1', gx - 6, gy + cell * 1.5 + 4, { font: c.mono, color: c.muted, align: 'right' });
@@ -56,10 +56,10 @@
         D.text(ctx, f(v, 2), x + cell / 2, y + cell - 6, { font: c.mono, color: c.ink, align: 'center' });
       });
       const sep = Math.abs(st.det) < 1e-3;
-      D.text(ctx, `det C = ${f(st.det)} · ${sep ? 'séparable' : 'intriqué'}`, mx + 6, gy + 2 * cell + 22, { font: c.mono, color: sep ? c.ok : c.accent, align: 'center' });
+      D.text(ctx, `det C = ${f(st.det)} · ${sep ? t('séparable', 'separable') : t('intriqué', 'entangled')}`, mx + 6, gy + 2 * cell + 22, { font: c.mono, color: sep ? c.ok : c.accent, align: 'center' });
       // ---- panneau 2 : coupe xz de la sphère de Bloch, état réduit d'Alice
       const R = Math.min(P2.w * 0.34, (P2.h - 64) / 2), cx = P2.x + P2.w / 2, cy = P2.y + P2.h / 2 + 12;
-      D.text(ctx, 'état réduit ρ(A), plan xz', cx, P2.y + 16, { font: c.sans, color: c.muted, align: 'center' });
+      D.text(ctx, t('état réduit ρ(A), plan xz', 'reduced state ρ(A), xz plane'), cx, P2.y + 16, { font: c.sans, color: c.muted, align: 'center' });
       ctx.fillStyle = D.alpha(c.ink, 0.04); ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.fill();
       ctx.strokeStyle = c.ink2; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
       ctx.strokeStyle = c.rule; ctx.lineWidth = 1;
@@ -80,11 +80,11 @@
       ids.forEach((k, i) => out(root, k, f(st.a[i], 3)));
       out(root, 'det', f(st.det));
       out(root, 'pur', f(st.purity));
-      out(root, 'lam', `${f(st.lp)} ; ${f(st.lm)}`);
+      out(root, 'lam', t(`${f(st.lp)} ; ${f(st.lm)}`, `${f(st.lp)}; ${f(st.lm)}`));
       out(root, 'S', f(st.S) + ' bit');
-      out(root, 'verdict', st.zero ? 'Toutes les amplitudes sont nulles : ce n’est pas un état. On garde |00⟩.'
-        : Math.abs(st.det) < 1e-3 ? 'c₀₀c₁₁ = c₀₁c₁₀ : l’état se factorise, ρ_A est pur et S = 0.'
-          : `c₀₀c₁₁ ≠ c₀₁c₁₀ : état intriqué. ρ_A est mixte (pureté ${f(st.purity, 2)} < 1).`);
+      out(root, 'verdict', st.zero ? t('Toutes les amplitudes sont nulles : ce n’est pas un état. On garde |00⟩.', 'All amplitudes are zero: this is not a state. |00⟩ is kept.')
+        : Math.abs(st.det) < 1e-3 ? t('c₀₀c₁₁ = c₀₁c₁₀ : l’état se factorise, ρ_A est pur et S = 0.', 'c₀₀c₁₁ = c₀₁c₁₀: the state factorises, ρ_A is pure and S = 0.')
+          : t(`c₀₀c₁₁ ≠ c₀₁c₁₀ : état intriqué. ρ_A est mixte (pureté ${f(st.purity, 2)} < 1).`, `c₀₀c₁₁ ≠ c₀₁c₁₀: entangled state. ρ_A is mixed (purity ${f(st.purity, 2)} < 1).`));
       view.redraw();
     }
     // l'utilisateur règle des amplitudes brutes ; l'affichage montre l'état normalisé
@@ -159,7 +159,7 @@
       analyzer(ctx, xa, ay, r, A()[lastOut.i], fresh, A()[1 - lastOut.i], c, 'Alice', fresh ? lastOut.A : 0);
       analyzer(ctx, xb, ay, r, B()[lastOut.j], fresh, B()[1 - lastOut.j], c, 'Bob', fresh ? lastOut.B : 0);
       ctx.fillStyle = c.ink; ctx.beginPath(); ctx.arc(xs, ay, 6, 0, 2 * Math.PI); ctx.fill();
-      D.text(ctx, model === 'Q' ? 'source |Φ+⟩' : 'source classique', xs, ay + 24, { font: c.sans, color: c.muted, align: 'center' });
+      D.text(ctx, model === 'Q' ? 'source |Φ+⟩' : t('source classique', 'classical source'), xs, ay + 24, { font: c.sans, color: c.muted, align: 'center' });
       for (const p of flights) {
         const u = Math.min(1, p.t);
         ctx.fillStyle = D.alpha(c.accent, 0.9);
@@ -172,7 +172,7 @@
       ctx.beginPath(); ctx.moveTo(x0, ym); ctx.lineTo(x1, ym); ctx.moveTo(X(0), y0); ctx.lineTo(X(0), y1); ctx.stroke();
       [[1, '+1'], [-1, '−1']].forEach(([e, l]) => D.text(ctx, l, x0 - 4, Y(e) + 4, { font: c.mono, color: c.muted, align: 'right' }));
       [[-180, 'left'], [-90, 'center'], [0, 'center'], [90, 'center'], [180, 'right']].forEach(([d, al]) => D.text(ctx, (d > 0 ? '+' : '') + d + '°', X(d), y1 + 14, { font: c.mono, color: c.muted, align: al }));
-      D.text(ctx, 'E(Δ), Δ = angle Alice − angle Bob', x0 + 4, y0 + 2, { font: c.sans, color: c.muted });
+      D.text(ctx, t('E(Δ), Δ = angle Alice − angle Bob', 'E(Δ), Δ = Alice angle − Bob angle'), x0 + 4, y0 + 2, { font: c.sans, color: c.muted });
       const curve = (fn, col, dash) => {
         ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.setLineDash(dash); ctx.beginPath();
         for (let k = 0; k <= 180; k++) { const d = -180 + 2 * k; k ? ctx.lineTo(X(d), Y(fn(d))) : ctx.moveTo(X(d), Y(fn(d))); }
@@ -210,7 +210,7 @@
       let err = 0; for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) if (n[i][j]) err += (1 - E[i][j] ** 2) / n[i][j];
       out(root, 'S', Number.isFinite(Se) ? `${f(Se, 2)} ± ${Math.sqrt(err).toFixed(2)}` : '—');
       out(root, 'Sth', f(Sof(Th), 3));
-      out(root, 'N', N.toLocaleString('fr-FR'));
+      out(root, 'N', N.toLocaleString(LOCALE));
       view.redraw();
     }
 
@@ -226,7 +226,7 @@
     }, { autoplay: false });
 
     const playBtn = $(root, '[data-act="play"]');
-    playBtn.addEventListener('click', () => { const on = anim.toggle(); playBtn.textContent = on ? 'Pause' : 'Envoyer des paires'; });
+    playBtn.addEventListener('click', () => { const on = anim.toggle(); playBtn.textContent = on ? 'Pause' : t('Envoyer des paires', 'Send pairs'); });
     $(root, '[data-act="burst"]').addEventListener('click', () => { for (let k = 0; k < 1000; k++) pair(); update(); });
     $(root, '[data-act="reset"]').addEventListener('click', reset);
     const ins = { a: $(root, '#ch-a'), a2: $(root, '#ch-a2'), b: $(root, '#ch-b'), b2: $(root, '#ch-b2') };
@@ -266,11 +266,11 @@
       const base = h * 0.5, unit = h * 0.38;
       const ev = [(1 + 3 * p) / 4, (1 - p) / 4, (1 - p) / 4, (1 - p) / 4];
       const pt = [(1 + p) / 4, (1 + p) / 4, (1 + p) / 4, (1 - 3 * p) / 4];
-      group(ctx, 16, w / 2 - 12, base, unit, ev, 'valeurs propres de ρ_W', c);
-      group(ctx, w / 2 + 12, w - 16, base, unit, pt, 'transposée partielle (Bob)', c);
+      group(ctx, 16, w / 2 - 12, base, unit, ev, t('valeurs propres de ρ_W', 'eigenvalues of ρ_W'), c);
+      group(ctx, w / 2 + 12, w - 16, base, unit, pt, t('transposée partielle (Bob)', 'partial transpose (Bob)'), c);
       // axe p avec les trois régimes
       const x0 = 20, x1 = w - 20, y = h - 34, X = v => x0 + v * (x1 - x0);
-      const zones = [[0, 1 / 3, c.ok, 'séparable'], [1 / 3, Math.SQRT1_2, c.accent, 'intriqué'], [Math.SQRT1_2, 1, c.bad, 'viole CHSH']];
+      const zones = [[0, 1 / 3, c.ok, t('séparable', 'separable')], [1 / 3, Math.SQRT1_2, c.accent, t('intriqué', 'entangled')], [Math.SQRT1_2, 1, c.bad, t('viole CHSH', 'violates CHSH')]];
       zones.forEach(([a, b, col, l]) => {
         ctx.fillStyle = D.alpha(col, 0.22); ctx.fillRect(X(a), y - 7, X(b) - X(a), 14);
         D.text(ctx, l, (X(a) + X(b)) / 2, y + 26, { font: c.sans, color: col, align: 'center' });
@@ -289,9 +289,9 @@
       out(root, 'SA', '1.000 bit');
       out(root, 'min', f((1 - 3 * p) / 4));
       out(root, 'chsh', f(2 * Math.SQRT2 * p, 3));
-      out(root, 'verdict', p <= 1 / 3 + 1e-9 ? 'Toutes les valeurs propres de la transposée partielle sont ≥ 0 : l’état est séparable.'
-        : p <= Math.SQRT1_2 ? 'Une valeur propre de la transposée partielle est négative : l’état est intriqué, mais il ne viole pas l’inégalité CHSH.'
-          : 'Intriqué, et |S| peut dépasser 2 : un test de Bell détecte cette intrication.');
+      out(root, 'verdict', p <= 1 / 3 + 1e-9 ? t('Toutes les valeurs propres de la transposée partielle sont ≥ 0 : l’état est séparable.', 'All eigenvalues of the partial transpose are ≥ 0: the state is separable.')
+        : p <= Math.SQRT1_2 ? t('Une valeur propre de la transposée partielle est négative : l’état est intriqué, mais il ne viole pas l’inégalité CHSH.', 'One eigenvalue of the partial transpose is negative: the state is entangled, but it does not violate the CHSH inequality.')
+          : t('Intriqué, et |S| peut dépasser 2 : un test de Bell détecte cette intrication.', 'Entangled, and |S| can exceed 2: a Bell test detects this entanglement.'));
       view.redraw();
     }, v => v.toFixed(2));
   }
@@ -326,16 +326,16 @@
       const test = sifted.filter(r => r.test), key = sifted.filter(r => !r.test);
       const e = test.filter(r => r.av !== r.bv).length;
       const q = test.length ? e / test.length : NaN;
-      out(root, 'N', all.length.toLocaleString('fr-FR'));
-      out(root, 'sift', sifted.length ? `${sifted.length} (${(100 * sifted.length / all.length).toFixed(0)} %)` : '—');
+      out(root, 'N', all.length.toLocaleString(LOCALE));
+      out(root, 'sift', sifted.length ? t(`${sifted.length} (${(100 * sifted.length / all.length).toFixed(0)} %)`, `${sifted.length} (${(100 * sifted.length / all.length).toFixed(0)}%)`) : '—');
       out(root, 'test', test.length ? `${e} / ${test.length}` : '—');
-      out(root, 'qber', Number.isFinite(q) ? (100 * q).toFixed(1) + ' %' : '—');
+      out(root, 'qber', Number.isFinite(q) ? (100 * q).toFixed(1) + t(' %', '%') : '—');
       out(root, 'key', key.length);
       const L = test.length * Math.log10(0.75), ex = Math.floor(L);   // (3/4)^m sans sous-dépassement
       out(root, 'pnd', test.length ? `${(10 ** (L - ex)).toFixed(1)} × 10^${ex}`.replace('-', '−') : '—');
       out(root, 'verdict', !test.length ? '' : q > 0.11
-        ? 'Taux d’erreur supérieur à 11 % : Alice et Bob jettent la clé.'
-        : 'Taux d’erreur faible : après correction d’erreurs et amplification de confidentialité, la clé est conservée.');
+        ? t('Taux d’erreur supérieur à 11 % : Alice et Bob jettent la clé.', 'Error rate above 11%: Alice and Bob discard the key.')
+        : t('Taux d’erreur faible : après correction d’erreurs et amplification de confidentialité, la clé est conservée.', 'Low error rate: after error correction and privacy amplification, the key is kept.'));
     }
 
     function addRow(r) {
@@ -343,7 +343,7 @@
       all.push(r);
       rows.unshift(r); rows = rows.slice(0, 12);
       tbody.innerHTML = rows.map(x => `<tr><td>${x.n}</td><td>${x.ab} · ${x.av}</td><td>${x.eb ? x.eb + ' · ' + x.ev : '—'}</td><td>${x.bb} · ${x.bv}</td>`
-        + `<td>${x.keep ? (x.test ? 'test' : 'clé') : 'jeté'}</td><td>${x.keep ? (x.av === x.bv ? 'oui' : '<b style="color:var(--bad)">non</b>') : ''}</td></tr>`).join('');
+        + `<td>${x.keep ? (x.test ? 'test' : t('clé', 'key')) : t('jeté', 'discarded')}</td><td>${x.keep ? (x.av === x.bv ? t('oui', 'yes') : t('<b style="color:var(--bad)">non</b>', '<b style="color:var(--bad)">no</b>')) : ''}</td></tr>`).join('');
     }
 
     const view = canvas(stage, (ctx, w, h, c) => paint(ctx, w, h, c));
@@ -366,18 +366,18 @@
       const y = h * 0.5, xa = w * 0.1, xb = w * 0.9, xe = w * 0.5;
       ctx.strokeStyle = c.rule; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
       ctx.beginPath(); ctx.moveTo(xa, y); ctx.lineTo(xb, y); ctx.stroke(); ctx.setLineDash([]);
-      D.text(ctx, 'canal quantique (photons uniques)', w / 2, h - 10, { font: c.sans, color: c.muted, align: 'center' });
-      const r = cur, t = r ? r.t : 0;
+      D.text(ctx, t('canal quantique (photons uniques)', 'quantum channel (single photons)'), w / 2, h - 10, { font: c.sans, color: c.muted, align: 'center' });
+      const r = cur, tp = r ? r.t : 0;
       station(ctx, xa, y, 'Alice', r && r.ab, r && r.av, c);
-      if (eve) station(ctx, xe, y, 'Ève', r && t > 1 ? r.eb : null, r && t > 1 ? r.ev : null, c);
-      station(ctx, xb, y, 'Bob', r && t >= 2 ? r.bb : null, r && t >= 2 ? r.bv : null, c);
-      if (r && t < 2) {
-        const first = t < 1, u = first ? t : t - 1;
+      if (eve) station(ctx, xe, y, t('Ève', 'Eve'), r && tp > 1 ? r.eb : null, r && tp > 1 ? r.ev : null, c);
+      station(ctx, xb, y, 'Bob', r && tp >= 2 ? r.bb : null, r && tp >= 2 ? r.bv : null, c);
+      if (r && tp < 2) {
+        const first = tp < 1, u = first ? tp : tp - 1;
         const x = first ? xa + 26 + (xe - xa - 52) * u : xe + 26 + (xb - xe - 52) * u;
         const deg = first || !eve ? angle(r.ab, r.av) : angle(r.eb, r.ev);
         pol(ctx, x, y, deg, 14, c.accent);
       }
-      if (r && t >= 2) D.text(ctx, r.keep ? (r.av === r.bv ? 'même base : bit conservé' : 'même base, bits différents : erreur') : 'bases différentes : bit jeté',
+      if (r && tp >= 2) D.text(ctx, r.keep ? (r.av === r.bv ? t('même base : bit conservé', 'same basis: bit kept') : t('même base, bits différents : erreur', 'same basis, different bits: error')) : t('bases différentes : bit jeté', 'different bases: bit discarded'),
         w / 2, 22, { font: c.sans, color: r.keep ? (r.av === r.bv ? c.ok : c.bad) : c.muted, align: 'center' });
     }
 
@@ -400,8 +400,8 @@
     });
     $(root, '[data-act="reset"]').addEventListener('click', reset);
     $(root, '#bb-eve').addEventListener('change', e => { eve = e.target.checked; reset(); });
-    bind($(root, '#bb-noise'), v => { noise = v / 100; }, v => v.toFixed(0) + ' %');
-    bind($(root, '#bb-n'), v => { N = Math.round(10 ** v); }, v => Math.round(10 ** v).toLocaleString('fr-FR'));
+    bind($(root, '#bb-noise'), v => { noise = v / 100; }, v => v.toFixed(0) + t(' %', '%'));
+    bind($(root, '#bb-n'), v => { N = Math.round(10 ** v); }, v => Math.round(10 ** v).toLocaleString(LOCALE));
     reset();
   }
 

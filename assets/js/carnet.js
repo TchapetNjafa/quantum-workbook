@@ -5,13 +5,17 @@
   document.documentElement.classList.add('js');
 
   const STORE = 'phy321.workbook.v2';
+  // Langue de la page : <html lang="fr"> ou <html lang="en">. t(fr, en) choisit le bon texte.
+  const LANG = (document.documentElement.lang || 'fr').toLowerCase().startsWith('en') ? 'en' : 'fr';
+  const t = (fr, en) => (LANG === 'en' ? en : fr);
+  const LOCALE = LANG === 'en' ? 'en-GB' : 'fr-FR';
 
   // hors connexion : sw.js est à la racine du site, deux niveaux au-dessus de ce script
   const scriptSrc = document.currentScript && document.currentScript.src;
   if (scriptSrc && 'serviceWorker' in navigator && location.protocol !== 'file:') {
     addEventListener('load', () => {
       navigator.serviceWorker.register(new URL('../../sw.js', scriptSrc), { scope: new URL('../../', scriptSrc).pathname })
-        .catch(err => console.warn('Mode hors connexion indisponible :', err.message));
+        .catch(err => console.warn(t('Mode hors connexion indisponible :', 'Offline mode unavailable:'), err.message));
     });
   }
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -29,7 +33,9 @@
 
   /* ---------- thème : auto → clair → sombre ---------- */
   const THEMES = ['auto', 'light', 'dark'];
-  const themeLabel = { auto: 'Thème : système', light: 'Thème : clair', dark: 'Thème : sombre' };
+  const themeLabel = LANG === 'en'
+    ? { auto: 'Theme: system', light: 'Theme: light', dark: 'Theme: dark' }
+    : { auto: 'Thème : système', light: 'Thème : clair', dark: 'Thème : sombre' };
   function applyTheme(t) {
     if (t === 'auto') delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = t;
@@ -49,6 +55,27 @@
     try { localStorage.setItem('phy321.theme', theme); } catch { /* ignoré */ }
     applyTheme(theme);
   });
+
+  /* ---------- bascule de langue : lit <link rel="alternate" hreflang="…"> de la page ---------- */
+  function initLangSwitch() {
+    const other = LANG === 'en' ? 'fr' : 'en';
+    const alt = document.querySelector(`link[rel="alternate"][hreflang="${other}"]`);
+    const bar = document.querySelector('.topbar');
+    if (!alt || !bar) return;
+    const a = document.createElement('a');
+    a.className = 'lang-switch';
+    a.hreflang = other;
+    a.lang = other;
+    a.textContent = other.toUpperCase();
+    a.title = other === 'en' ? 'Read in English' : 'Lire en français';
+    a.setAttribute('aria-label', a.title);
+    const go = () => { a.href = alt.getAttribute('href') + location.hash; };
+    go();
+    addEventListener('hashchange', go);
+    a.addEventListener('pointerdown', go);
+    const theme = bar.querySelector('[data-theme-toggle]');
+    bar.insertBefore(a, theme);
+  }
 
   /* ---------- barre de lecture + sommaire actif ---------- */
   function initReading() {
@@ -122,12 +149,12 @@
     a.className = 'report-link';
     a.target = '_blank';
     a.rel = 'noopener';
-    a.textContent = 'Signaler une erreur dans ce chapitre';
+    a.textContent = t('Signaler une erreur dans ce chapitre', 'Report an error in this chapter');
     const update = () => {
       const active = document.querySelector('.toc a.is-active');
-      const section = active ? [...active.childNodes].map(n => n.textContent.trim()).filter(Boolean).join(' ') : 'Chapitre ' + chapterId.slice(2);
+      const section = active ? [...active.childNodes].map(n => n.textContent.trim()).filter(Boolean).join(' ') : t('Chapitre ', 'Chapter ') + chapterId.slice(2);
       const params = new URLSearchParams({
-        template: 'erreur.yml', title: `[${section}] `, section,
+        template: t('erreur.yml', 'error.yml'), title: `[${section}] `, section,
         page: location.href.split('#')[0] + (active ? active.hash : '')
       });
       a.href = 'https://github.com/TchapetNjafa/quantum-workbook/issues/new?' + params;
@@ -165,11 +192,11 @@
         if (exo.dataset.answer !== undefined) {          // QCM
           const picked = exo.querySelector('input[type=radio]:checked');
           exo.querySelectorAll('.choice').forEach(c => c.classList.remove('is-right', 'is-wrong'));
-          if (!picked) { say(fb, 'ko', 'Choisissez une réponse d’abord.'); return; }
+          if (!picked) { say(fb, 'ko', t('Choisissez une réponse d’abord.', 'Choose an answer first.')); return; }
           const label = picked.closest('.choice');
           const ok = picked.value === exo.dataset.answer;
           label.classList.add(ok ? 'is-right' : 'is-wrong');
-          say(fb, ok ? 'ok' : 'ko', label.dataset.why || (ok ? 'Exact.' : 'Pas tout à fait. Relisez l’encadré au-dessus.'));
+          say(fb, ok ? 'ok' : 'ko', label.dataset.why || (ok ? t('Exact.', 'Correct.') : t('Pas tout à fait. Relisez l’encadré au-dessus.', 'Not quite. Reread the box above.')));
           markExercise(id, ok);
           return;
         }
@@ -178,9 +205,9 @@
           const v = parseNumber(input.value);
           const target = Number(exo.dataset.num);
           const tol = Number(exo.dataset.tol || 0.01) * Math.max(1, Math.abs(target));
-          if (Number.isNaN(v)) { say(fb, 'ko', 'Écrivez un nombre (ex. 0.25, 1/4 ou 1/sqrt(2)).'); return; }
+          if (Number.isNaN(v)) { say(fb, 'ko', t('Écrivez un nombre (ex. 0.25, 1/4 ou 1/sqrt(2)).', 'Enter a number (e.g. 0.25, 1/4 or 1/sqrt(2)).')); return; }
           const ok = Math.abs(v - target) <= tol;
-          say(fb, ok ? 'ok' : 'ko', ok ? (exo.dataset.ok || 'Exact.') : (exo.dataset.ko || `Vous trouvez ${fmt(v)}. Reprenez le calcul.`));
+          say(fb, ok ? 'ok' : 'ko', ok ? (exo.dataset.ok || t('Exact.', 'Correct.')) : (exo.dataset.ko || t(`Vous trouvez ${fmt(v)}. Reprenez le calcul.`, `You get ${fmt(v)}. Check your working.`)));
           markExercise(id, ok);
         }
       });
@@ -321,9 +348,9 @@
     pick(cdf) { const r = Math.random(); let lo = 0, hi = cdf.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (cdf[m] < r) lo = m + 1; else hi = m; } return lo; }
   };
 
-  window.Lab = { canvas, loop, bind, seg, drag, draw, rand, palette, reduceMotion, parseNumber };
+  window.Lab = { canvas, loop, bind, seg, drag, draw, rand, palette, reduceMotion, parseNumber, t, LANG, LOCALE };
   window.Carnet = { store, markExercise };
 
-  const ready = () => { initReading(); initRise(); initExercises(); initDone(); initReport(); };
+  const ready = () => { initLangSwitch(); initReading(); initRise(); initExercises(); initDone(); initReport(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready); else ready();
 })();

@@ -1,9 +1,9 @@
 /* Service worker du Carnet PHY321 : lecture hors connexion après une première visite.
    Pages HTML : réseau d'abord (contenu à jour), cache en secours.
    Autres ressources (CSS, JS, polices, MathJax) : cache d'abord. */
-const VERSION = 'carnet-2026-10-09b';
+const VERSION = 'carnet-2026-10-10-bilingue';
 const CORE = [
-  './', './index.html', './manifest.json',
+  './', './index.html', './en/index.html', './manifest.json',
   './assets/css/carnet.css', './assets/js/carnet.js', './assets/js/mathjax-config.js',
   './assets/js/labs/bloch.js', './assets/img/favicon.svg'
 ];

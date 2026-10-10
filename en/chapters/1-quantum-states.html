@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 1 · Quantum states — PHY321 Notebook</title>
+<meta name="description" content="Single-quantum-object interference, probability amplitudes, superposition and the qubit: interactive labs and worked exercises for chapter 1 of PHY321 (University of Yaoundé I).">
+<meta property="og:title" content="Quantum states — PHY321 Notebook">
+<meta property="og:description" content="Young’s double slit photon by photon, the Mach-Zehnder interferometer, the Bloch sphere: adjust, measure, check.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../../manifest.json">
+<link rel="alternate" hreflang="fr" href="../../chapitres/1-etats-quantiques.html">
+<link rel="alternate" hreflang="en" href="1-quantum-states.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../../assets/css/carnet.css">
+<script src="../../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../../assets/js/carnet.js"></script>
+<script defer src="../../assets/js/labs/bloch.js"></script>
+<script defer src="../../assets/js/labs/ch1.js"></script>
+</head>
+<body data-chapter="ch1">
+<a class="skip" href="#contenu">Skip to content</a>
+
+<header class="topbar">
+  <a class="brand" href="../index.html"><b>PHY321 Notebook</b><span>Quantum mechanics · UY1</span></a>
+  <nav aria-label="Chapters">
+    <a href="1-quantum-states.html" aria-current="page">1 · States</a>
+    <a href="2-measurement-operators.html">2 · Measurement</a>
+    <a href="3-quantum-dynamics.html">3 · Dynamics</a>
+    <a href="4-entanglement.html">4 · Entanglement</a>
+    <a href="5-wave-function.html">5 · Continuous space</a>
+    <a href="6-harmonic-oscillator.html">6 · Oscillator</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+  <span class="readbar" aria-hidden="true"></span>
+</header>
+
+<div class="chapter-layout">
+  <aside class="toc" aria-label="Chapter contents">
+    <details>
+      <summary>Contents</summary>
+      <ol>
+        <li><a href="#s1"><span class="toc-num">1.1</span>Single-quantum-object interference</a></li>
+        <li><a href="#s2"><span class="toc-num">1.2</span>Probability amplitudes</a></li>
+        <li><a href="#s3"><span class="toc-num">1.3</span>Superposition, decoherence</a></li>
+        <li><a href="#s4"><span class="toc-num">1.4</span>The qubit</a></li>
+        <li><a href="#s5"><span class="toc-num">1.5</span>Review exercises</a></li>
+        <li><a href="#actu"><span class="toc-num">·</span>Where do things stand in 2026?</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main id="contenu">
+    <header class="chapter-head">
+      <span class="big-num" aria-hidden="true">1</span>
+      <p class="eyebrow">Chapter 1 · Lectures 4 h + Tutorials 2 h</p>
+      <h1>Quantum states</h1>
+      <p class="lede">A single photon, two paths, and an interference pattern that builds up dot by dot. The rest of the course follows from this observation.</p>
+      <ul class="goals">
+        <li>Explain why probabilities alone cannot describe interference.</li>
+        <li>Calculate a detection probability with the rules for amplitudes.</li>
+        <li>Distinguish superposition from mere ignorance (statistical mixture).</li>
+        <li>Place a qubit state on the Bloch sphere and predict the outcomes of a measurement.</li>
+      </ul>
+      <div class="listen">
+        <span class="listen-label">Audio summary · 1:13</span>
+        <audio controls preload="none" src="../../assets/audio/en/ch1.mp3"></audio>
+        <details class="reveal"><summary>Read the transcript</summary><div class="transcript"><p>Send photons one at a time towards two slits. Each one lands at a single point on the screen, like a particle. Yet after a few thousand impacts, fringes appear, as they would for a wave.</p><p>To describe this, we do not add probabilities. We give each path an amplitude, which is a complex number. When the paths are indistinguishable, we add the amplitudes, then take the squared modulus. This is the Born rule. Two opposite amplitudes cancel out, and the fringe is dark.</p><p>As soon as a physical trace reveals which path was taken, the fringes fade. This is also what happens to Schrödinger's cat: its surroundings observe it all the time. We call this decoherence.</p><p>The qubit puts this idea to work for information. Its state is written alpha zero plus beta one, where the modulus of alpha squared plus the modulus of beta squared equals one. We represent it as a point on the Bloch sphere. Be careful, though. A measurement gives only one outcome, and a qubit never yields more than one bit of classical information.</p></div></details>
+      </div>
+    </header>
+
+    <!-- ===================================================== 1.1 -->
+    <section class="section" id="s1">
+      <h2><span class="n">1.1</span>Single-quantum-object interference</h2>
+
+      <blockquote class="dialogue rise">
+        <p><b>Einstein</b>“God does not play dice. Every particle must have a well-defined position and velocity, even if we do not know them.”</p>
+        <p><b>Bohr</b>“Albert, stop telling God what to do. A quantum object is neither a wave nor a particle: it shows us one face or the other depending on the question we ask it.”</p>
+      </blockquote>
+
+      <p>In 1801, Thomas Young sends light through two slits: bright and dark fringes appear, the signature of a wave. Let us repeat the experiment, sending the photons <em>one at a time</em>. Classical intuition predicts two spots, one behind each slit. That is not what we observe.</p>
+      <ul>
+        <li>Each photon arrives at a precise point on the detector, like a particle.</li>
+        <li>The first impacts look scattered at random: we cannot predict where the next one will land.</li>
+        <li>After a few thousand impacts, the fringes reappear.</li>
+      </ul>
+
+      <figure class="lab rise" data-lab="young" aria-labelledby="lab-young-t">
+        <div class="lab-head"><h3 id="lab-young-t">Young’s double slit, photon by photon</h3><span class="tag">LAB 1.1</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent" data-act="play" type="button">Send photons</button>
+              <button class="btn ghost small" data-act="one" type="button">Just one</button>
+              <button class="btn ghost small" data-act="clear" type="button">Clear</button>
+            </div>
+            <div class="ctrl"><label for="young-rate">Rate <output for="young-rate"></output></label><input id="young-rate" type="range" min="0" max="3.5" step="0.05" value="1.8"></div>
+            <div class="ctrl"><label for="young-d">Slit separation <output for="young-d"></output></label><input id="young-d" type="range" min="1.5" max="8" step="0.1" value="4"></div>
+            <div class="ctrl"><label for="young-D"><span>Which-path information <i>D</i></span> <output for="young-D"></output></label><input id="young-D" type="range" min="0" max="1" step="0.01" value="0"></div>
+            <dl class="readout">
+              <div><dt>Visibility <i>V</i></dt><dd data-out="V">1.00</dd></div>
+            </dl>
+            <p class="legend"><span><i></i>counted impacts</span><span><i class="dash"></i>probability distribution</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Push <i>D</i> towards 1: a detector placed behind the slits indicates the path taken with growing certainty, and the fringes fade. The complementarity relation \(D^2 + V^2 \le 1\) (Englert, 1996) forbids knowing the path perfectly while keeping high-contrast fringes.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box law rise">
+        <span class="box-title">Principle 1.1 — Indistinguishable paths</span>
+        <p>Interference appears when several <strong>indistinguishable</strong> paths lead to the same detection. The more a physical trace makes the path knowable, the more the fringes fade; they vanish completely when the path can be determined perfectly.</p>
+      </div>
+
+      <h3>The Mach-Zehnder interferometer</h3>
+      <p>To control the paths precisely, we use two 50/50 beam splitters (BS), two mirrors (M) and a phase plate that adds a phase shift \(\varphi = 2\pi\,\Delta\ell/\lambda\) on one arm. The lecture notes describe four set-ups:</p>
+      <ul>
+        <li><strong>MZ1 and MZ2</strong>: the paths remain distinguishable. 50% / 50% (or 25% at each output), no interference.</li>
+        <li><strong>MZ3</strong> (balanced interferometer, \(\varphi = 0\)): every photon leaves through the same detector.</li>
+        <li><strong>MZ4</strong> (unbalanced interferometer): \(P(D_x) = \cos^2(\varphi/2)\) and \(P(D_y) = \sin^2(\varphi/2)\).</li>
+      </ul>
+
+      <figure class="lab rise" data-lab="mz" aria-labelledby="lab-mz-t">
+        <div class="lab-head"><h3 id="lab-mz-t">Mach-Zehnder: one photon, two arms</h3><span class="tag">LAB 1.2</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <div class="btn-row">
+              <button class="btn accent" data-act="one" type="button">Send a photon</button>
+              <button class="btn ghost small" data-act="burst" type="button">+500 photons</button>
+              <button class="btn ghost small" data-act="reset" type="button">Reset</button>
+            </div>
+            <div class="ctrl"><label for="mz-phi">Phase shift φ <output for="mz-phi"></output></label><input id="mz-phi" type="range" min="0" max="360" step="5" value="0"></div>
+            <label class="check-row"><input id="mz-bs2" type="checkbox" checked> Second beam splitter BS₂ in place</label>
+            <label class="check-row"><input id="mz-which" type="checkbox"> Which-path detector on one arm</label>
+            <div class="bars" aria-live="polite">
+              <div class="bar" data-bar="0"><span>Dx</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+              <div class="bar" data-bar="1"><span>Dy</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+            </div>
+            <dl class="readout">
+              <div><dt>Predicted P(Dx)</dt><dd data-out="pth">100%</dd></div>
+              <div><dt>Photons</dt><dd data-out="N">0</dd></div>
+            </dl>
+            <p class="legend"><span><i></i>measured frequency</span><span><i class="acc"></i>predicted probability</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Without a which-path detector, the photon is represented on both arms at once: only the recombination at BS₂ fixes the probabilities. Add the detector, or remove BS₂, and you get 50/50 again, whatever the value of φ.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box history rise">
+        <p>Interference of a <em>single</em> photon in a Mach-Zehnder was cleanly demonstrated by Grangier, Roger and Aspect in 1986, with a source that truly emits only one photon at a time. In 1999, Arndt and Zeilinger’s team in Vienna observed interference with fullerene molecules C<sub>60</sub>: 60 carbon atoms, about 1,080 nucleons and electrons.</p>
+      </div>
+
+      <article class="exo" data-id="1.1" data-answer="b">
+        <div class="exo-head"><span class="num">Exercise 1.1</span><h3>The spy detector</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>In a balanced Mach-Zehnder (\(\varphi = 0\)), a perfect detector is placed on one of the arms. It signals the passage of the photon without absorbing it. What probabilities are observed at the outputs?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: 100% at Dx requires the two paths to interfere, and therefore to be indistinguishable. The detector makes them distinguishable."><input type="radio" name="e11" value="a">100% at Dx, as without the detector.</label></li>
+          <li><label class="choice" data-why="Correct. The two paths are distinguishable: we add probabilities, ½·½ + ½·½ = ½ for each output. Try it in lab 1.2."><input type="radio" name="e11" value="b">50% at Dx, 50% at Dy.</label></li>
+          <li><label class="choice" data-why="No: the detector does not block the photon; it only reveals the path."><input type="radio" name="e11" value="c">50% at Dx, 0% at Dy, 50% of the photons lost.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogy to critique — Kirikou Odyssey</span>
+        <p>Imagine a video game inspired by Dogon cosmology, in which the hero exists both in the <em>living</em> state (he pushes rocks: the particle aspect) and in the <em>spirit</em> state (he passes through obstacles and occupies several places: the wave aspect). Some objects in the game force him to “choose” a single reality.</p>
+        <details class="reveal"><summary>Where does the analogy break down?</summary><div>
+          <p>In the game, the result of the “choice” is written in the code: it is determined. A quantum measurement generally gives a <em>genuinely</em> random outcome, of which only the probability is fixed (unless the state is already an eigenstate of the measured quantity). Another limit: the hero cannot interfere with himself. Yet it is the interference between the two “possibilities” that is the quantum signature.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 1.2 -->
+    <section class="section" id="s2">
+      <h2><span class="n">1.2</span>Probability amplitudes</h2>
+      <p>A probability is a positive real number: two probabilities cannot cancel each other. To describe a dark fringe, we need an object that adds <em>or subtracts</em>, like a wave. So we associate a complex number with each path: the amplitude.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Definitions 1.2 — State vector and amplitude</span>
+        <p>The state of a system is described by a <strong>ket</strong> \(\ket{\psi}\). The transition from a state \(\ket{i}\) to a state \(\ket{f}\) is described (in the absence of any intermediate evolution) by the complex amplitude</p>
+        <div class="eq">$$\mathcal{A}(f \leftarrow i) = \braket{f|i}.$$</div>
+        <p><strong>Born rule</strong>: \(P(f \leftarrow i) = |\braket{f|i}|^2\).</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">The rules of the game</span>
+        <p><strong>Paths in parallel</strong> (indistinguishable): <em>add</em> the amplitudes. <strong>Steps in series</strong>: <em>multiply</em> the amplitudes. <strong>Probability</strong>: take the <em>squared modulus</em> of the total amplitude.</p>
+      </div>
+
+      <figure class="lab rise" data-lab="phasors" aria-labelledby="lab-ph-t">
+        <div class="lab-head"><h3 id="lab-ph-t">Adding two amplitudes</h3><span class="tag">LAB 1.3</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"></div>
+          <div class="lab-panel">
+            <p style="margin:0">Drag the tips of \(\mathcal A_1\) and \(\mathcal A_2\), or start from a case in the lecture notes:</p>
+            <div class="btn-row">
+              <button class="btn ghost small" data-preset="plus" type="button">1 + 1</button>
+              <button class="btn ghost small" data-preset="minus" type="button">1 − 1</button>
+              <button class="btn ghost small" data-preset="i" type="button">1 + i</button>
+              <button class="btn ghost small" data-preset="mz" type="button">MZ, φ = 0</button>
+            </div>
+            <dl class="readout">
+              <div><dt>A₁</dt><dd data-out="a1"></dd></div>
+              <div><dt>A₂</dt><dd data-out="a2"></dd></div>
+              <div><dt>|A₁|² + |A₂|²</dt><dd data-out="cl"></dd></div>
+              <div><dt>|A₁ + A₂|²</dt><dd data-out="qu"></dd></div>
+              <div><dt>Cross term</dt><dd data-out="int"></dd></div>
+            </dl>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>The amplitudes are not normalised here: read the squares as relative intensities. The difference between the “sum of the probabilities” and the “square of the sum” is the interference term \(2\,\mathrm{Re}(\mathcal A_1 \mathcal A_2^*)\). It is positive when the phases agree and negative when they oppose each other. That is the whole secret of the fringes.</p>
+        </figcaption>
+      </figure>
+
+      <h3>Back to the Mach-Zehnder</h3>
+      <p>A beam splitter transmits with amplitude \(1/\sqrt2\) and reflects with amplitude \(i/\sqrt2\) (a phase shift of \(\pi/2\) on reflection). Following the four paths of MZ4, the lecture notes obtain</p>
+      <div class="eq">$$\mathcal A(x) = -e^{i\varphi/2}\cos\frac{\varphi}{2},\qquad \mathcal A(y) = -e^{i\varphi/2}\sin\frac{\varphi}{2},\qquad P(x) + P(y) = 1.$$</div>
+
+      <article class="exo" data-id="1.2" data-num="0.75" data-tol="0.01" data-ok="Correct: \(\cos^2(\pi/6) = 3/4\)." data-ko="Use \(P(D_x) = \cos^2(\varphi/2)\) with \(\varphi = \pi/3\).">
+        <div class="exo-head"><span class="num">Exercise 1.2</span><h3>Tuning an interferometer</h3><span class="stars" aria-label="difficulty 1 of 3">★☆☆</span></div>
+        <p>The phase plate introduces \(\varphi = \pi/3\). What is the probability of detection at \(D_x\)? (decimal or fraction)</p>
+        <div class="num-answer"><label for="e12">P(Dx) =</label><input id="e12" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Hint</summary><div><p>Set φ to 60° in lab 1.2 and send 500 photons: the red mark shows the expected value.</p></div></details>
+      </article>
+
+      <article class="exo" data-id="1.3" data-num="3.14159" data-tol="0.005" data-ok="Yes: \(\varphi = \pi\). The two amplitudes are opposite, so transmission through these two paths cancels." data-ko="Look for \(\varphi\) such that \(1 + e^{i\varphi} = 0\).">
+        <div class="exo-head"><span class="num">Exercise 1.3</span><h3>A defect that makes the crystal insulating</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>An electron crosses a unit cell by two paths with equal amplitudes \(\mathcal A_0\). A defect shifts the phase of one of them: \(\mathcal A_\text{tot} = \mathcal A_0(1 + e^{i\varphi})\). Show that \(P = 4|\mathcal A_0|^2\cos^2(\varphi/2)\), then give the smallest value \(\varphi > 0\) (in radians) that cancels the transmission.</p>
+        <div class="num-answer"><label for="e13">φ =</label><input id="e13" type="text" autocomplete="off" placeholder="e.g. pi/2"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Going further</summary><div><p>When random disorder makes these cancellations systematic, the electron stays trapped: this is <em>Anderson localisation</em> (Nobel Prize 1977).</p></div></details>
+      </article>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogy to critique — quantum Ndolé</span>
+        <p>In a well-made Ndolé, the bitterness of the leaves and the sweetness of the groundnuts offset or reinforce each other depending on the quantities <em>and</em> the moment they are added. Quantity ↔ modulus of the amplitude; moment ↔ phase.</p>
+        <details class="reveal"><summary>Where does the analogy break down?</summary><div>
+          <p>Two flavours never <em>cancel</em> each other completely: neither is worth “minus one”. Amplitudes, on the other hand, can be exactly opposite and give zero probability. And a recipe followed carefully always gives the same dish, whereas a carefully prepared quantum measurement gives random outcomes.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 1.3 -->
+    <section class="section" id="s3">
+      <h2><span class="n">1.3</span>Superposition and decoherence</h2>
+      <p>In 1935, Schrödinger imagines a cat shut in a box with a radioactive atom, a Geiger counter and a vial of poison. If we apply the theory literally, the cat ends up described by</p>
+      <div class="eq">$$\ket{\psi_\text{cat}} = \tfrac{1}{\sqrt2}\left(\ket{\text{dead}} + \ket{\text{alive}}\right).$$</div>
+      <p>More precisely, the cat is <em>entangled</em> with the atom: the overall state is \(\tfrac{1}{\sqrt2}\big(\ket{\text{decayed},\text{dead}} + \ket{\text{intact},\text{alive}}\big)\) (see chapter 4). Schrödinger wanted to show that the Copenhagen interpretation was absurd. The irony is that his cat became the standard illustration of superposition.</p>
+
+      <div class="box law rise">
+        <span class="box-title">Common pitfall — superposition ≠ ignorance</span>
+        <div class="table-wrap" style="margin:.4rem 0 0">
+          <table>
+            <thead><tr><th></th><th>Superposition (the AND)</th><th>Statistical mixture (the OR)</th></tr></thead>
+            <tbody>
+              <tr><td>Nature</td><td>A single state that combines A and B</td><td>A or B, but we do not know which</td></tr>
+              <tr><td>Example</td><td>\(\tfrac{1}{\sqrt2}(\ket{0} + \ket{1})\)</td><td>Hidden coin: heads or tails</td></tr>
+              <tr><td>Interference</td><td>Yes, the amplitudes combine</td><td>No, the probabilities add</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3>Decoherence</h3>
+      <p>A cat is never isolated: air molecules and infrared photons “observe” it constantly. Each interaction carries a little which-path information away into the environment. This is exactly what the slider <i>D</i> in lab 1.1 does: when the information leaks out, the fringe visibility drops to zero and the state behaves like a statistical mixture. For a macroscopic object, this takes a tiny fraction of a second. It is also the first enemy of quantum computers.</p>
+
+      <article class="exo" data-id="1.4" data-answer="c">
+        <div class="exo-head"><span class="num">Exercise 1.4</span><h3>Superposition or mixture?</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>We prepare 1,000 qubits in \(\tfrac{1}{\sqrt2}(\ket0 + \ket1)\), and 1,000 others by tossing a coin for each one to choose between \(\ket0\) and \(\ket1\). Which experiment can tell the two batches apart?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: in both batches, a measurement in the basis {|0⟩, |1⟩} gives 50/50."><input type="radio" name="e14" value="a">Measure each qubit in the basis \(\{\ket0, \ket1\}\).</label></li>
+          <li><label class="choice" data-why="No: you cannot “look at” a quantum state without measuring it."><input type="radio" name="e14" value="b">Observe the qubits without measuring them.</label></li>
+          <li><label class="choice" data-why="Correct. The superposition is the state |+⟩: 100% “+”. The mixture gives 50/50 in every basis. Check with lab 1.4 (the “Measure 1,000 copies” button)."><input type="radio" name="e14" value="c">Measure in the basis \(\{\ket+, \ket-\}\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">The quantum eraser</span>
+        <p>We “mark” the path of each photon, and the fringes disappear. If we then <em>erase</em> this marking and sort the impacts according to the result of the erasure, the fringes reappear in each subset. This does not allow a message to be sent into the past: without the sorting, done afterwards with information sent by classical means, the screen shows only a blur without fringes.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================== 1.4 -->
+    <section class="section" id="s4">
+      <h2><span class="n">1.4</span>The qubit</h2>
+      <div class="box def rise">
+        <span class="box-title">Definition 1.4 — Qubit</span>
+        <p>A qubit is a two-level quantum system with basis states \(\ket0\) and \(\ket1\). A pure state is written</p>
+        <div class="eq">$$\ket\psi = \alpha\ket0 + \beta\ket1,\qquad |\alpha|^2 + |\beta|^2 = 1,\qquad \alpha,\beta\in\mathbb C.$$</div>
+        <p>Up to a global phase (which has no physical effect), we can always write \(\alpha = \cos\frac\theta2\) and \(\beta = e^{i\varphi}\sin\frac\theta2\): a point \((\theta, \varphi)\) on the <strong>Bloch sphere</strong>. Statistical mixtures (chapter 4) occupy the interior of the sphere.</p>
+      </div>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification</span>
+        <p>One sometimes reads that a qubit “stores an infinite amount of information” because \(\alpha\) and \(\beta\) are continuous. This is misleading: no more than <strong>one bit</strong> of classical information can be extracted from a qubit (the Holevo bound), and a measurement projects the state onto one of the possible outcomes. The power of quantum computing comes from interference between amplitudes, not from reading out “all the results in parallel”.</p>
+      </div>
+
+      <figure class="lab rise" data-lab="qubit" aria-labelledby="lab-q-t">
+        <div class="lab-head"><h3 id="lab-q-t">Preparing and measuring a qubit</h3><span class="tag">LAB 1.4</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"><span class="lab-hint">Drag to rotate the sphere</span></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="q-theta">θ (polar angle from |0⟩) <output for="q-theta"></output></label><input id="q-theta" type="range" min="0" max="180" step="1" value="60"></div>
+            <div class="ctrl"><label for="q-phi">φ (relative phase) <output for="q-phi"></output></label><input id="q-phi" type="range" min="0" max="359" step="1" value="45"></div>
+            <div class="btn-row" aria-label="Common states">
+              <button class="btn ghost small" data-state="0" type="button">|0⟩</button>
+              <button class="btn ghost small" data-state="1" type="button">|1⟩</button>
+              <button class="btn ghost small" data-state="+" type="button">|+⟩</button>
+              <button class="btn ghost small" data-state="-" type="button">|−⟩</button>
+              <button class="btn ghost small" data-state="+i" type="button">|+i⟩</button>
+              <button class="btn ghost small" data-state="-i" type="button">|−i⟩</button>
+            </div>
+            <dl class="readout">
+              <div><dt>α</dt><dd data-out="alpha"></dd></div>
+              <div><dt>β</dt><dd data-out="beta"></dd></div>
+              <div><dt>|α|²</dt><dd data-out="p0"></dd></div>
+              <div><dt>|β|²</dt><dd data-out="p1"></dd></div>
+            </dl>
+            <div class="ctrl"><span class="lbl">Measurement basis</span>
+              <div class="seg" data-seg="basis"><button type="button" data-v="Z" aria-pressed="true">Z: {|0⟩,|1⟩}</button><button type="button" data-v="X">X: {|+⟩,|−⟩}</button><button type="button" data-v="Y">Y: {|±i⟩}</button></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn accent small" data-act="measure" type="button">Measure once</button>
+              <button class="btn ghost small" data-act="many" type="button">Measure 1,000 copies</button>
+            </div>
+            <div class="bars" aria-live="polite">
+              <div class="bar" data-bar="0"><span class="k">|0⟩</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+              <div class="bar" data-bar="1"><span class="k">|1⟩</span><span class="track"><span class="fill"></span><span class="theory"></span></span><span class="val">0</span></div>
+            </div>
+            <p class="legend" data-out="last" aria-live="polite"></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>The states \(\ket+\) and \(\ket{+i}\) both give 50/50 in the Z basis, but not in the X or Y basis: the relative phase φ is invisible in one basis and decisive in another.</p>
+        </figcaption>
+      </figure>
+
+      <h3>Hilbert space in three ideas</h3>
+      <ul>
+        <li><strong>Ket and bra</strong>: \(\ket\psi = \binom{\alpha}{\beta}\) and \(\bra\psi = (\alpha^*\ \ \beta^*)\), the Hermitian conjugate.</li>
+        <li><strong>Inner product</strong>: \(\braket{\phi|\psi} = \gamma^*\alpha + \delta^*\beta\), which is the amplitude for finding \(\ket\psi\) in the state \(\ket\phi\).</li>
+        <li><strong>Orthonormal basis and completeness</strong>: \(\braket{i|j} = \delta_{ij}\) and \(\sum_i \ket i\bra i = \mathbb 1\), hence \(\ket\psi = \sum_i \braket{i|\psi}\ket i\).</li>
+      </ul>
+
+      <article class="exo" data-id="1.5" data-num="0.25" data-tol="0.01" data-ok="Yes: \(|i/2|^2 = (i/2)(-i/2) = 1/4\). Never forget the complex conjugate." data-ko="Calculate \(|\alpha|^2 = \alpha\,\alpha^*\), not \(\alpha^2\).">
+        <div class="exo-head"><span class="num">Exercise 1.5</span><h3>Born rule</h3><span class="stars" aria-label="difficulty 1 of 3">★☆☆</span></div>
+        <p>Let \(\ket{\psi} = \frac{i}{2}\ket0 + \frac{\sqrt3}{2}\ket1\). What is the probability of obtaining \(0\)?</p>
+        <div class="num-answer"><label for="e15">P(0) =</label><input id="e15" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="1.6" data-num="120" data-tol="0.01" data-ok="Correct: \(\cos^2(\theta/2) = 1/4\), so \(\theta/2 = 60°\)." data-ko="Solve \(\cos^2(\theta/2) = 1/4\), with θ in degrees.">
+        <div class="exo-head"><span class="num">Exercise 1.6</span><h3>Aiming at a point on the sphere</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>We want a qubit that gives \(0\) one time in four in the Z basis. What angle θ (in degrees) is needed? Then check in lab 1.4 with 1,000 copies.</p>
+        <div class="num-answer"><label for="e16">θ =</label><input id="e16" type="text" inputmode="decimal" autocomplete="off"><span>°</span><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="1.7" data-answer="a">
+        <div class="exo-head"><span class="num">Exercise 1.7</span><h3>The Hadamard gate</h3><span class="stars" aria-label="difficulty 1 of 3">★☆☆</span></div>
+        <p>The gate \(H\) acts as \(H\ket k = \frac{1}{\sqrt2}\big((-1)^k\ket k + \ket{1-k}\big)\). What does \(\ket0\) become?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Correct: k = 0 gives (|0⟩ + |1⟩)/√2 = |+⟩, on the equator of the sphere. Measured in the Z basis: 50/50."><input type="radio" name="e17" value="a">\(\ket+ = \frac{1}{\sqrt2}(\ket0 + \ket1)\)</label></li>
+          <li><label class="choice" data-why="No: that is the image of |1⟩, because of the factor (−1)^k."><input type="radio" name="e17" value="b">\(\ket- = \frac{1}{\sqrt2}(\ket0 - \ket1)\)</label></li>
+          <li><label class="choice" data-why="No: H creates a superposition; it does not simply swap 0 and 1."><input type="radio" name="e17" value="c">\(\ket1\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 1.5 -->
+    <section class="section" id="s5">
+      <h2><span class="n">1.5</span>Review exercises</h2>
+      <article class="exo" data-id="1.8" data-answer="b">
+        <div class="exo-head"><span class="num">Exercise 1.8</span><h3>Designing a magnetic field sensor</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>In a cold-atom interferometer, \(\varphi = kB\) and \(P_1(B) = \sin^2(kB/2)\). For the best sensitivity, we work at the point where \(|\mathrm dP_1/\mathrm dB|\) is largest. Which bias field \(B_0\) should we choose?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: at B = 0, the curve is flat (zero derivative). A small field changes almost nothing there."><input type="radio" name="e18" value="a">\(B_0 = 0\)</label></li>
+          <li><label class="choice" data-why="Correct. dP₁/dB = (k/2) sin(kB), largest for kB = π/2. We work at P = 50%, on the steepest slope of the fringe."><input type="radio" name="e18" value="b">\(B_0 = \pi/(2k)\)</label></li>
+          <li><label class="choice" data-why="No: at kB = π, P₁ = 1 is at the top of the fringe, where the slope is zero."><input type="radio" name="e18" value="c">\(B_0 = \pi/k\)</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="1.9">
+        <div class="exo-head"><span class="num">Exercise 1.9</span><h3>The Mach-Zehnder with matrices</h3><span class="stars" aria-label="difficulty 3 of 3">★★★</span></div>
+        <p>In the basis \(\{\ket x, \ket y\}\), the beam splitter is written \(B = \frac{1}{\sqrt2}\begin{pmatrix}1 & i\\ i & 1\end{pmatrix}\), the pair of mirrors \(M = \begin{pmatrix}0 & i\\ i & 0\end{pmatrix}\) and the phase plate \(\Phi = \mathrm{diag}(e^{i\varphi}, 1)\). Calculate \(\ket{\psi_\text{out}} = B\,M\,\Phi\,B\ket x\) and recover \(P(x) = \cos^2(\varphi/2)\) (up to the labelling of the outputs).</p>
+        <details class="reveal"><summary>Hint</summary><div><p>Start with \(B\ket x = \frac{1}{\sqrt2}\binom{1}{i}\). Keep \(e^{i\varphi}\) factored out until the end, then use \(1 + e^{i\varphi} = 2e^{i\varphi/2}\cos(\varphi/2)\).</p></div></details>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>\(\Phi B\ket x = \frac{1}{\sqrt2}\binom{e^{i\varphi}}{i}\), then \(M\Phi B\ket x = \frac{1}{\sqrt2}\binom{-1}{ie^{i\varphi}}\), and finally</p>
+          <div class="eq">$$B M \Phi B\ket x = \frac12\begin{pmatrix}-1 - e^{i\varphi}\\ -i + ie^{i\varphi}\end{pmatrix} = -e^{i\varphi/2}\begin{pmatrix}\cos(\varphi/2)\\ \sin(\varphi/2)\end{pmatrix}.$$</div>
+          <p>Hence \(P(x) = \cos^2(\varphi/2)\) and \(P(y) = \sin^2(\varphi/2)\), as in the lecture notes.</p>
+        </div></details>
+      </article>
+    </section>
+
+    <section class="section" id="actu">
+      <h2><span class="n">·</span>Where do things stand in 2026?</h2>
+      <div class="box news rise">
+        <span class="box-title">Nobel Prize in Physics 2025</span>
+        <p>John Clarke, Michel Devoret and John Martinis were awarded the prize “for the discovery of macroscopic quantum mechanical tunnelling and energy quantisation in an electric circuit”. Their superconducting circuits of the 1980s are the direct ancestors of the Google and IBM qubits.</p>
+        <cite>Nobel Committee press release, 7 October 2025 — nobelprize.org</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Qubits that correct their own errors</span>
+        <p>In 2024, Google showed on its Willow chip that the error of a logical qubit decreases as the error-correcting code is enlarged: it is divided by about 2.1 each time the code distance is increased. In November 2025, Quantinuum presented Helios (98 barium ions, two-qubit gates with 99.92% fidelity). Take care not to confuse the hundreds of <em>physical</em> qubits in these machines with the few <em>logical</em> qubits that are actually protected.</p>
+        <cite>Nature 638, 920 (2025); Nature 655, 81 (2026)</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Interferometry in the field</span>
+        <p>The Mach-Zehnder formula \(P = \cos^2(\varphi/2)\) lies at the heart of commercially available cold-atom gravimeters, which measure \(g\) to within about \(10^{-8}\ \mathrm{m/s^2}\), and of atomic magnetometers for brain imaging without cryogenics.</p>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">After the International Year of Quantum</span>
+        <p>The International Year of Quantum Science and Technology (2025) closed in Accra (Ghana) in February 2026. The UNESCO review notes that activity was more than seven times less dense in Africa than in Europe and North America. Closing this gap also depends on courses like this one.</p>
+        <cite>UNESCO, <i>The Quantum moment: a global report</i>, May 2026</cite>
+      </div>
+    </section>
+
+    <footer class="chapter-foot">
+      <label class="done-toggle"><input type="checkbox" data-done> I have finished this chapter</label>
+      <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/en/?chapter=1">Practise with the chapter 1 quiz →</a>
+      <a class="pager" href="../index.html"><small>← Contents</small>PHY321 Notebook</a>
+      <a class="pager next" href="2-measurement-operators.html"><small>Next chapter →</small>Measurement and operators</a>
+    </footer>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Department of Physics, Faculty of Science, University of Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Updated October 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Source on GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

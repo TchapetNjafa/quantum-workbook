@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHY321 Notebook — Introduction to quantum mechanics</title>
+<meta name="description" content="Interactive notebook for the PHY321 course (University of Yaoundé I): six chapters, simulation labs and self-marking exercises, usable on a phone and offline.">
+<meta property="og:title" content="PHY321 Notebook — quantum mechanics">
+<meta property="og:description" content="Six chapters, hands-on labs and worked exercises for the PHY321 course at the University of Yaoundé I.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="alternate" hreflang="fr" href="../index.html">
+<link rel="alternate" hreflang="en" href="index.html">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<script src="../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+<script defer src="../assets/js/home.js"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">Skip to content</a>
+
+<header class="topbar">
+  <a class="brand" href="index.html"><b>PHY321 Notebook</b><span>Quantum mechanics · UY1</span></a>
+  <nav aria-label="Main">
+    <a href="#sommaire">Contents</a>
+    <a href="#methode">How to use it</a>
+    <a href="https://tchapetnjafa.github.io/quantum-quiz/en/">Quiz</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+</header>
+
+<main id="contenu">
+  <section class="masthead wrap">
+    <div class="mast-text">
+      <p class="eyebrow">PHY321 · University of Yaoundé I · 2026–2027</p>
+      <h1>A quantum mechanics notebook</h1>
+      <p class="lede">The companion to the course: run the experiments yourself, check your calculations, and learn to be wary of analogies.</p>
+      <div class="btn-row">
+        <a class="btn accent" id="resume" href="chapters/1-quantum-states.html">Start with chapter 1</a>
+        <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/en/">Practise with the quiz</a>
+      </div>
+      <p class="progress-line" id="progress-line" hidden></p>
+    </div>
+    <figure class="mast-figure">
+      <div class="lab-stage" id="hero-stage"></div>
+      <figcaption>Each dot is a photon detected behind two slits. The positions are drawn at random from \(|\psi(x)|^2\): the fringes emerge as the hits accumulate.</figcaption>
+    </figure>
+  </section>
+
+  <section class="contents wrap" id="sommaire" aria-labelledby="sommaire-t">
+    <h2 id="sommaire-t">Contents</h2>
+    <ol class="chapters">
+      <li data-ch="ch1">
+        <a href="chapters/1-quantum-states.html">
+          <span class="ch-num">1</span>
+          <span class="ch-body"><span class="ch-title">Quantum states</span>
+            <span class="ch-sub">Single-quantum interference · probability amplitudes · superposition and decoherence · the qubit and the Bloch sphere</span></span>
+          <span class="ch-meta"><span class="ch-count" data-exos="8">4 labs · 9 exercises</span><span class="ch-prog"></span></span>
+        </a>
+      </li>
+      <li data-ch="ch2">
+        <a href="chapters/2-measurement-operators.html">
+          <span class="ch-num">2</span>
+          <span class="ch-body"><span class="ch-title">Measurement and operators</span>
+            <span class="ch-sub">Stern and Gerlach · linear and Hermitian operators · operator algebra · incompatibility and uncertainty</span></span>
+          <span class="ch-meta"><span class="ch-count" data-exos="10">3 labs · 10 exercises</span><span class="ch-prog"></span></span>
+        </a>
+      </li>
+      <li data-ch="ch3">
+        <a href="chapters/3-quantum-dynamics.html">
+          <span class="ch-num">3</span>
+          <span class="ch-body"><span class="ch-title">Quantum dynamics</span>
+            <span class="ch-sub">The postulates · the Schrödinger equation · precession and Rabi oscillations</span></span>
+          <span class="ch-meta"><span class="ch-count" data-exos="10">4 labs · 11 exercises</span><span class="ch-prog"></span></span>
+        </a>
+      </li>
+      <li data-ch="ch4">
+        <a href="chapters/4-entanglement.html">
+          <span class="ch-num">4</span>
+          <span class="ch-body"><span class="ch-title">Multi-qubit systems and entanglement</span>
+            <span class="ch-sub">Tensor product · Bell states · density operator · von Neumann entropy · BB84</span></span>
+          <span class="ch-meta"><span class="ch-count" data-exos="10">4 labs · 10 exercises</span><span class="ch-prog"></span></span>
+        </a>
+      </li>
+      <li data-ch="ch5">
+        <a href="chapters/5-wave-function.html">
+          <span class="ch-num">5</span>
+          <span class="ch-body"><span class="ch-title">Wave function and continuous space</span>
+            <span class="ch-sub">Probability cloud · momentum representation · the operators X and P · moving wave packets</span></span>
+          <span class="ch-meta"><span class="ch-count" data-exos="9">4 labs · 10 exercises</span><span class="ch-prog"></span></span>
+        </a>
+      </li>
+      <li data-ch="ch6">
+        <a href="chapters/6-harmonic-oscillator.html">
+          <span class="ch-num">6</span>
+          <span class="ch-body"><span class="ch-title">The quantum harmonic oscillator</span>
+            <span class="ch-sub">Energy quantisation · ladder operators and Fock states · coherent states</span></span>
+          <span class="ch-meta"><span class="ch-count" data-exos="9">4 labs · 10 exercises</span><span class="ch-prog"></span></span>
+        </a>
+      </li>
+    </ol>
+  </section>
+
+  <section class="method wrap" id="methode" aria-labelledby="methode-t">
+    <h2 id="methode-t">How to use this notebook</h2>
+    <div class="method-grid">
+      <div>
+        <h3><span class="mono">01</span> Read little, experiment a lot</h3>
+        <p>Each section sums up the essentials of the lecture notes in a few boxes, then puts an apparatus in your hands. Change a parameter, predict the result, then run the experiment.</p>
+      </div>
+      <div>
+        <h3><span class="mono">02</span> Check your calculations</h3>
+        <p>The exercises accept answers such as <code>1/sqrt(2)</code> or <code>pi/3</code>. Your progress stays in your browser: no account, no data sent anywhere.</p>
+      </div>
+      <div>
+        <h3><span class="mono">03</span> Critique the analogies</h3>
+        <p>Ndolé, Eshu’s crossroads, the spinning coin: the course’s analogies help you get started, but each one breaks down somewhere. The notebook asks you where.</p>
+      </div>
+      <div>
+        <h3><span class="mono">04</span> Work without a connection</h3>
+        <p>After a first visit, the pages you have opened remain available offline. On a phone, “Add to Home screen” installs the notebook like an app.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Department of Physics, Faculty of Science, University of Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Updated October 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Source on GitHub</a> · <a href="https://www.st-andrews.ac.uk/physics/quvis/">QuVis simulations</a></span>
+  </div>
+</footer>
+</body>
+</html>

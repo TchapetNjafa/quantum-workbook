@@ -1,9 +1,9 @@
 /* Chapitre 1 — laboratoires : fentes d'Young, Mach-Zehnder, phaseurs, qubit sur la sphère de Bloch. */
 (() => {
   'use strict';
-  const { canvas, loop, bind, seg, drag, draw: D, rand } = window.Lab;
+  const { canvas, loop, bind, seg, drag, draw: D, rand, t, LOCALE } = window.Lab;
   const $ = (root, s) => root.querySelector(s);
-  const pct = p => (100 * p).toFixed(1) + ' %';
+  const pct = p => (100 * p).toFixed(1) + t(' %', '%');
 
   /* =====================================================================
      1. Fentes d'Young, photon par photon, avec information de chemin.
@@ -44,7 +44,7 @@
       const top = h * 0.56, base = h - 22, H = base - top - 18;
       ctx.fillStyle = c.paper2; ctx.fillRect(0, 0, w, top);
       ctx.drawImage(dots, 0, 0, w, top);
-      D.text(ctx, n ? `${n.toLocaleString('fr-FR')} photons détectés` : 'Écran vide — envoyez des photons', 10, 18, { font: c.sans, color: c.muted });
+      D.text(ctx, n ? t(`${n.toLocaleString(LOCALE)} photon${n === 1 ? "" : "s"} détecté${n === 1 ? "" : "s"}`, `${n.toLocaleString(LOCALE)} photon${n === 1 ? '' : 's'} detected`) : t('Écran vide — envoyez des photons', 'Empty screen — send some photons'), 10, 18, { font: c.sans, color: c.muted });
       // histogramme des impacts
       let max = 1; for (const v of hist) if (v > max) max = v;
       const bw = w / SHOW;
@@ -67,7 +67,7 @@
       }
       ctx.stroke(); ctx.setLineDash([]);
       ctx.strokeStyle = c.rule; ctx.beginPath(); ctx.moveTo(0, base + 0.5); ctx.lineTo(w, base + 0.5); ctx.stroke();
-      D.text(ctx, 'position x sur l’écran', w / 2, h - 6, { font: c.sans, color: c.muted, align: 'center' });
+      D.text(ctx, t('position x sur l’écran', 'position x on the screen'), w / 2, h - 6, { font: c.sans, color: c.muted, align: 'center' });
     }
 
     function emit(k) {
@@ -97,7 +97,7 @@
     }, { autoplay: false });
 
     const playBtn = $(root, '[data-act="play"]');
-    playBtn.addEventListener('click', () => { const on = anim.toggle(); playBtn.textContent = on ? 'Pause' : 'Envoyer des photons'; });
+    playBtn.addEventListener('click', () => { const on = anim.toggle(); playBtn.textContent = on ? t('Pause', 'Pause') : t('Envoyer des photons', 'Send photons'); });
     $(root, '[data-act="one"]').addEventListener('click', () => { emit(1); view.redraw(); });
     $(root, '[data-act="clear"]').addEventListener('click', clear);
     bind($(root, '#young-d'), v => { d = v; rebuild(); clear(); }, v => v.toFixed(1));
@@ -146,11 +146,11 @@
         ctx.strokeStyle = c.bad; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.ellipse(ex, ey, s * 0.9, s * 0.55, 0, 0, 2 * Math.PI); ctx.stroke();
         ctx.fillStyle = c.bad; ctx.beginPath(); ctx.arc(ex, ey, s * 0.25, 0, 2 * Math.PI); ctx.fill();
-        D.text(ctx, 'détecteur de chemin', ex, ey + s * 1.7, { font: c.sans, color: c.bad, align: 'center' });
+        D.text(ctx, t('détecteur de chemin', 'which-path detector'), ex, ey + s * 1.7, { font: c.sans, color: c.bad, align: 'center' });
       }
       const [sx, sy] = P('S');
       ctx.fillStyle = c.ink; ctx.fillRect(sx - s * 0.6, sy - s * 0.6, s * 1.2, s * 1.2);
-      D.text(ctx, 'source', sx, sy + s * 1.9, { font: c.sans, color: c.muted, align: 'center' });
+      D.text(ctx, t('source', 'source'), sx, sy + s * 1.9, { font: c.sans, color: c.muted, align: 'center' });
       ['Dx', 'Dy'].forEach((k, i) => {
         const [x, y] = P(k);
         ctx.fillStyle = D.alpha(c.accent, Math.min(0.9, flash[i]));
@@ -264,7 +264,7 @@
       ctx.strokeStyle = c.blue; ctx.fillStyle = c.blue; D.arrow(ctx, cx, cy, ...p1, 9);
       ctx.strokeStyle = c.ink; ctx.fillStyle = c.ink; D.arrow(ctx, ...p1, ...ps, 9);
       if (Math.hypot(...S) > 0.02) { ctx.strokeStyle = c.accent; ctx.fillStyle = c.accent; ctx.lineWidth = 3; D.arrow(ctx, cx, cy, ...ps, 11); }
-      [[p1, c.blue, 'A₁'], [p2, c.ink, 'A₂ (glisser)']].forEach(([p, col, l]) => {
+      [[p1, c.blue, 'A₁'], [p2, c.ink, t('A₂ (glisser)', 'A₂ (drag)')]].forEach(([p, col, l]) => {
         ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p[0], p[1], 7, 0, 2 * Math.PI); ctx.fill();
         D.text(ctx, l, p[0] + 10, p[1] - 10, { font: c.serif, color: col });
       });
@@ -367,7 +367,7 @@
       const target = axis[basis].map(x => plus ? x : -x);
       const start = bloch(), t0 = performance.now();
       const out = $(root, '[data-out="last"]');
-      out.textContent = `Résultat : ${labels[basis][plus ? 0 : 1]}. L’état est projeté sur ce vecteur.`;
+      out.textContent = t(`Résultat : ${labels[basis][plus ? 0 : 1]}. L’état est projeté sur ce vecteur.`, `Outcome: ${labels[basis][plus ? 0 : 1]}. The state is projected onto this vector.`);
       const step = now => {
         const k = Math.min(1, (now - t0) / 380), e = k * k * (3 - 2 * k);
         const v = start.map((s, i) => s + (target[i] - s) * e), nrm = Math.hypot(...v) || 1;
@@ -381,7 +381,7 @@
       const p = pPlus();
       for (let i = 0; i < 1000; i++) counts[Math.random() < p ? 0 : 1]++;
       bars();
-      $(root, '[data-out="last"]').textContent = `${(counts[0] + counts[1]).toLocaleString('fr-FR')} copies identiques mesurées.`;
+      $(root, '[data-out="last"]').textContent = t(`${(counts[0] + counts[1]).toLocaleString(LOCALE)} copies identiques mesurées.`, `${(counts[0] + counts[1]).toLocaleString(LOCALE)} identical copies measured.`);
     });
     text(); bars();
   }
