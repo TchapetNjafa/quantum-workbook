@@ -351,3 +351,11 @@ details.reveal > div { padding: 0 0 1rem 1.5rem; animation: unfold .3s var(--eas
 .transcript p { font-size: .98rem; color: var(--ink-2); }
 .report-link { grid-column: 1 / -1; justify-self: start; font-family: var(--sans); font-size: .82rem; color: var(--muted); }
 .report-link:hover { color: var(--accent); }
+
+/* ---------- bascule de langue ---------- */
+.lang-switch {
+  display: inline-grid; place-items: center; min-width: 2.25rem; height: 2.25rem; padding: 0 .55rem; flex: none;
+  border: 1px solid var(--rule); border-radius: var(--r-md); color: var(--ink-2); text-decoration: none;
+  font: 600 .74rem var(--mono); letter-spacing: .06em; transition: background .2s, color .2s;
+}
+.lang-switch:hover { background: var(--paper-2); color: var(--accent-ink); }

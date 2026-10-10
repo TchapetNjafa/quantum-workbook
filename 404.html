@@ -19,14 +19,26 @@
   </div>
 </main>
 <script>
-  // Anciennes adresses chapters/chapterN.html (avant octobre 2026) : l'ancien découpage différait du cours
+  // Anciennes adresses et version anglaise (GitHub Pages sert cette page pour toute URL inconnue)
   (() => {
-    const m = /chapters\/chapter(\d)\.html$/.exec(location.pathname);
+    const path = location.pathname;
+    const accent = document.querySelector('.btn.accent'), ghost = document.querySelector('.btn.ghost');
+    if (path.includes('/quantum-workbook/en/')) {
+      document.documentElement.lang = 'en';
+      document.title = 'Page not found — PHY321 Notebook';
+      document.querySelector('.eyebrow').textContent = 'Error 404';
+      document.querySelector('h1').textContent = 'This page is not in any eigenstate.';
+      document.querySelector('main p:not(.eyebrow)').textContent = 'The measurement returned “not found”. The chapters are in the chapters/ folder.';
+      accent.href = '/quantum-workbook/en/'; accent.textContent = 'Back to contents';
+      ghost.href = 'https://tchapetnjafa.github.io/quantum-quiz/en/'; ghost.textContent = 'Go to the quiz';
+      return;
+    }
+    // anciennes adresses chapters/chapterN.html : l'ancien découpage différait du cours
+    const m = /chapters\/chapter(\d)\.html$/.exec(path);
     const map = { 1: '1-etats-quantiques', 2: '2-mesure-operateurs', 3: '2-mesure-operateurs', 4: '3-dynamique', 5: '4-intrication', 6: '5-fonction-etat' };
     if (!m || !map[m[1]]) return;
-    const a = document.querySelector('.btn.accent');
-    a.href = '/quantum-workbook/chapitres/' + map[m[1]] + '.html';
-    a.textContent = 'Ouvrir le chapitre correspondant';
+    accent.href = '/quantum-workbook/chapitres/' + map[m[1]] + '.html';
+    accent.textContent = 'Ouvrir le chapitre correspondant';
   })();
 </script>
 </body>

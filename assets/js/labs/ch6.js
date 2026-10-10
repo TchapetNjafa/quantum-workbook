@@ -3,10 +3,10 @@
    énergies en ħω, temps en périodes T = 2π/ω. */
 (() => {
   'use strict';
-  const { canvas, loop, bind, seg, draw: D } = window.Lab;
+  const { canvas, loop, bind, seg, draw: D, t: tr } = window.Lab;
   const $ = (root, s) => root.querySelector(s);
   const TAU = 2 * Math.PI;
-  const fr = (v, d = 3) => v.toFixed(d).replace('.', ',');
+  const fr = (v, d = 3) => v.toFixed(d).replace('.', tr(',', '.'));
 
   /* ψ_0..ψ_nmax en u, normalisées : ∫|ψ_n|² du = 1.
      ψ_0 = π^(-1/4) e^(-u²/2), ψ_1 = √2 u ψ_0,
@@ -75,7 +75,7 @@
       const xb = (x0 + x1) / 2;
       ctx.fillStyle = D.alpha(c.accent, 0.9 * alpha);
       ctx.beginPath(); ctx.arc(xb, yb - 9, 8, 0, TAU); ctx.fill();
-      if (!K && !anim) D.text(ctx, 'vecteur nul : plus aucun état', xb, yOf(0, h) - 14, { font: c.sans, color: c.bad, align: 'center' });
+      if (!K && !anim) D.text(ctx, tr('vecteur nul : plus aucun état', 'zero vector: no state left'), xb, yOf(0, h) - 14, { font: c.sans, color: c.bad, align: 'center' });
     }
 
     const coef = k => {
@@ -108,12 +108,12 @@
       if (!K || anim) return;
       if (op === 'down') {
         ops.unshift('a');
-        if (n === 0) { K = 0; lastNote = 'a|0⟩ = 0 : le vide est annihilé. Le résultat est le vecteur nul, pas l’état |0⟩.'; animate(0, 0, '× 0', true); }
+        if (n === 0) { K = 0; lastNote = tr('a|0⟩ = 0 : le vide est annihilé. Le résultat est le vecteur nul, pas l’état |0⟩.', 'a|0⟩ = 0: the vacuum is annihilated. The result is the zero vector, not the state |0⟩.'); animate(0, 0, '× 0', true); }
         else { K *= n; lastNote = `a|${n}⟩ = √${n} |${n - 1}⟩`; animate(n, n - 1, `√${n}`); n--; }
       } else if (op === 'up') {
         ops.unshift('a†'); K *= n + 1; lastNote = `a†|${n}⟩ = √${n + 1} |${n + 1}⟩`; animate(n, n + 1, `√${n + 1}`); n++;
       } else {
-        ops.unshift('N'); lastNote = `N|${n}⟩ = ${n} |${n}⟩ : même état, multiplié par sa valeur propre.`;
+        ops.unshift('N'); lastNote = tr(`N|${n}⟩ = ${n} |${n}⟩ : même état, multiplié par sa valeur propre.`, `N|${n}⟩ = ${n} |${n}⟩: same state, multiplied by its eigenvalue.`);
         K *= n * n; animate(n, n, `× ${n}`, n === 0);
       }
       text();
@@ -202,8 +202,8 @@
       for (let u = u0; u < 10; u += du) s += du * (psi(n, u) ** 2 + psi(n, u + du) ** 2) / 2;
       $(root, '[data-out="E"]').textContent = `${2 * n + 1}/2 ħω`;
       $(root, '[data-out="nodes"]').textContent = n;
-      $(root, '[data-out="par"]').textContent = n % 2 ? 'impaire' : 'paire';
-      $(root, '[data-out="out"]').textContent = fr(100 * 2 * s, 1) + ' %';
+      $(root, '[data-out="par"]').textContent = n % 2 ? tr('impaire', 'odd') : tr('paire', 'even');
+      $(root, '[data-out="out"]').textContent = fr(100 * 2 * s, 1) + tr(' %', '%');
     }
 
     const nIn = $(root, '#lv-n');
@@ -267,13 +267,13 @@
 
     function text() {
       const d = Math.abs(m - n);
-      $(root, '[data-out="Tb"]').textContent = d ? (d === 1 ? 'T' : `T/${d}`) : '∞ (stationnaire)';
+      $(root, '[data-out="Tb"]').textContent = d ? (d === 1 ? 'T' : `T/${d}`) : tr('∞ (stationnaire)', '∞ (stationary)');
       const amp = d === 1 ? Math.sqrt((Math.max(n, m)) / 2) : 0;
       $(root, '[data-out="amp"]').textContent = fr(amp, 3) + ' ℓ';
     }
     const anim = loop(stage, dt => { t += dt / 3; paint(view.ctx, view.size().w, view.size().h, view.colors()); });
     const play = $(root, '[data-act="play"]');
-    play.addEventListener('click', () => { play.textContent = anim.toggle() ? 'Pause' : 'Lecture'; });
+    play.addEventListener('click', () => { play.textContent = anim.toggle() ? 'Pause' : tr('Lecture', 'Play'); });
     const changed = () => { tab = null; text(); view.redraw(); };
     bind($(root, '#sp-n'), v => { n = v; changed(); }, v => `|${v}⟩`);
     bind($(root, '#sp-m'), v => { m = v; changed(); }, v => `|${v}⟩`);
@@ -328,8 +328,8 @@
       ctx.fillStyle = c.ink; ctx.beginPath(); ctx.arc(cx, cy, 2, 0, TAU); ctx.fill();
       const tx = cx + R + 16;
       if (tx < w - 60) {
-        D.text(ctx, 'disque : ΔX̂ = ΔP̂ = 1/√2', tx, cy - 10, { font: c.sans, color: c.muted });
-        D.text(ctx, 'cercle : orbite classique', tx, cy + 10, { font: c.sans, color: c.muted });
+        D.text(ctx, tr('disque : ΔX̂ = ΔP̂ = 1/√2', 'disc: ΔX̂ = ΔP̂ = 1/√2'), tx, cy - 10, { font: c.sans, color: c.muted });
+        D.text(ctx, tr('cercle : orbite classique', 'circle: classical orbit'), tx, cy + 10, { font: c.sans, color: c.muted });
       }
     }
 
@@ -366,11 +366,11 @@
       $(root, '[data-out="dn"]').textContent = fr(A, 2);
       $(root, '[data-out="rel"]').textContent = A ? fr(1 / A, 2) : '—';
       $(root, '[data-out="p0"]').textContent = fr(Math.exp(-m), 3);
-      $(root, '[data-out="cnt"]').textContent = total ? `${total} mesures de N` : '';
+      $(root, '[data-out="cnt"]').textContent = total ? tr(`${total} mesures de N`, `${total} measurements of N`) : '';
     }
     const anim = loop(stage, dt => { t += dt / 2.5; paint(view.ctx, view.size().w, view.size().h, view.colors()); });
     const play = $(root, '[data-act="play"]');
-    play.addEventListener('click', () => { play.textContent = anim.toggle() ? 'Pause' : 'Lecture'; });
+    play.addEventListener('click', () => { play.textContent = anim.toggle() ? 'Pause' : tr('Lecture', 'Play'); });
     $(root, '[data-act="count"]').addEventListener('click', () => {
       counts = counts || [];
       for (let i = 0; i < 500; i++) { const k = sample(); counts[k] = (counts[k] || 0) + 1; }

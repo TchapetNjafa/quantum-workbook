@@ -3,7 +3,7 @@
    Pour H = (ħ/2) w·σ, le vecteur de Bloch obéit à dr/dt = w × r : rotation d'angle |w|t autour de w (sens direct). */
 (() => {
   'use strict';
-  const { canvas, loop, bind, seg, draw: D } = window.Lab;
+  const { canvas, loop, bind, seg, draw: D, t: tr } = window.Lab;
   const B = window.Bloch;
   const $ = (root, s) => root.querySelector(s);
   const fr = (x, d = 3) => x.toFixed(d).replace('-', '−');
@@ -113,7 +113,8 @@
       out('beta').textContent = polar(psi[1]);
       out('norm').textContent = (a2(psi[0]) + a2(psi[1])).toFixed(4);
       const p = a2(ca(cm(cj(eig[basis][0].v[0]), psi[0]), cm(cj(eig[basis][0].v[1]), psi[1])));
-      out('p').textContent = `${eig[basis][0].l} : ${(100 * p).toFixed(1)} %   ${eig[basis][1].l} : ${(100 * (1 - p)).toFixed(1)} %`;
+      out('p').textContent = tr(`${eig[basis][0].l} : ${(100 * p).toFixed(1)} %   ${eig[basis][1].l} : ${(100 * (1 - p)).toFixed(1)} %`,
+        `${eig[basis][0].l}: ${(100 * p).toFixed(1)}%   ${eig[basis][1].l}: ${(100 * (1 - p)).toFixed(1)}%`);
       out('log').textContent = log.join('  →  ');
     }
 
@@ -152,7 +153,7 @@
         view.redraw();
         if (k < 1) { requestAnimationFrame(step); return; }
         shown = null; psi = after; trail = []; busy = false;
-        log.push(`mesure ${basis} : ${pick.l}`);
+        log.push(tr(`mesure ${basis} : ${pick.l}`, `measure ${basis}: ${pick.l}`));
         text(); view.redraw();
       };
       requestAnimationFrame(step);
@@ -160,7 +161,7 @@
 
     function prepare() {
       if (busy) return;
-      psi = preps[prep].map(z => z.slice()); trail = []; log = [`préparé ${prepName[prep]}`];
+      psi = preps[prep].map(z => z.slice()); trail = []; log = [tr(`préparé ${prepName[prep]}`, `prepared ${prepName[prep]}`)];
       text(); view.redraw();
     }
 
@@ -217,11 +218,11 @@
     }
     const anim = loop(stage, dt => { t += dt; refresh(); });
     const playBtn = $(root, '[data-act="play"]');
-    const sync = () => { playBtn.textContent = anim.running ? 'Pause' : 'Lancer'; };
+    const sync = () => { playBtn.textContent = anim.running ? tr('Pause', 'Pause') : tr('Lancer', 'Play'); };
     playBtn.addEventListener('click', () => { anim.toggle(); sync(); });
     $(root, '[data-act="reset"]').addEventListener('click', () => { t = 0; refresh(); });
     bind($(root, '#lm-theta'), v => { theta = v * Math.PI / 180; refresh(); }, v => v + '°');
-    bind($(root, '#lm-f'), v => { f = v; refresh(); }, v => fr(v, 2) + ' tr/s');
+    bind($(root, '#lm-f'), v => { f = v; refresh(); }, v => fr(v, 2) + tr(' tr/s', ' rev/s'));
     sync();
   }
 
@@ -272,7 +273,7 @@
       else if (t > windowT()) t -= windowT();               // la fenêtre contient un nombre entier de périodes
       refresh();
     });
-    const sync = () => { playBtn.textContent = anim.running ? 'Pause' : 'Lancer'; };
+    const sync = () => { playBtn.textContent = anim.running ? tr('Pause', 'Pause') : tr('Lancer', 'Play'); };
     playBtn.addEventListener('click', () => { stopAt = Infinity; anim.toggle(); sync(); });
     const pulse = k => { t = 0; stopAt = k * tPi(); anim.play(); sync(); };
     $(root, '[data-act="pi2"]').addEventListener('click', () => pulse(0.5));
@@ -312,7 +313,7 @@
     const fwhm = f => { let x = 0; while (x < SPAN && f(x) > 0.5) x += 0.0005; return 2 * x; };
 
     const view = canvas(stage, (ctx, w, h, c) => plot(ctx, w, h, c, {
-      x0: -SPAN, x1: SPAN, y0: 0, y1: 1.05, yticks: [0, 0.5, 1], xlabel: 'désaccord Δ/2π (MHz) → +3', x0label: '−3',
+      x0: -SPAN, x1: SPAN, y0: 0, y1: 1.05, yticks: [0, 0.5, 1], xlabel: tr('désaccord Δ/2π (MHz) → +3', 'detuning Δ/2π (MHz) → +3'), x0label: '−3',
       series: [
         { f: rabiP, color: c.blue, width: 1.8, n: 600 },
         { f: ramseyP, color: c.accent, width: 1.6, n: Math.max(600, Math.round(240 * T * SPAN)) }

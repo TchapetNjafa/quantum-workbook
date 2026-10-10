@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 4 · Multi-qubit systems and entanglement — PHY321 Notebook</title>
+<meta name="description" content="Tensor product, Bell states, density operator, partial trace and von Neumann entropy: interactive labs (CHSH, BB84) and worked exercises for chapter 4 of PHY321 (University of Yaoundé I).">
+<meta property="og:title" content="Multi-qubit systems and entanglement — PHY321 Notebook">
+<meta property="og:description" content="Build two-qubit states, play the CHSH game, mix a Bell state with noise, eavesdrop on BB84.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../../manifest.json">
+<link rel="alternate" hreflang="fr" href="../../chapitres/4-intrication.html">
+<link rel="alternate" hreflang="en" href="4-entanglement.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="../../assets/css/carnet.css">
+<script src="../../assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="../../assets/js/carnet.js"></script>
+<script defer src="../../assets/js/labs/ch4.js"></script>
+</head>
+<body data-chapter="ch4">
+<a class="skip" href="#contenu">Skip to content</a>
+
+<header class="topbar">
+  <a class="brand" href="../index.html"><b>PHY321 Notebook</b><span>Quantum mechanics · UY1</span></a>
+  <nav aria-label="Chapters">
+    <a href="1-quantum-states.html">1 · States</a>
+    <a href="2-measurement-operators.html">2 · Measurement</a>
+    <a href="3-quantum-dynamics.html">3 · Dynamics</a>
+    <a href="4-entanglement.html" aria-current="page">4 · Entanglement</a>
+    <a href="5-wave-function.html">5 · Continuous space</a>
+    <a href="6-harmonic-oscillator.html">6 · Oscillator</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+  <span class="readbar" aria-hidden="true"></span>
+</header>
+
+<div class="chapter-layout">
+  <aside class="toc" aria-label="Chapter contents">
+    <details>
+      <summary>Contents</summary>
+      <ol>
+        <li><a href="#s1"><span class="toc-num">4.1</span>Tensor product</a></li>
+        <li><a href="#s2"><span class="toc-num">4.2</span>Entanglement and Bell states</a></li>
+        <li><a href="#s3"><span class="toc-num">4.3</span>Querying a composite system</a></li>
+        <li><a href="#s4"><span class="toc-num">4.4</span>Density operator</a></li>
+        <li><a href="#s5"><span class="toc-num">4.5</span>Von Neumann entropy</a></li>
+        <li><a href="#s6"><span class="toc-num">4.6</span>Review exercises</a></li>
+        <li><a href="#actu"><span class="toc-num">·</span>Where do things stand in 2026?</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main id="contenu">
+    <header class="chapter-head">
+      <span class="big-num" aria-hidden="true">4</span>
+      <p class="eyebrow">Chapter 4 · Lectures 4 h + Tutorials 3 h</p>
+      <h1>Multi-qubit systems and entanglement</h1>
+      <p class="lede">Two qubits cannot be described by two arrows on two spheres. Some states of the pair assign no eigenstate to either qubit: the information lies in the correlations.</p>
+      <ul class="goals">
+        <li>Compute a tensor product of states and of operators, in components.</li>
+        <li>Decide whether a two-qubit state is separable or entangled.</li>
+        <li>Obtain the reduced state of one qubit by partial trace and compute its purity.</li>
+        <li>Quantify the entanglement of a pure state with the von Neumann entropy.</li>
+        <li>Explain why a Bell test and the BB84 protocol detect what no local theory can reproduce.</li>
+      </ul>
+      <div class="listen">
+        <span class="listen-label">Audio summary · 1:23</span>
+        <audio controls preload="none" src="../../assets/audio/en/ch4.mp3"></audio>
+        <details class="reveal"><summary>Read the transcript</summary><div class="transcript"><p>To describe two qubits, we use the tensor product. The space has four dimensions, with basis zero zero, zero one, one zero, one one. With n qubits, you need two to the power n amplitudes.</p><p>Some states of the pair cannot be written as the product of two individual states. They are entangled. In the Bell state phi plus, each qubit on its own gives zero or one at random, but the two results are always the same.</p><p>These correlations go beyond anything a local hidden-variable theory allows. The Bell test, in the form of the CHSH inequality, bounds a certain combination by two. Quantum mechanics reaches two root two. The experiments of two thousand and fifteen confirmed this with no loophole. Even so, no signal travels faster than light.</p><p>The state of a single qubit from an entangled pair is a mixture, described by a density operator. The von Neumann entropy of this mixture measures the entanglement: one bit for a Bell state.</p><p>Finally, the BB eighty-four protocol uses measurement to detect an eavesdropper. Its security is proven for the ideal protocol; real devices have flaws, which must be kept under control.</p></div></details>
+      </div>
+    </header>
+
+    <!-- ===================================================== 4.1 -->
+    <section class="section" id="s1">
+      <h2><span class="n">4.1</span>Describing several qubits: the tensor product</h2>
+      <p>Alice rolls a die (6 outcomes), Bob draws a card (52 outcomes). The combined system has \(6 \times 52 = 312\) outcomes, not \(6 + 52\). In quantum mechanics too, dimensions multiply.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Definition 4.1 — Tensor product</span>
+        <p>The state space of the system \(A + B\) is \(\mathcal H = \mathcal H_A \otimes \mathcal H_B\), of dimension \(\dim\mathcal H_A \times \dim\mathcal H_B\). The product \(\ket{a}\otimes\ket{b} = \ket{ab}\) is linear in each factor, and</p>
+        <div class="eq">$$\big(\bra{a'}\otimes\bra{b'}\big)\big(\ket{a}\otimes\ket{b}\big) = \braket{a'|a}\,\braket{b'|b}.$$</div>
+        <p>For two qubits, the computational basis is \(\{\ket{00}, \ket{01}, \ket{10}, \ket{11}\}\). In components:</p>
+        <div class="eq">$$\begin{pmatrix}a_0\\a_1\end{pmatrix}\otimes\begin{pmatrix}b_0\\b_1\end{pmatrix} = \begin{pmatrix}a_0b_0\\a_0b_1\\a_1b_0\\a_1b_1\end{pmatrix}.$$</div>
+      </div>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification</span>
+        <p>The lecture notes translate “produit tensoriel” as <em>outer product</em>. In English, it is the <em>tensor product</em> (or <em>Kronecker product</em> for matrices). The outer product denotes \(\ket{a}\bra{b}\), which is an operator, not a state.</p>
+      </div>
+
+      <details class="reveal"><summary>Quick exercise: compute \(\ket+\otimes\ket-\)</summary><div>
+        <p>\(\frac{1}{\sqrt2}\binom{1}{1}\otimes\frac{1}{\sqrt2}\binom{1}{-1} = \frac12(1, -1, 1, -1)^{\mathsf T}\), that is \(\frac12(\ket{00} - \ket{01} + \ket{10} - \ket{11})\). Expanding \((\ket0 + \ket1)\otimes(\ket0 - \ket1)\) gives the same result. Preset “|+⟩|−⟩” in lab 4.1.</p>
+      </div></details>
+
+      <article class="exo" data-id="4.1" data-num="266" data-tol="0.001" data-ok="Correct: \(n &gt; 80/\log_{10}2 \approx 265.8\), so 266 qubits." data-ko="Solve \(2^n &gt; 10^{80}\), that is \(n &gt; 80/\log_{10} 2\).">
+        <div class="exo-head"><span class="num">Exercise 4.1</span><h3>Exponential growth</h3><span class="stars" aria-label="difficulty 1 of 3">★☆☆</span></div>
+        <p>A state of \(n\) qubits requires \(2^n\) complex amplitudes. From how many qubits does this number exceed \(10^{80}\), the order of magnitude of the number of atoms in the observable universe?</p>
+        <div class="num-answer"><label for="e41">n =</label><input id="e41" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification — “quantum parallelism”</span>
+        <p>The lecture notes speak of “quantum parallelism”. A register of 266 qubits does not deliver \(2^{266}\) results: a measurement gives <strong>one</strong> string of 266 bits. A useful quantum algorithm arranges for the interference between amplitudes to reinforce the right answer before the measurement.</p>
+      </div>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogy to critique — polyrhythm</span>
+        <p>Djembe, balafon and kora each play their own cycle. Together they form a global pattern that no single musician plays. The space of the ensemble resembles a tensor product: each combination of beats of the three instruments is a possible “cell”.</p>
+        <details class="reveal"><summary>Where does the analogy break down?</summary><div>
+          <p>Each musician plays a definite part. Each track can be recorded separately and remixed: the whole is rebuilt from the parts. That is the picture of a <em>separable</em> state, or of a classical correlation. An entangled state has no track of its own for each qubit: the reduced state of one qubit of \(\ket{\Phi^+}\) is completely random noise. And no rhythm violates a Bell inequality.</p>
+        </div></details>
+      </aside>
+    </section>
+
+    <!-- ===================================================== 4.2 -->
+    <section class="section" id="s2">
+      <h2><span class="n">4.2</span>Entanglement and Bell states</h2>
+
+      <div class="box def rise">
+        <span class="box-title">Definition 4.2 — Separable or entangled</span>
+        <p>A pure state \(\ket\Psi\) of \(A + B\) is <strong>separable</strong> (factorisable) if it can be written \(\ket{\psi_A}\otimes\ket{\psi_B}\). Otherwise it is <strong>entangled</strong>. For two qubits, \(\ket\Psi = \alpha\ket{00} + \beta\ket{01} + \gamma\ket{10} + \delta\ket{11}\) is separable if and only if</p>
+        <div class="eq">$$\alpha\delta - \beta\gamma = 0.$$</div>
+        <p>Arrange the amplitudes in a matrix \(C = \begin{pmatrix}\alpha&amp;\beta\\ \gamma&amp;\delta\end{pmatrix}\) (rows: Alice, columns: Bob). The criterion reads \(\det C = 0\): the two rows are proportional.</p>
+      </div>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification — correlation is not entanglement</span>
+        <p>The lecture notes define “correlation or entanglement” together. These are two distinct notions. Two socks of the same colour packed in two suitcases are correlated, with nothing quantum about them. Entanglement is a property of the <em>state</em>: it does not factorise. It produces correlations in <em>several</em> bases at once, and some of them violate Bell inequalities, which no classical correlation does.</p>
+      </div>
+
+      <h3>The four Bell states</h3>
+      <p>The lecture notes write them \(\ket{B_{xy}} = \frac{1}{\sqrt2}\big(\ket{0y} + (-1)^x\ket{1\bar y}\big)\). The names \(\Phi^\pm, \Psi^\pm\) are also common. They form an orthonormal basis of \(\mathbb C^2\otimes\mathbb C^2\).</p>
+      <div class="table-wrap rise">
+        <table>
+          <thead><tr><th>State</th><th>Expression</th><th>\(\langle Z\otimes Z\rangle\)</th><th>\(\langle X\otimes X\rangle\)</th><th>\(\langle Y\otimes Y\rangle\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(B_{00} = \Phi^+\)</td><td>\(\tfrac{1}{\sqrt2}(\ket{00} + \ket{11})\)</td><td>+1</td><td>+1</td><td>−1</td></tr>
+            <tr><td>\(B_{10} = \Phi^-\)</td><td>\(\tfrac{1}{\sqrt2}(\ket{00} - \ket{11})\)</td><td>+1</td><td>−1</td><td>+1</td></tr>
+            <tr><td>\(B_{01} = \Psi^+\)</td><td>\(\tfrac{1}{\sqrt2}(\ket{01} + \ket{10})\)</td><td>−1</td><td>+1</td><td>+1</td></tr>
+            <tr><td>\(B_{11} = \Psi^-\)</td><td>\(\tfrac{1}{\sqrt2}(\ket{01} - \ket{10})\)</td><td>−1</td><td>−1</td><td>−1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>+1: results always identical; −1: always opposite. The table in the lecture notes speaks of “XX or YY” correlations for the X basis: read this as “results \(++\) or \(--\)”. In every case, each result <em>taken alone</em> remains 50/50. The singlet \(\Psi^-\) is anticorrelated in every direction.</p>
+
+      <figure class="lab rise" data-lab="twoq" aria-labelledby="lab-2q-t">
+        <div class="lab-head"><h3 id="lab-2q-t">Build a two-qubit state</h3><span class="tag">LAB 4.1</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"></div>
+          <div class="lab-panel">
+            <div class="btn-row" aria-label="Standard states">
+              <button class="btn ghost small" data-preset="prod" type="button">|00⟩</button>
+              <button class="btn ghost small" data-preset="pm" type="button">|+⟩|−⟩</button>
+              <button class="btn ghost small" data-preset="phip" type="button">Φ⁺</button>
+              <button class="btn ghost small" data-preset="phim" type="button">Φ⁻</button>
+              <button class="btn ghost small" data-preset="psip" type="button">Ψ⁺</button>
+              <button class="btn ghost small" data-preset="psim" type="button">Ψ⁻</button>
+            </div>
+            <div class="ctrl"><label for="st-c00">c₀₀ (raw) <output for="st-c00"></output></label><input id="st-c00" type="range" min="-1" max="1" step="0.01" value="1"></div>
+            <div class="ctrl"><label for="st-c01">c₀₁ (raw) <output for="st-c01"></output></label><input id="st-c01" type="range" min="-1" max="1" step="0.01" value="0"></div>
+            <div class="ctrl"><label for="st-c10">c₁₀ (raw) <output for="st-c10"></output></label><input id="st-c10" type="range" min="-1" max="1" step="0.01" value="0"></div>
+            <div class="ctrl"><label for="st-c11">c₁₁ (raw) <output for="st-c11"></output></label><input id="st-c11" type="range" min="-1" max="1" step="0.01" value="0"></div>
+            <div class="ctrl"><label for="st-theta">Guided case cos θ|00⟩ + sin θ|11⟩ <output for="st-theta"></output></label><input id="st-theta" type="range" min="0" max="90" step="1" value="0"></div>
+            <dl class="readout">
+              <div><dt>c₀₀ normalised</dt><dd data-out="c00"></dd></div>
+              <div><dt>c₀₁ normalised</dt><dd data-out="c01"></dd></div>
+              <div><dt>c₁₀ normalised</dt><dd data-out="c10"></dd></div>
+              <div><dt>c₁₁ normalised</dt><dd data-out="c11"></dd></div>
+              <div><dt>c₀₀c₁₁ − c₀₁c₁₀</dt><dd data-out="det"></dd></div>
+              <div><dt>Tr ρ_A²</dt><dd data-out="pur"></dd></div>
+              <div><dt>λ of ρ_A</dt><dd data-out="lam"></dd></div>
+              <div><dt>S(ρ_A)</dt><dd data-out="S"></dd></div>
+            </dl>
+            <p class="legend" data-out="verdict" aria-live="polite"></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>The sliders set arbitrary real amplitudes; the state is normalised before any calculation. On the right, the Bloch vector of \(\rho_A\): on the circle if the state factorises, at the centre for a Bell state. With \(\cos\theta\ket{00} + \sin\theta\ket{11}\), we have \(\det C = \tfrac12\sin 2\theta\), \(\lambda = \cos^2\theta, \sin^2\theta\), and \(S\) goes from 0 to 1 bit at \(\theta = 45°\).</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="4.2" data-answer="a">
+        <div class="exo-head"><span class="num">Exercise 4.2</span><h3>A state that looks entangled</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>Let \(\ket{\psi_3} = \frac{1}{\sqrt{10}}\big(2\ket{00} + 2\ket{01} + \ket{10} + \ket{11}\big)\). Is this state entangled?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Correct: αδ = 2·1 = 2 and βγ = 2·1 = 2. We find ψ₃ = (2|0⟩ + |1⟩)/√5 ⊗ (|0⟩ + |1⟩)/√2. Check it in lab 4.1 with c = (1, 1, 0.5, 0.5)."><input type="radio" name="e42" value="a">No, it is separable.</label></li>
+          <li><label class="choice" data-why="No: its four amplitudes are non-zero, but that is not enough. Apply the criterion αδ = βγ."><input type="radio" name="e42" value="b">Yes, because all four components are non-zero.</label></li>
+          <li><label class="choice" data-why="No: ψ₃ is not a Bell state, and the criterion αδ − βγ gives exactly 0."><input type="radio" name="e42" value="c">Yes, it is maximally entangled.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="4.3" data-num="-1" data-tol="0.01" data-ok="Correct: \(X\otimes X\) swaps \(\ket{01}\) and \(\ket{10}\), so \(X\otimes X\ket{\Psi^-} = -\ket{\Psi^-}\)." data-ko="Apply \(X\otimes X\) to \(\ket{01} - \ket{10}\): each bit is flipped.">
+        <div class="exo-head"><span class="num">Exercise 4.3</span><h3>Correlation of the singlet</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>Compute \(\langle X_A X_B\rangle = \bra{B_{11}}X\otimes X\ket{B_{11}}\) for \(\ket{B_{11}} = \frac{1}{\sqrt2}(\ket{01} - \ket{10})\).</p>
+        <div class="num-answer"><label for="e43">⟨XX⟩ =</label><input id="e43" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <h3>The Bell test: hidden variables versus quantum mechanics</h3>
+      <p>Einstein believed that each particle carries “instructions” fixed at the source. Bell (1964) showed that such a local theory bounds a combination of correlations. In the CHSH form (Clauser, Horne, Shimony, Holt, 1969), Alice chooses between two settings \(a, a'\), Bob between \(b, b'\), each result equals \(\pm1\), and</p>
+      <div class="eq">$$S = E(a,b) - E(a,b') + E(a',b) + E(a',b'),$$</div>
+      <div class="eq">$$|S|_{\text{local}} \le 2,\qquad |S|_{\text{quantum}} \le 2\sqrt2.$$</div>
+      <p>For spins measured along axes in the \(xz\) plane making angles \(a\) and \(b\) with \(z\), the state \(\ket{\Phi^+}\) gives \(E(a,b) = \cos(a - b)\). For photons and polarisers, the angles are halved: \(E = \cos 2(\alpha - \beta)\).</p>
+
+      <figure class="lab rise" data-lab="chsh" aria-labelledby="lab-chsh-t">
+        <div class="lab-head"><h3 id="lab-chsh-t">The CHSH game</h3><span class="tag">LAB 4.2</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage square"></div>
+          <div class="lab-panel">
+            <div class="ctrl"><span class="lbl">Source</span>
+              <div class="seg" data-seg="model"><button type="button" data-v="Q" aria-pressed="true">Quantum |Φ⁺⟩</button><button type="button" data-v="L">Local hidden variables</button></div>
+            </div>
+            <div class="ctrl"><label for="ch-a">Alice a <output for="ch-a"></output></label><input id="ch-a" type="range" min="0" max="180" step="1" value="0"></div>
+            <div class="ctrl"><label for="ch-a2">Alice a′ <output for="ch-a2"></output></label><input id="ch-a2" type="range" min="0" max="180" step="1" value="90"></div>
+            <div class="ctrl"><label for="ch-b">Bob b <output for="ch-b"></output></label><input id="ch-b" type="range" min="0" max="180" step="1" value="45"></div>
+            <div class="ctrl"><label for="ch-b2">Bob b′ <output for="ch-b2"></output></label><input id="ch-b2" type="range" min="0" max="180" step="1" value="135"></div>
+            <div class="btn-row">
+              <button class="btn accent" data-act="play" type="button">Send pairs</button>
+              <button class="btn ghost small" data-act="burst" type="button">+1,000 pairs</button>
+              <button class="btn ghost small" data-act="reset" type="button">Clear</button>
+            </div>
+            <div class="btn-row">
+              <button class="btn ghost small" data-act="opt" type="button">Optimal settings</button>
+              <button class="btn ghost small" data-act="same" type="button">Same axes</button>
+            </div>
+            <dl class="readout">
+              <div><dt>E(a,b)</dt><dd data-out="ab">—</dd></div>
+              <div><dt>E(a,b′)</dt><dd data-out="ab2">—</dd></div>
+              <div><dt>E(a′,b)</dt><dd data-out="a2b">—</dd></div>
+              <div><dt>E(a′,b′)</dt><dd data-out="a2b2">—</dd></div>
+              <div><dt>S measured</dt><dd data-out="S">—</dd></div>
+              <div><dt>S predicted</dt><dd data-out="Sth"></dd></div>
+              <div><dt>Pairs</dt><dd data-out="N">0</dd></div>
+            </dl>
+            <p class="legend"><span><i class="acc"></i>cos Δ (quantum)</span><span><i class="dash"></i>1 − 2|Δ|/π (hidden variables)</span></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Each pair receives a random setting at Alice and one at Bob. With the settings 0°, 90°, 45°, 135°, the quantum source gives \(S \approx 2.83\). The hidden-variable model (each pair carries a random direction \(\lambda\), result \(\operatorname{sign}\cos(a - \lambda)\)) tops out at 2. Note that, in both cases, Alice’s results taken alone remain 50/50: Bob cannot send a message through his choice of setting.</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="4.4" data-num="2.8284" data-tol="0.005" data-ok="Correct: \(S = 4\cos 45° = 2\sqrt2 \approx 2.83\), the Tsirelson bound." data-ko="Compute the four \(\cos(a-b)\) with \(a = 0°, a' = 90°, b = 45°, b' = 135°\).">
+        <div class="exo-head"><span class="num">Exercise 4.4</span><h3>Violating the CHSH inequality</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>With \(E(a,b) = \cos(a - b)\) and the settings \(a = 0°\), \(a' = 90°\), \(b = 45°\), \(b' = 135°\), what is \(S\)? (write, for example, <code>2*sqrt(2)</code>)</p>
+        <div class="num-answer"><label for="e44">S =</label><input id="e44" type="text" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification — “instantaneously”, “influence”, “Einstein was wrong”</span>
+        <p>The introduction of the lecture notes compares entanglement to two coins, one of which, on Mars, “lands on heads” as soon as the other lands on tails. This picture describes a <em>classical</em> correlation, which hidden instructions explain perfectly well. What is quantum is the violation of CHSH with measurements in different bases.</p>
+        <p>Nor is there any usable “influence”: Alice’s local statistics do not depend on Bob’s setting (lab 4.2), so no signal travels faster than light. What the experiments rule out are <em>local</em> hidden-variable theories. Einstein was right about the absence of faster-than-light signalling; his hypothesis of pre-established local instructions is refuted.</p>
+        <p>Two chronological errors: Heisenberg’s uncertainty principle (1927) is in no way a “first indication of non-locality”; and Zeilinger’s experiments date mainly from the 1990s–2010s, not the 1970s–1980s. Clauser published in 1972, Aspect in 1982.</p>
+      </div>
+
+      <div class="box history rise">
+        <p>The first experiments left “loopholes”: inefficient detectors, settings chosen too slowly. In 2015, three teams (Delft, Vienna, NIST in Boulder) violated a Bell inequality while closing these loopholes simultaneously. The 2022 Nobel Prize rewarded Aspect, Clauser and Zeilinger for these tests and for the quantum information science that grew out of them.</p>
+      </div>
+
+      <aside class="analogy rise">
+        <span class="box-title">Analogy to critique — twins</span>
+        <p>Among the Yoruba (the <em>ibeji</em>) as among the Bamileke, twins are thought of as bound beyond distance: what affects one would concern the other. The image helps to remember that an entangled pair is described as a whole.</p>
+        <details class="reveal"><summary>Where does the analogy break down?</summary><div>
+          <p>The twin bond is a belief, not tested by any statistics. Entanglement is a quantitative prediction (\(S = 2\sqrt2\)) verified in the laboratory. Above all, the twins of tradition “pass” something to each other; an entangled pair transmits nothing: Alice alone sees only 50/50 randomness, whatever Bob does. Finally, each twin has their own state; a qubit of a Bell pair does not.</p>
+        </div></details>
+      </aside>
+
+      <h3>From entanglement to a secret key: BB84</h3>
+      <p>Bennett and Brassard (1984) proposed sending single photons polarised in one of two bases: \(Z\) (\(\ket H = 0\), \(\ket V = 1\)) or \(X\) (\(+45° = 0\), \(-45° = 1\)). Bob measures in a randomly chosen basis. They then publicly announce their <em>bases</em> (never their bits), keep the cases where they match (the sifted key, about 50%), and then sacrifice part of this key to estimate the error rate. An eavesdropper who measures and resends picks the wrong basis half the time, and then causes an error half the time: 25% errors on the sifted key. The version with entangled pairs (BBM92, exercise 4.2.1 of the lecture notes) works the same way.</p>
+
+      <figure class="lab rise" data-lab="bb84" aria-labelledby="lab-bb-t">
+        <div class="lab-head"><h3 id="lab-bb-t">BB84 and Eve the eavesdropper</h3><span class="tag">LAB 4.3</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <label class="check-row"><input id="bb-eve" type="checkbox"> Eve intercepts and resends every photon</label>
+            <div class="ctrl"><label for="bb-noise">Channel noise <output for="bb-noise"></output></label><input id="bb-noise" type="range" min="0" max="10" step="1" value="0"></div>
+            <div class="ctrl"><label for="bb-n">Photons per fast send <output for="bb-n"></output></label><input id="bb-n" type="range" min="1.2" max="3.3" step="0.05" value="2.3"></div>
+            <div class="btn-row">
+              <button class="btn accent small" data-act="anim" type="button">12 photons (animated)</button>
+              <button class="btn ghost small" data-act="many" type="button">Fast send</button>
+              <button class="btn ghost small" data-act="reset" type="button">Clear</button>
+            </div>
+            <dl class="readout">
+              <div><dt>Photons</dt><dd data-out="N">0</dd></div>
+              <div><dt>Sifted key</dt><dd data-out="sift">—</dd></div>
+              <div><dt>Errors / tested</dt><dd data-out="test">—</dd></div>
+              <div><dt>Error rate</dt><dd data-out="qber">—</dd></div>
+              <div><dt>Key bits</dt><dd data-out="key">0</dd></div>
+              <div><dt>(3/4)^m</dt><dd data-out="pnd">—</dd></div>
+            </dl>
+            <p class="legend" data-out="verdict" aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="table-wrap" style="margin:0;max-width:none">
+          <table>
+            <thead><tr><th>No.</th><th>Alice (basis · bit)</th><th>Eve</th><th>Bob (basis · bit)</th><th>Use</th><th>Match</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Half of the sifted bits, chosen at random, are used as a test. \((3/4)^m\) is the probability that Eve, if she intercepts everything, causes no error on the \(m\) tested bits. The 11% threshold corresponds to the security proof of Shor and Preskill (2000) for BB84: beyond it, no correction guarantees secrecy.</p>
+        </figcaption>
+      </figure>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification — “unbreakable cryptography”</span>
+        <p>The security of BB84 is <strong>proven for the ideal protocol</strong>: single photons, devices that behave as modelled. Real systems have had implementation flaws (multi-photon pulses, detectors blinded by a laser). And current satellite links go through a <strong>trusted relay</strong>: the satellite knows the key. It is better to say “security based on physics, under verifiable assumptions” than “unbreakable”.</p>
+        <p>In the BB84 worksheet of the lecture notes, the rows “axis and state chosen by Bob” are marked “public”: only the <em>bases</em> are announced, not the results. And for 250 tested bits, \((3/4)^{250} \approx 6\times10^{-32}\), not \(3\times10^{-63}\) (which corresponds to 500 bits).</p>
+      </div>
+
+      <article class="exo" data-id="4.5" data-num="0.003171" data-tol="0.0002" data-ok="Correct: \((3/4)^{20} \approx 3.2\times10^{-3}\). With 20 tested bits, Eve goes unnoticed about 3 times in 1,000." data-ko="Each tested bit escapes detection with probability 3/4, independently of the others.">
+        <div class="exo-head"><span class="num">Exercise 4.5</span><h3>How many bits to sacrifice?</h3><span class="stars" aria-label="difficulty 1 of 3">★☆☆</span></div>
+        <p>Eve intercepts and resends every photon. Alice and Bob publicly compare 20 bits of their sifted key. What is the probability that they find no error?</p>
+        <div class="num-answer"><label for="e45">P =</label><input id="e45" type="text" autocomplete="off" placeholder="e.g. (3/4)^20"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 4.3 -->
+    <section class="section" id="s3">
+      <h2><span class="n">4.3</span>Asking questions of a composite system</h2>
+      <div class="box def rise">
+        <span class="box-title">Definition 4.3 — Local operators</span>
+        <p>\((A\otimes B)(\ket{\psi_A}\otimes\ket{\psi_B}) = A\ket{\psi_A}\otimes B\ket{\psi_B}\). A measurement on Alice alone uses \(A\otimes \mathbb 1\), on Bob alone \(\mathbb 1\otimes B\). These two operators always commute: \([A\otimes\mathbb 1, \mathbb 1\otimes B] = 0\). As matrices (Kronecker product):</p>
+        <div class="eq">$$A\otimes B = \begin{pmatrix}a_{11}B &amp; a_{12}B\\ a_{21}B &amp; a_{22}B\end{pmatrix},\qquad X\otimes Z = \begin{pmatrix}0&amp;0&amp;1&amp;0\\0&amp;0&amp;0&amp;-1\\1&amp;0&amp;0&amp;0\\0&amp;-1&amp;0&amp;0\end{pmatrix}.$$</div>
+      </div>
+      <p>The probability that the first qubit gives \(0\) is \(\bra\psi(P_0\otimes\mathbb 1)\ket\psi\), with \(P_0 = \ket0\bra0\): add \(|c_{00}|^2 + |c_{01}|^2\). The state after measurement is the projection, renormalised.</p>
+
+      <article class="exo" data-id="4.6" data-num="0.625" data-tol="0.01" data-ok="Correct: \(P_B(1) = |c_{01}|^2 + |c_{11}|^2 = 3/8 + 1/4 = 5/8\). After the measurement, Bob is in \(\ket1\) and the state becomes \(\sqrt{3/5}\,\ket{01} + \sqrt{2/5}\,\ket{11}\)." data-ko="The measurement acts on Bob: add the probabilities of the components whose <em>second</em> bit is 1.">
+        <div class="exo-head"><span class="num">Exercise 4.6</span><h3>Measuring Bob only</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>Let \(\ket\psi = \frac{1}{\sqrt8}\ket{00} + \sqrt{\frac38}\ket{01} + \frac12\ket{10} + \frac12\ket{11}\) (example 4.3.2 of the lecture notes). Bob measures his qubit with \(\mathbb 1\otimes P_1\). What is the probability that he finds \(1\)?</p>
+        <div class="num-answer"><label for="e46">P_B(1) =</label><input id="e46" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification</span>
+        <p>In the solution of example 4.3.2, the projection onto \(\ket\phi = \ket{01}\) is written with \(\bra{10}\). Read \(\bra{01}\): it is indeed the \(\sqrt{3/8}\) component of \(\ket{01}\) that gives \(P = 3/8\).</p>
+      </div>
+    </section>
+
+    <!-- ===================================================== 4.4 -->
+    <section class="section" id="s4">
+      <h2><span class="n">4.4</span>Describing ignorance: the density operator</h2>
+      <p>In \(\ket{\Phi^+}\), Alice’s qubit has no ket of its own. To describe it, we replace the state vector by an operator.</p>
+
+      <div class="box def rise">
+        <span class="box-title">Definition 4.4 — Density operator (density matrix)</span>
+        <p>Pure state: \(\rho = \ket\psi\bra\psi\). Statistical mixture: \(\rho = \sum_i p_i\ket{\psi_i}\bra{\psi_i}\) with \(\sum_i p_i = 1\). Every physical \(\rho\) is Hermitian, of trace 1 and positive. We have</p>
+        <div class="eq">$$\langle A\rangle = \mathrm{Tr}(\rho A),\qquad P(a_n) = \mathrm{Tr}(P_n\rho),\qquad i\hbar\,\frac{\mathrm d\rho}{\mathrm dt} = [H, \rho].$$</div>
+        <p><strong>Purity</strong>: \(\mathrm{Tr}\rho^2 = 1\) for a pure state, \(&lt; 1\) for a mixture, with a minimum \(1/N\) in dimension \(N\). For a qubit, \(\rho = \frac12(\mathbb 1 + \vec b\cdot\vec\sigma)\) and \(\mathrm{Tr}\rho^2 = \frac12(1 + |\vec b|^2)\).</p>
+      </div>
+
+      <div class="box law rise">
+        <span class="box-title">Partial trace</span>
+        <p>Alice’s reduced state is \(\rho_A = \mathrm{Tr}_B\,\rho_{AB} = \sum_m \bra{m}_B\,\rho_{AB}\,\ket{m}_B\). It gives all the statistics of measurements made on A alone. For \(\ket\Psi = \sum c_{ab}\ket{ab}\), \(\rho_A = CC^\dagger\) with the matrix \(C\) of section 4.2. For \(\ket{\Phi^+}\): \(\rho_A = \frac12\mathbb 1\), purity \(\frac12\). The whole is pure, the part is maximally mixed.</p>
+      </div>
+
+      <figure class="lab rise" data-lab="werner" aria-labelledby="lab-w-t">
+        <div class="lab-head"><h3 id="lab-w-t">A Bell state drowned in noise: the Werner state</h3><span class="tag">LAB 4.4</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage wide"></div>
+          <div class="lab-panel">
+            <p style="margin:0">\(\rho_W = p\,\ket{\Psi^-}\bra{\Psi^-} + (1-p)\,\mathbb 1/4\) (exercise 4.6.1 of the lecture notes).</p>
+            <div class="ctrl"><label for="w-p">Weight p of the Bell state <output for="w-p"></output></label><input id="w-p" type="range" min="0" max="1" step="0.01" value="0.5"></div>
+            <dl class="readout">
+              <div><dt>Tr ρ_W²</dt><dd data-out="pur"></dd></div>
+              <div><dt>S(ρ_W)</dt><dd data-out="S"></dd></div>
+              <div><dt>S(ρ_A)</dt><dd data-out="SA"></dd></div>
+              <div><dt>λ min (transp.)</dt><dd data-out="min"></dd></div>
+              <div><dt>max CHSH |S|</dt><dd data-out="chsh"></dd></div>
+            </dl>
+            <p class="legend" data-out="verdict" aria-live="polite"></p>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>The partial transpose over Bob has eigenvalues \((1+p)/4\) (three times) and \((1-3p)/4\). A negative eigenvalue signals entanglement (Peres–Horodecki criterion, exact for two qubits): this requires \(p &gt; 1/3\). The maximum of \(|S|\) is \(2\sqrt2\,p\): between \(1/3\) and \(1/\sqrt2\), the state is entangled without violating CHSH. Note that \(\rho_A = \mathbb 1/2\) for every \(p\): when the global state is mixed, the entropy of the part no longer measures entanglement.</p>
+        </figcaption>
+      </figure>
+
+      <article class="exo" data-id="4.7" data-num="0.82" data-tol="0.01" data-ok="Correct: \(0.9^2 + 0.1^2 = 0.82\). Bloch vector \((0, 0, 0.8)\), and \(\frac12(1 + 0.64) = 0.82\)." data-ko="\(\rho\) is diagonal: \(\mathrm{Tr}\rho^2 = \sum_i p_i^2\).">
+        <div class="exo-head"><span class="num">Exercise 4.7</span><h3>Purity of a mixture</h3><span class="stars" aria-label="difficulty 1 of 3">★☆☆</span></div>
+        <p>A source produces \(\ket0\) with probability 0.9 and \(\ket1\) with probability 0.1. Compute \(\mathrm{Tr}\rho^2\).</p>
+        <div class="num-answer"><label for="e47">Tr ρ² =</label><input id="e47" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Going further: the partial trace of the singlet</summary><div>
+          <p>\(\rho_{AB} = \frac12(\ket{01}\bra{01} - \ket{01}\bra{10} - \ket{10}\bra{01} + \ket{10}\bra{10})\). The cross terms vanish under \(\mathrm{Tr}_B\) because \(\braket{1|0} = 0\); what remains is \(\rho_A = \frac12(\ket0\bra0 + \ket1\bra1) = \mathbb 1/2\), zero Bloch vector, purity \(1/2\). By symmetry, \(\rho_B = \rho_A\). Any measurement by Alice alone gives 50/50, in any basis.</p>
+        </div></details>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Clarification — decoherence</span>
+        <p>The lecture notes state that Schrödinger’s cats are “instantaneously” measured by their environment. Decoherence is not instantaneous: it has a characteristic time, extremely short for a macroscopic object, but measurable for mesoscopic systems. It is this time that one tries to lengthen in a quantum computer.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================== 4.5 -->
+    <section class="section" id="s5">
+      <h2><span class="n">4.5</span>Quantifying entanglement: von Neumann entropy</h2>
+      <div class="box def rise">
+        <span class="box-title">Definition 4.5 — Von Neumann entropy</span>
+        <div class="eq">$$S(\rho) = -\mathrm{Tr}(\rho\log_2\rho) = -\sum_i \lambda_i\log_2\lambda_i,$$</div>
+        <p>where the \(\lambda_i\) are the eigenvalues of \(\rho\). \(S = 0\) for a pure state, \(S = \log_2 d\) for the maximally mixed state in dimension \(d\). For a <strong>pure</strong> global state, \(S(\rho_A) = S(\rho_B)\) is the entanglement entropy: zero if and only if the state is separable, 1 bit for a Bell state.</p>
+      </div>
+      <p>Examples from the lecture notes: \(S = 0.81\) bit for the mixture \((0.75, 0.25)\), \(S = 0.47\) bit for \((0.9, 0.1)\). For \(\cos\theta\ket{00} + \sin\theta\ket{11}\), \(S(\theta) = -\cos^2\theta\log_2\cos^2\theta - \sin^2\theta\log_2\sin^2\theta\): vary θ in lab 4.1.</p>
+
+      <article class="exo" data-id="4.8" data-num="1" data-tol="0.01" data-ok="Correct: \(\rho_A = \mathbb 1/2\), eigenvalues \(\tfrac12, \tfrac12\), so \(S = 1\) bit." data-ko="First compute \(\rho_A\), then its two eigenvalues.">
+        <div class="exo-head"><span class="num">Exercise 4.8</span><h3>Entropy of a Bell state</h3><span class="stars" aria-label="difficulty 1 of 3">★☆☆</span></div>
+        <p>For \(\ket{B_{00}} = \frac{1}{\sqrt2}(\ket{00} + \ket{11})\), compute \(S(\rho_A)\) in bits.</p>
+        <div class="num-answer"><label for="e48">S =</label><input id="e48" type="text" inputmode="decimal" autocomplete="off"><span>bit</span><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="4.9" data-num="0.8813" data-tol="0.01" data-ok="Correct: \(S = -0.7\log_2 0.7 - 0.3\log_2 0.3 \approx 0.88\) bit. The source produces entanglement, but less than a Bell source (1 bit)." data-ko="The eigenvalues of \(\rho_A\) are the squared amplitudes: 0.7 and 0.3.">
+        <div class="exo-head"><span class="num">Exercise 4.9</span><h3>An imperfect photon source</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>A source emits photon pairs in \(\ket\phi = \sqrt{0.7}\,\ket{HV} + \sqrt{0.3}\,\ket{VH}\). Compute the entanglement entropy \(S(\rho_A)\) in bits.</p>
+        <div class="num-answer"><label for="e49">S =</label><input id="e49" type="text" inputmode="decimal" autocomplete="off"><span>bit</span><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+      </article>
+    </section>
+
+    <!-- ===================================================== 4.6 -->
+    <section class="section" id="s6">
+      <h2><span class="n">4.6</span>Review exercises</h2>
+
+      <article class="exo" data-id="4.10" data-num="0.33333" data-tol="0.01" data-ok="Correct: the smallest eigenvalue of the partial transpose, \((1-3p)/4\), becomes negative for \(p &gt; 1/3\)." data-ko="Write \(\rho_W^{T_B}\) in the computational basis, or read it off lab 4.4.">
+        <div class="exo-head"><span class="num">Exercise 4.10</span><h3>Entanglement threshold of the Werner state</h3><span class="stars" aria-label="difficulty 3 of 3">★★★</span></div>
+        <p>For \(\rho_W = p\ket{B_{11}}\bra{B_{11}} + (1-p)\,\mathbb 1/4\), above which value of \(p\) is the state entangled?</p>
+        <div class="num-answer"><label for="e410">p =</label><input id="e410" type="text" autocomplete="off" placeholder="e.g. 1/3"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>In the basis \(\{\ket{00},\ket{01},\ket{10},\ket{11}\}\), \(\rho_W\) has diagonal \(\frac{1-p}{4}, \frac{1+p}{4}, \frac{1+p}{4}, \frac{1-p}{4}\) and two terms \(-p/2\) between \(\ket{01}\) and \(\ket{10}\). Transposition over Bob moves these terms to between \(\ket{00}\) and \(\ket{11}\). The block \(\begin{pmatrix}\frac{1-p}{4}&amp;-\frac p2\\-\frac p2&amp;\frac{1-p}{4}\end{pmatrix}\) has eigenvalues \(\frac{1+p}{4}\) and \(\frac{1-3p}{4}\).</p>
+        </div></details>
+      </article>
+
+      <article class="exo">
+        <div class="exo-head"><span class="num">Exercise 4.11</span><h3>A Bell-state factory</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
+        <p>A Hadamard gate is applied to the first qubit of \(\ket{00}\), followed by a CNOT gate (first qubit as control). Which state is obtained? What does the same circuit give starting from \(\ket{01}\), \(\ket{10}\), \(\ket{11}\)?</p>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>\(H\otimes\mathbb 1\ket{00} = \frac{1}{\sqrt2}(\ket{00} + \ket{10})\), then CNOT gives \(\frac{1}{\sqrt2}(\ket{00} + \ket{11}) = \ket{B_{00}}\). In general, the circuit maps \(\ket{xy}\) to \(\ket{B_{xy}}\): \(\ket{01}\to\ket{B_{01}}\), \(\ket{10}\to\ket{B_{10}}\), \(\ket{11}\to\ket{B_{11}}\). Run backwards, it performs the Bell measurement used in teleportation.</p>
+        </div></details>
+      </article>
+
+      <article class="exo">
+        <div class="exo-head"><span class="num">Exercise 4.12</span><h3>Teleportation: what travels?</h3><span class="stars" aria-label="difficulty 3 of 3">★★★</span></div>
+        <p>Alice holds \(\ket\varphi_1 = \alpha\ket0 + \beta\ket1\) and shares \(\ket{B_{00}}_{23}\) with Bob. Rewrite \(\ket\varphi_1\otimes\ket{B_{00}}_{23}\) in the Bell basis of qubits 1 and 2, then give Bob’s correction for each result.</p>
+        <details class="reveal"><summary>Solution</summary><div>
+          <div class="eq">$$\ket\varphi_1\ket{B_{00}}_{23} = \tfrac12\Big[\ket{B_{00}}(\alpha\ket0 + \beta\ket1) + \ket{B_{01}}(\alpha\ket1 + \beta\ket0) + \ket{B_{10}}(\alpha\ket0 - \beta\ket1) + \ket{B_{11}}(\alpha\ket1 - \beta\ket0)\Big].$$</div>
+          <p>Each result has probability 1/4. Bob applies \(\mathbb 1\), \(X\), \(Z\) or \(ZX\) (up to a global sign) according to the two bits he receives. Before receiving these bits, Bob’s state is \(\mathbb 1/2\): it contains no information about \(\alpha, \beta\).</p>
+          <p><strong>Clarification</strong>: the lecture notes say that Bob obtains a “perfect copy”. It is a transfer, not a copy: Alice’s state is destroyed by her measurement, as the no-cloning theorem requires. And the transfer goes no faster than the two classical bits.</p>
+        </div></details>
+      </article>
+    </section>
+
+    <section class="section" id="actu">
+      <h2><span class="n">·</span>Where do things stand in 2026?</h2>
+      <div class="box news rise">
+        <span class="box-title">A quantum key between Beijing and Stellenbosch</span>
+        <p>The Chinese microsatellite Jinan-1, launched in 2022, distributed quantum keys in real time to mobile ground stations of about 100 kg. It enabled one-time-pad encrypted communication between Beijing and Stellenbosch (South Africa), 12,900 km apart. The satellite emits about \(2.5\times10^8\) photons per second and produces up to 1 Mbit of secure key per pass. It acts as a <strong>trusted relay</strong>: it knows the keys. This is not end-to-end entanglement.</p>
+        <cite>Li <i>et al.</i>, <i>Nature</i>, 19 March 2025; press release of the Chinese Academy of Sciences</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Europe awaits its satellite</span>
+        <p>Eagle-1, the first European satellite quantum key distribution system (SES, ESA, European Commission), has not yet been launched. Announcements range from late 2026 to late 2027.</p>
+        <cite>ESA; European Commission (EuroQCI)</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Post-quantum cryptography: this is not QKD</span>
+        <p>On 13 August 2024, NIST published three standards: FIPS 203 (ML-KEM), FIPS 204 (ML-DSA) and FIPS 205 (SLH-DSA). In March 2025, it selected HQC, based on error-correcting codes, as a backup mechanism. These are <strong>classical algorithms</strong>, which run on today’s computers and resist known quantum attacks. QKD, by contrast, is physical and relies on single photons.</p>
+        <cite>NIST, csrc.nist.gov and nist.gov (11 March 2025)</cite>
+      </div>
+      <div class="box news rise">
+        <span class="box-title">Why migrate now</span>
+        <p>In 2025, C. Gidney (Google) estimated that a machine with fewer than a million noisy <em>physical</em> qubits could factor a 2,048-bit RSA integer in less than a week. These are resource estimates: no current machine comes close. But a message encrypted today can be recorded and decrypted later. Hence the migration to post-quantum standards.</p>
+        <cite>arXiv:2505.15917 (May 2025)</cite>
+      </div>
+    </section>
+
+    <footer class="chapter-foot">
+      <label class="done-toggle"><input type="checkbox" data-done> I have finished this chapter</label>
+      <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/en/?chapter=4">Practise with the chapter 4 quiz →</a>
+      <a class="pager" href="3-quantum-dynamics.html"><small>← Previous chapter</small>Quantum dynamics</a>
+      <a class="pager next" href="5-wave-function.html"><small>Next chapter →</small>Wave function and continuous space</a>
+    </footer>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Department of Physics, Faculty of Science, University of Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Updated October 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Source on GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

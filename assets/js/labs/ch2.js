@@ -1,9 +1,9 @@
 /* Chapitre 2 — laboratoires : Stern-Gerlach en cascade, opérateur σn et mesure, indétermination de Robertson. */
 (() => {
   'use strict';
-  const { canvas, loop, bind, seg, draw: D } = window.Lab;
+  const { canvas, loop, bind, seg, draw: D, t, LOCALE } = window.Lab;
   const $ = (root, s) => root.querySelector(s);
-  const pct = p => (100 * p).toFixed(1) + ' %';
+  const pct = p => (100 * p).toFixed(1) + t(' %', '%');
   const RAD = Math.PI / 180;
   const num = (x, d = 3) => (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x).toFixed(d).replace('-', '−');
   /** nombre complexe re + i·im en texte court */
@@ -100,14 +100,14 @@
             line([[x2, y0 + sg * dy * 0.3], [x2 + 0.07, y0 + sg * dy * 0.75]]);
             ctx.fillStyle = c.ink;                           // cache qui bloque la voie
             ctx.fillRect(X(x2 + 0.07) - 2, Y(y0 + sg * dy * 0.75) - s * 0.9, 5, s * 1.8);
-            D.text(ctx, `${blocked[k]} bloqués`, X(x2 + 0.07), Y(y0 + sg * dy * 0.75) + sg * s * 1.9 + (sg > 0 ? 6 : 0), { font: c.sans, color: c.muted, align: 'center' });
+            D.text(ctx, t(`${blocked[k]} bloqués`, `${blocked[k]} blocked`), X(x2 + 0.07), Y(y0 + sg * dy * 0.75) + sg * s * 1.9 + (sg > 0 ? 6 : 0), { font: c.sans, color: c.muted, align: 'center' });
             ctx.strokeStyle = c.rule;
           }
         });
       }
       // source (four)
       ctx.fillStyle = c.ink; ctx.fillRect(X(0.04) - s * 0.7, Y(y0) - s * 0.9, s * 1.4, s * 1.8);
-      D.text(ctx, 'four', X(0.04), Y(y0) + s * 2.2, { font: c.sans, color: c.muted, align: 'center' });
+      D.text(ctx, t('four', 'oven'), X(0.04), Y(y0) + s * 2.2, { font: c.sans, color: c.muted, align: 'center' });
       // appareils
       for (let k = 0; k < n; k++) {
         const x = X(xs[k] - bw / 2), bwp = bw * w, top = Y(y0) - s * 1.6, hh = s * 3.2;
@@ -176,7 +176,7 @@
     function update() {
       const th = theory(), N = fin[0] + fin[1];
       setBars(root, fin, th.pLast);
-      $(root, '[data-out="sent"]').textContent = sent.toLocaleString('fr-FR');
+      $(root, '[data-out="sent"]').textContent = sent.toLocaleString(LOCALE);
       $(root, '[data-out="frac"]').textContent = done ? pct(N / done) : '—';
       $(root, '[data-out="reach"]').textContent = pct(th.reach);
       $(root, '[data-out="plast"]').textContent = pct(th.pLast);
@@ -187,7 +187,7 @@
     }
 
     const playBtn = $(root, '[data-act="play"]');
-    const label = () => { playBtn.textContent = anim.running ? 'Pause' : 'Lancer le jet'; };
+    const label = () => { playBtn.textContent = anim.running ? 'Pause' : t('Lancer le jet', 'Start the beam'); };
     playBtn.addEventListener('click', () => { anim.toggle(); label(); });
     $(root, '[data-act="burst"]').addEventListener('click', () => {
       for (let i = 0; i < 1000; i++) { tally(fate()); sent++; }
@@ -287,7 +287,7 @@
       const plus = Math.random() < (1 + mean()) / 2;
       counts[plus ? 0 : 1]++; bars();
       const target = nVec().map(x => plus ? x : -x), start = rVec(), t0 = performance.now();
-      out('last').textContent = `Résultat : ${plus ? '+1' : '−1'}. L’état devient ${plus ? '|n+⟩' : '|n−⟩'}.`;
+      out('last').textContent = t(`Résultat : ${plus ? '+1' : '−1'}. L’état devient ${plus ? '|n+⟩' : '|n−⟩'}.`, `Result: ${plus ? '+1' : '−1'}. The state becomes ${plus ? '|n+⟩' : '|n−⟩'}.`);
       const step = now => {
         const k = Math.min(1, (now - t0) / 380), e = k * k * (3 - 2 * k);
         let v = start.map((s0, i) => s0 + (target[i] - s0) * e);
@@ -303,7 +303,7 @@
       const p = (1 + mean()) / 2;
       for (let i = 0; i < 1000; i++) counts[Math.random() < p ? 0 : 1]++;
       bars();
-      out('last').textContent = `${(counts[0] + counts[1]).toLocaleString('fr-FR')} copies de |ψ⟩ mesurées.`;
+      out('last').textContent = t(`${(counts[0] + counts[1]).toLocaleString(LOCALE)} copies de |ψ⟩ mesurées.`, `${(counts[0] + counts[1]).toLocaleString(LOCALE)} copies of |ψ⟩ measured.`);
     });
     text(); bars();
   }
@@ -329,7 +329,7 @@
       const px = t => L + (t / Math.PI) * (Rr - L), py = v => Bt - v * (Bt - T);
       ctx.strokeStyle = c.rule; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(L, T); ctx.lineTo(L, Bt); ctx.lineTo(Rr, Bt); ctx.stroke();
-      [0, 0.5, 1].forEach(v => D.text(ctx, String(v).replace('.', ','), L - 6, py(v) + 4, { font: c.mono, color: c.muted, align: 'right' }));
+      [0, 0.5, 1].forEach(v => D.text(ctx, t(String(v).replace('.', ','), String(v)), L - 6, py(v) + 4, { font: c.mono, color: c.muted, align: 'right' }));
       [[0, '0'], [Math.PI / 2, '90°'], [Math.PI, '180°']].forEach(([t, l]) => D.text(ctx, l, px(t), Bt + 15, { font: c.mono, color: c.muted, align: 'center' }));
       D.text(ctx, 'θ', Rr + 8, Bt + 5, { font: c.serif, color: c.muted });
       const M = 160;
@@ -337,7 +337,7 @@
       ctx.beginPath(); ctx.moveTo(px(0), py(0));
       for (let i = 0; i <= M; i++) { const t = Math.PI * i / M; ctx.lineTo(px(t), py(Math.abs(Math.cos(t)))); }
       ctx.lineTo(px(Math.PI), py(0)); ctx.closePath(); ctx.fill();
-      D.text(ctx, 'interdit', px(Math.PI * 0.12), py(0.12), { font: c.sans, color: c.accent });
+      D.text(ctx, t('interdit', 'forbidden'), px(Math.PI * 0.12), py(0.12), { font: c.sans, color: c.accent });
       ctx.strokeStyle = c.accent; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]);
       ctx.beginPath();
       for (let i = 0; i <= M; i++) { const t = Math.PI * i / M, X = px(t), Y = py(Math.abs(Math.cos(t))); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
@@ -378,7 +378,7 @@
     btn.addEventListener('click', () => {
       const u = Math.max(-1, Math.min(1, (st.theta - Math.PI / 2) / (0.47 * Math.PI)));
       t0 = Math.asin(u) / 0.45;                      // reprendre la trajectoire depuis l'état courant
-      const on = anim.toggle(); btn.textContent = on ? 'Arrêter' : 'Faire bouger l’état'; });
+      const on = anim.toggle(); btn.textContent = on ? t('Arrêter', 'Stop') : t('Faire bouger l’état', 'Move the state'); });
     text();
   }
 

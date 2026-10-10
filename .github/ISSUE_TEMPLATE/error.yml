@@ -1,0 +1,46 @@
+name: Report an error in the Notebook (English version)
+description: Wrong formula, exercise marked incorrectly, lab behaving oddly, typo…
+title: "[chapter] "
+labels: ["erreur signalée"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Every report is read by the PHY321 teaching team before any correction.
+        A (free) GitHub account is needed to submit this form.
+  - type: input
+    id: section
+    attributes:
+      label: Chapter and section
+      description: Filled in automatically from the page (e.g. 3.3 Rabi oscillations).
+    validations:
+      required: true
+  - type: dropdown
+    id: nature
+    attributes:
+      label: Type of problem
+      options:
+        - Physics or formula error
+        - Exercise marked incorrectly (answer wrongly accepted or rejected)
+        - Lab (simulation) incorrect or stuck
+        - Display on a phone
+        - Language error (English)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What is wrong
+      description: Quote the passage, or describe what you did in the lab and what you observed.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Suggested correction (optional)
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Filled in automatically.
