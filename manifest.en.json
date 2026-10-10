@@ -1,9 +1,9 @@
 {
-  "name": "Carnet PHY321 — Mécanique quantique",
-  "short_name": "Carnet PHY321",
-  "description": "Cahier interactif du cours d'introduction à la mécanique quantique PHY321, Université de Yaoundé I.",
-  "lang": "fr",
-  "start_url": "./index.html",
+  "name": "PHY321 Notebook — Quantum mechanics",
+  "short_name": "PHY321 Notebook",
+  "description": "Interactive notebook for the introductory quantum mechanics course PHY321, University of Yaoundé I.",
+  "lang": "en",
+  "start_url": "./en/index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f6f2e9",
@@ -24,5 +24,5 @@
   "categories": [
     "education"
   ],
-  "id": "./"
+  "id": "./en/"
 }
