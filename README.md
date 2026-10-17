@@ -83,6 +83,9 @@ Un bouton **FR / EN** dans la barre du haut bascule vers la page équivalente (m
 | `annexe-algorithmes.html` | `en/appendix-algorithms.html` | Deutsch, Grover, Shor (exercices A.1 à A.3) |
 | `diagnostic.html` | `en/diagnostic.html` | 10 questions avant / après (`assets/js/diagnostic.js`, réponses dans `localStorage`) |
 
+Suivi d'une promotion pilote : `docs/protocole-pilote.fr.md` / `.en.md` et `python3 outils/analyser_diagnostic.py resultats.txt`
+(`--test` pour l'auto-contrôle).
+
 Les notebooks (`notebooks/fr`, `notebooks/en`) sont générés et exécutés par `python3 outils/generer_notebooks.py`
 (numpy, matplotlib, nbformat, nbconvert ; `--sans-exec` pour ne pas les exécuter). Ne pas les modifier à la main :
 modifier le script puis relancer.
