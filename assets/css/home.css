@@ -35,3 +35,7 @@
 .method h3 { font-size: 1.2rem; margin-bottom: .5rem; }
 .method h3 .mono { color: var(--accent); font-size: .8rem; margin-right: .5rem; vertical-align: .15em; }
 .method p { color: var(--ink-2); max-width: 52ch; }
+.method .rule { font-family: var(--serif, inherit); font-size: 1.15rem; border-left: 3px solid var(--accent); padding-left: 1rem; max-width: 52ch; }
+.method .plain { list-style: none; padding: 0; display: grid; gap: 1rem; max-width: 62ch; }
+.method .plain li { color: var(--ink-2); }
+.method cite { display: block; font-family: var(--sans); font-size: .78rem; font-style: normal; color: var(--muted); }
