@@ -463,6 +463,17 @@
           <p><strong>Clarification</strong>: the lecture notes say that Bob obtains a “perfect copy”. It is a transfer, not a copy: Alice’s state is destroyed by her measurement, as the no-cloning theorem requires. And the transfer goes no faster than the two classical bits.</p>
         </div></details>
       </article>
+
+      <article class="exo" data-id="4.13" data-num="86" data-tol="0.02" data-ok="Correct: about 86 ms per 256-bit key." data-ko="Estimate the mean rate \(1.07\times10^6\ \text{bits}/360\ \text{s}\), then \(t = 256/\text{rate}\).">
+        <div class="exo-head"><span class="num">Exercise 4.13</span><h3>A 256-bit key from a satellite</h3><span class="stars" aria-label="difficulty 1 out of 3">★☆☆</span></div>
+        <p>The 1.07 million secret bits of the Stellenbosch–Jinan-1 link were produced during a pass whose reception window lasts about 6 minutes. Assuming a uniform rate over the whole window (rough estimate), how many milliseconds does it take to produce a 256-bit key?</p>
+        <div class="num-answer"><label for="e413">t (ms) =</label><input id="e413" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>Mean rate: \(1.07\times10^6/360 \approx 2.97\times10^3\) bit/s, so \(t = 256/2970 \approx 0.086\) s, i.e. 86 ms. One pass would yield about 4,180 keys of 256 bits.</p>
+          <p>Comparison with BB84 (lab 4.3): sifting keeps only half of the detected photons, so, with two equiprobable bases, about 512 detections give 256 sifted bits on average, before error correction and privacy amplification, which consume more. The 1.07 million total is a count of <em>final-key</em> bits, after those steps. The real rate varies during the pass (distance, elevation): the computed value is an order of magnitude.</p>
+        </div></details>
+      </article>
     </section>
 
     <section class="section" id="usage">

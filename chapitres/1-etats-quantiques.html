@@ -413,6 +413,18 @@
           <p>Donc \(P(x) = \cos^2(\varphi/2)\) et \(P(y) = \sin^2(\varphi/2)\), comme dans le cours.</p>
         </div></details>
       </article>
+
+      <article class="exo" data-id="1.10" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 1.10</span><h3>Holevo, QKD et RSA</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Un message chiffré avec RSA-2048 est intercepté aujourd’hui et stocké (« récolter maintenant, déchiffrer plus tard »). Quelle affirmation est correcte ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : un qubit ne livre au plus qu’un bit classique accessible (borne de Holevo). Et un état quantique inconnu ne peut pas être cloné."><input type="radio" name="e110" value="a">Un qubit contient une infinité d’information : une clé QKD peut donc être copiée sans être détectée.</label></li>
+          <li><label class="choice" data-why="Exact. La sécurité de la QKD vient de la physique : une écoute laisse des traces statistiques mesurables (QBER), ce qui borne l’information d’Ève (sécurité démontrée pour le protocole idéal, sous hypothèses). Casser RSA revient à factoriser le module, ce que l’algorithme de Shor rendrait faisable sur un grand ordinateur quantique. Un message RSA stocké aujourd’hui reste donc menacé ; c’est ce qui motive les normes de cryptographie post-quantique du NIST (2024)."><input type="radio" name="e110" value="b">La QKD tire sa sécurité des traces statistiques que laisse une écoute ; RSA est menacé par l’algorithme de Shor, qui factorise efficacement sur un grand ordinateur quantique.</label></li>
+          <li><label class="choice" data-why="Non : aucun ordinateur quantique actuel n’est assez grand pour factoriser un nombre de 2048 bits. La menace est future, mais elle vaut pour les données qui doivent rester secrètes longtemps."><input type="radio" name="e110" value="c">Les ordinateurs quantiques actuels cassent déjà RSA-2048 ; le message est donc lisible dès maintenant.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
     </section>
 
     <section class="section" id="usage">

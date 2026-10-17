@@ -451,6 +451,17 @@
         <span class="box-title">Clarification</span>
         <p>In the statement in the lecture notes (exercise 2.5.4), the three qubits intercepted by Eve are precisely those where Bob did not choose Alice’s basis. The question “what QBER gives Eve away?” therefore has the answer 0: the example does not show detection. To illustrate it, Eve must intercept at least one kept qubit, for example qubit 2 or 8.</p>
       </div>
+
+      <article class="exo" data-id="2.11" data-num="2.09" data-tol="0.02" data-ok="Correct: \(N = 1/\delta\varphi^2 \approx 2.1\times10^{5}\) atoms." data-ko="First compute \(\delta\varphi = 17.5\ \mathrm{mrad}/8\), then \(N = 1/\delta\varphi^2\).">
+        <div class="exo-head"><span class="num">Exercise 2.11</span><h3>Standard limit of an atomic gradiometer</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>In the experiment of Stray et al. (<i>Nature</i> 2022), the 2 m tunnel produces an expected phase shift of 17.5 mrad in the atom interferometer, detected with a signal-to-noise ratio of 8. Take a phase uncertainty \(\delta\varphi = 17.5/8\) mrad. For \(N\) independent atoms the standard quantum limit is \(\delta\varphi = 1/\sqrt N\). How many atoms are needed, in this simplified single-measurement model?</p>
+        <div class="num-answer"><label for="e211">N (in \(10^5\)) =</label><input id="e211" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1.5"><button class="btn small" data-check type="button">Check</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>\(\delta\varphi = 2.19\times10^{-3}\) rad, so \(N = 1/\delta\varphi^2 \approx 2.1\times10^{5}\). With correlated atoms (squeezed or entangled states) and suitable measurements, the Heisenberg limit \(\delta\varphi = 1/N\) would in principle need only \(N = 1/\delta\varphi \approx 460\): like \(\Delta x\,\Delta p \ge \hbar/2\), it is a bound that quantum mechanics sets on precision, reachable only with careful state preparation.</p>
+          <p>Order of magnitude only (the match with a single measurement is fictitious): the real instrument averages many cycles and its noise also includes vibrations and lasers. The standard limit remains the floor that state preparation has to beat.</p>
+        </div></details>
+      </article>
     </section>
 
     <section class="section" id="usage">

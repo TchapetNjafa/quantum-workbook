@@ -413,6 +413,18 @@
           <p>Hence \(P(x) = \cos^2(\varphi/2)\) and \(P(y) = \sin^2(\varphi/2)\), as in the lecture notes.</p>
         </div></details>
       </article>
+
+      <article class="exo" data-id="1.10" data-answer="b">
+        <div class="exo-head"><span class="num">Exercise 1.10</span><h3>Holevo, QKD and RSA</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>A message encrypted with RSA-2048 is intercepted today and stored (“harvest now, decrypt later”). Which statement is correct?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: a qubit delivers at most one accessible classical bit (Holevo bound). And an unknown quantum state cannot be cloned."><input type="radio" name="e110" value="a">A qubit holds infinite information, so a QKD key can be copied without being detected.</label></li>
+          <li><label class="choice" data-why="Correct. QKD security comes from physics: eavesdropping leaves measurable statistical traces (QBER), which bounds Eve’s information (proved for the ideal protocol, under assumptions). Breaking RSA amounts to factoring the modulus, which Shor’s algorithm would make feasible on a large quantum computer. A message stored today under RSA therefore stays at risk; this motivates the NIST post-quantum cryptography standards (2024)."><input type="radio" name="e110" value="b">QKD draws its security from the statistical traces eavesdropping leaves; RSA is threatened by Shor’s algorithm, which factors efficiently on a large quantum computer.</label></li>
+          <li><label class="choice" data-why="No: no current quantum computer is large enough to factor a 2048-bit number. The threat lies in the future, but it applies to data that must stay secret for a long time."><input type="radio" name="e110" value="c">Today’s quantum computers already break RSA-2048, so the message is readable now.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
     </section>
 
     <section class="section" id="usage">
