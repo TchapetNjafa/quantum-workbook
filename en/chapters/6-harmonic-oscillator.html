@@ -94,6 +94,11 @@
         <p>The energies are \(E_n = \hbar\omega\left(n + \tfrac12\right)\), \(n = 0, 1, 2,\dots\): equally spaced rungs, separated by \(\hbar\omega\). The lowest one, \(E_0 = \tfrac12\hbar\omega\), is the <strong>zero-point energy</strong>.</p>
       </div>
 
+      <div class="box note rise">
+        <span class="box-title">Predict, observe, explain</span>
+        <p>Before running the lab: write down your prediction, run it, compare, then explain the gap in one sentence. What do \(a\ket0\) and \(a^\dagger\ket0\) give? What factor do you expect for \(a\ket n\)?</p>
+      </div>
+
       <figure class="lab rise" data-lab="ladder" aria-labelledby="lab-ld-t">
         <div class="lab-head"><h3 id="lab-ld-t">Climbing up and down the ladder</h3><span class="tag">LAB 6.1</span></div>
         <div class="lab-body split">
@@ -343,7 +348,8 @@
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>The dancers are individuals who <em>synchronise</em> by interacting. A coherent state describes a single oscillator mode; its stability does not come from any interaction between photons, which hardly interact with one another. The analogy captures the idea of a stable phase well, but not that of an uncertain number of quanta: you can count the dancers, whereas a measurement of \(N\) on \(\ket\alpha\) gives a random result. A geographical note: gnawa music is Moroccan (North Africa); vodun comes from the Gulf of Guinea (Benin, Togo), from where it reached Haiti.</p>
         <p>Safeguard: an altered state of consciousness is not a quantum superposition. Under physiological conditions, decoherence (chapter 4) very quickly suppresses interference between macroscopically distinct states; nothing justifies a quantum interpretation of trance, which belongs to neurophysiology and culture, not to quantum mechanics.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Gnawa music (Morocco) and vodun ceremonies (Gulf of Guinea: Benin, Togo): two distinct traditions.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
     </section>
 
@@ -379,6 +385,35 @@
         <div class="feedback"></div>
         <details class="reveal"><summary>Evaluation grid</summary><div><ol><li><strong>Mapped relations:</strong> shared stable phase ↔ coherent state rotating without deforming.</li><li><strong>Alignable difference:</strong> dancers synchronise by interacting; a coherent state is a single mode; dancers can be counted, \(N\) is uncertain on \(\ket\alpha\).</li><li><strong>Status:</strong> evocative.</li><li><strong>Correct wording:</strong> rewrite the analogy as one sentence that states its limit (“…, but …”).</li></ol></div></details>
       </article>
+
+      <article class="exo" data-id="6.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 6.Q1</span><h3>Why not zero?</h3></div>
+        <p>The ground-state energy of the oscillator is \(\hbar\omega/2\), not zero. Why? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: the oscillator is ideal, with no friction."><input type="radio" name="cq6Q1" value="a">Because of residual friction.</label></li>
+          <li><label class="choice" data-why="Correct: indeterminacy imposes a minimum energy."><input type="radio" name="cq6Q1" value="b">Because \(\Delta x\,\Delta p \ge \hbar/2\) forbids \(x\) and \(p\) both being zero.</label></li>
+          <li><label class="choice" data-why="No: only differences are convention-free; here the value is fixed by the spectrum \(\hbar\omega(n+1/2)\)."><input type="radio" name="cq6Q1" value="c">It is a mere choice of energy zero.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="6.Q2" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 6.Q2</span><h3>Spread in number</h3></div>
+        <p>A coherent state has \(\langle N\rangle = 9\). What is \(\Delta N\)? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: \(\Delta N = \sqrt{\langle N\rangle}\) for a Poisson law."><input type="radio" name="cq6Q2" value="a">9.</label></li>
+          <li><label class="choice" data-why="Correct: \(\Delta N = |\alpha| = \sqrt{9}\)."><input type="radio" name="cq6Q2" value="b">3.</label></li>
+          <li><label class="choice" data-why="No: \(\Delta N = 0\) for a Fock state, not for a coherent state."><input type="radio" name="cq6Q2" value="c">0.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">File with a knowledge holder</span>
+        <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">
@@ -415,6 +450,7 @@
     <footer class="chapter-foot">
       <label class="done-toggle"><input type="checkbox" data-done> I have finished this chapter</label>
       <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/en/?chapter=6">Practise with the chapter 6 quiz →</a>
+      <a class="btn ghost" href="../further.html">Going further →</a>
       <a class="pager" href="5-wave-function.html"><small>← Previous chapter</small>Wave function and continuous space</a>
       <a class="pager next" href="../index.html"><small>End of the notebook →</small>Back to contents</a>
     </footer>

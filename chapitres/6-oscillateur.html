@@ -94,6 +94,11 @@
         <p>Les énergies sont \(E_n = \hbar\omega\left(n + \tfrac12\right)\), \(n = 0, 1, 2,\dots\) : des barreaux équidistants, espacés de \(\hbar\omega\). Le plus bas, \(E_0 = \tfrac12\hbar\omega\), est l’<strong>énergie du point zéro</strong>.</p>
       </div>
 
+      <div class="box note rise">
+        <span class="box-title">Prédire, observer, expliquer</span>
+        <p>Avant de lancer le labo : écrivez votre prédiction, lancez, comparez, puis expliquez l’écart en une phrase. Que donnent \(a\ket0\) et \(a^\dagger\ket0\) ? Quel facteur attendez-vous pour \(a\ket n\) ?</p>
+      </div>
+
       <figure class="lab rise" data-lab="ladder" aria-labelledby="lab-ld-t">
         <div class="lab-head"><h3 id="lab-ld-t">Monter et descendre l’échelle</h3><span class="tag">LABO 6.1</span></div>
         <div class="lab-body split">
@@ -343,7 +348,8 @@
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>Les danseurs sont des individus qui se <em>synchronisent</em> en interagissant. Un état cohérent décrit un seul mode d’oscillateur ; sa stabilité ne vient d’aucune interaction entre photons, qui n’interagissent quasiment pas entre eux. L’analogie rend bien l’idée de phase stable, pas celle de nombre de quanta incertain : on peut compter les danseurs, alors qu’une mesure de \(N\) sur \(\ket\alpha\) donne un résultat aléatoire. Précision géographique : la musique gnawa est marocaine (Afrique du Nord) ; le vodun vient du golfe de Guinée (Bénin, Togo), d’où il a gagné Haïti.</p>
         <p>Garde-fou : un état de conscience modifié n’est pas une superposition quantique. Dans les conditions physiologiques, la décohérence (chapitre 4) supprime très rapidement les interférences entre états macroscopiquement distincts ; rien ne justifie une interprétation quantique de la transe, qui relève de la neurophysiologie et de la culture, pas de la mécanique quantique.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Musique gnawa (Maroc) et cérémonies vodun (golfe de Guinée : Bénin, Togo) : deux traditions distinctes.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
     </section>
 
@@ -379,6 +385,35 @@
         <div class="feedback"></div>
         <details class="reveal"><summary>Grille d’évaluation</summary><div><ol><li><strong>Relations mises en correspondance :</strong> phase stable partagée ↔ état cohérent qui tourne sans se déformer.</li><li><strong>Différence alignable :</strong> les danseurs se synchronisent en interagissant ; un état cohérent est un seul mode ; on compte les danseurs, \(N\) est incertain sur \(\ket\alpha\).</li><li><strong>Statut :</strong> évocative.</li><li><strong>Formulation correcte :</strong> reformulez l’analogie en une phrase qui annonce sa limite (« …, mais … »).</li></ol></div></details>
       </article>
+
+      <article class="exo" data-id="6.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 6.Q1</span><h3>Pourquoi pas zéro ?</h3></div>
+        <p>L’énergie du fondamental de l’oscillateur est \(\hbar\omega/2\), non nulle. Pourquoi ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : l’oscillateur est idéal, sans frottement."><input type="radio" name="cq6Q1" value="a">À cause d’un frottement résiduel.</label></li>
+          <li><label class="choice" data-why="Exact : l’indétermination impose une énergie minimale."><input type="radio" name="cq6Q1" value="b">Parce que \(\Delta x\,\Delta p \ge \hbar/2\) interdit \(x\) et \(p\) simultanément nuls.</label></li>
+          <li><label class="choice" data-why="Non : seules les différences ne dépendent pas de la convention ; ici la valeur est imposée par le spectre \(\hbar\omega(n+1/2)\)."><input type="radio" name="cq6Q1" value="c">C’est une simple convention de zéro d’énergie.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="6.Q2" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 6.Q2</span><h3>Dispersion en nombre</h3></div>
+        <p>Un état cohérent a \(\langle N\rangle = 9\). Que vaut \(\Delta N\) ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : \(\Delta N = \sqrt{\langle N\rangle}\) pour une loi de Poisson."><input type="radio" name="cq6Q2" value="a">9.</label></li>
+          <li><label class="choice" data-why="Exact : \(\Delta N = |\alpha| = \sqrt{9}\)."><input type="radio" name="cq6Q2" value="b">3.</label></li>
+          <li><label class="choice" data-why="Non : \(\Delta N = 0\) pour un état de Fock, pas pour un état cohérent."><input type="radio" name="cq6Q2" value="c">0.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Dossier avec un détenteur de savoirs</span>
+        <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">
@@ -415,6 +450,7 @@
     <footer class="chapter-foot">
       <label class="done-toggle"><input type="checkbox" data-done> J’ai terminé ce chapitre</label>
       <a class="btn ghost" href="https://tchapetnjafa.github.io/quantum-quiz/?chapitre=6">S’entraîner sur le quiz du chapitre 6 →</a>
+      <a class="btn ghost" href="../prolonger.html">Pour prolonger →</a>
       <a class="pager" href="5-fonction-etat.html"><small>← Chapitre précédent</small>Fonction d’état et espace continu</a>
       <a class="pager next" href="../index.html"><small>Fin du carnet →</small>Retour au sommaire</a>
     </footer>

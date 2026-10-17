@@ -117,7 +117,8 @@
         <p>Djembé, balafon et kora jouent chacun leur cycle. L’ensemble forme un motif global qu’on n’entend chez aucun musicien seul. L’espace de l’orchestre ressemble à un produit tensoriel : chaque combinaison de temps des trois instruments est une « case » possible.</p>
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>Chaque musicien joue une partition définie. On peut enregistrer chaque piste séparément et les remixer : le tout se reconstruit à partir des parties. C’est l’image d’un état <em>séparable</em> ou d’une corrélation classique. Un état intriqué, lui, n’a pas de « piste » propre pour chaque qubit : l’état réduit d’un qubit de \(\ket{\Phi^+}\) est un bruit complètement aléatoire. Et aucun rythme ne viole une inégalité de Bell.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Djembé, balafon et kora : instruments d’Afrique de l’Ouest, joués ensemble dans des répertoires précis à identifier.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
     </section>
 
@@ -151,6 +152,11 @@
         </table>
       </div>
       <p>+1 : résultats toujours identiques ; −1 : toujours opposés. Le tableau du cours parle de corrélations « XX ou YY » pour la base X : il faut lire « résultats \(++\) ou \(--\) ». Dans chaque cas, chaque résultat <em>pris seul</em> reste 50/50. Le singulet \(\Psi^-\) est anticorrélé dans toutes les directions.</p>
+
+      <div class="box note rise">
+        <span class="box-title">Prédire, observer, expliquer</span>
+        <p>Avant de lancer le labo : écrivez votre prédiction, lancez, comparez, puis expliquez l’écart en une phrase. L’état obtenu par Hadamard puis CNOT est-il séparable ou intriqué ? Quelle valeur prédisez-vous pour \(\alpha\delta-\beta\gamma\) ?</p>
+      </div>
 
       <figure class="lab rise" data-lab="twoq" aria-labelledby="lab-2q-t">
         <div class="lab-head"><h3 id="lab-2q-t">Construire un état à deux qubits</h3><span class="tag">LABO 4.1</span></div>
@@ -274,7 +280,8 @@
         <p>Chez les Yoruba (les <em>ibeji</em>) comme chez les Bamiléké, les jumeaux sont pensés comme liés au-delà de la distance : ce qui touche l’un concernerait l’autre. L’image aide à retenir qu’une paire intriquée se décrit comme un tout.</p>
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>Le lien gémellaire est une croyance, non testée par une statistique. L’intrication est une prédiction chiffrée (\(S = 2\sqrt2\)) vérifiée en laboratoire. Surtout, les jumeaux de la tradition se « transmettent » quelque chose ; une paire intriquée ne transmet rien : Alice seule ne voit que du hasard 50/50, quoi que fasse Bob. Enfin, des jumeaux ont chacun leur propre état ; un qubit d’une paire de Bell n’en a pas.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Jumeaux ibeji chez les Yoruba (Nigeria, Bénin) et jumeaux chez les Bamiléké (Cameroun) : deux traditions distinctes à ne pas confondre.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
 
       <h3>De l’intrication à la clé secrète : BB84</h3>
@@ -518,6 +525,35 @@
         <button class="btn small" data-check type="button">Vérifier</button>
         <div class="feedback"></div>
       </article>
+
+      <article class="exo" data-id="4.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 4.Q1</span><h3>Ce que voit Bob</h3></div>
+        <p>Alice et Bob partagent une paire de Bell et sont très éloignés. Que voit Bob seul, quoi que fasse Alice ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : aucune information ne passe."><input type="radio" name="cq4Q1" value="a">Il lit directement la base choisie par Alice.</label></li>
+          <li><label class="choice" data-why="Exact : pas de signal, d’où la compatibilité avec la relativité."><input type="radio" name="cq4Q1" value="b">Du hasard 50/50 ; les corrélations n’apparaissent qu’en comparant avec Alice par un canal classique.</label></li>
+          <li><label class="choice" data-why="Non : la statistique locale de Bob ne change pas."><input type="radio" name="cq4Q1" value="c">Il détecte l’instant de la mesure d’Alice.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="4.Q2" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 4.Q2</span><h3>Corrélation ou intrication ?</h3></div>
+        <p>Deux enveloppes contiennent l’une un papier rouge, l’autre un bleu ; ouvrir l’une révèle l’autre. Est-ce de l’intrication ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : c’est une corrélation classique."><input type="radio" name="cq4Q2" value="a">Oui : c’est la même chose.</label></li>
+          <li><label class="choice" data-why="Exact : le test de Bell distingue les deux."><input type="radio" name="cq4Q2" value="b">Non : ce modèle respecte \(S \le 2\) dans le test CHSH, alors que l’intrication peut donner jusqu’à \(2\sqrt2\).</label></li>
+          <li><label class="choice" data-why="Non : l’instantanéité apparente n’est pas le critère."><input type="radio" name="cq4Q2" value="c">Oui, parce que la révélation est instantanée.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Dossier avec un détenteur de savoirs</span>
+        <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">

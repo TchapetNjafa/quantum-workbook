@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnostic avant et après — Carnet PHY321</title>
+<meta name="description" content="Dix questions conceptuelles à passer avant et après le cours PHY321.">
+<meta property="og:title" content="Diagnostic avant et après">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="alternate" hreflang="fr" href="diagnostic.html">
+<link rel="alternate" hreflang="en" href="en/diagnostic.html">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<link rel="stylesheet" href="assets/css/home.css">
+<script src="assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+<script defer src="assets/js/diagnostic.js"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <a class="brand" href="index.html"><b>Carnet PHY321</b><span>Mécanique quantique · UY1</span></a>
+  <nav aria-label="Principal">
+    <a href="index.html#sommaire">Sommaire</a>
+    <a href="prolonger.html">Prolonger</a>
+    <a href="annexe-algorithmes.html">Algorithmes</a>
+    <a href="diagnostic.html" aria-current="page">Diagnostic</a>
+    <a href="https://tchapetnjafa.github.io/quantum-quiz/">Quiz</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Thème">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+</header>
+
+<main id="contenu" class="wrap annex">
+  <header class="chapter-head">
+    <p class="eyebrow">Outil d’auto-évaluation</p>
+    <h1>Diagnostic avant et après</h1>
+    <p class="lede">Dix questions conceptuelles à passer avant le cours, puis après. Vos réponses restent dans votre navigateur : rien n’est envoyé.</p>
+  </header>
+
+  <section class="section" id="diag" data-diag>
+    <p>Choisissez le passage, répondez sans consulter le cours, puis validez. Les corrections ne s’affichent qu’au passage « après », pour ne pas fausser la comparaison.</p>
+    <fieldset class="diag-mode"><legend>Passage</legend>
+      <label><input type="radio" name="mode" value="pre" checked> Avant le cours</label>
+      <label><input type="radio" name="mode" value="post"> Après le cours</label>
+    </fieldset>
+    <form id="diag-form"></form>
+    <div class="btn-row"><button class="btn accent" id="diag-submit" type="button">Valider</button><button class="btn ghost" id="diag-copy" type="button">Copier mes résultats</button><button class="btn ghost" id="diag-reset" type="button">Effacer mes réponses</button></div>
+    <div id="diag-result" role="status" aria-live="polite"></div>
+    <p class="muted">Pour un suivi de promotion, l’enseignant peut demander aux étudiants de copier leurs résultats (bouton ci-dessus) : le texte copié ne contient ni nom ni identifiant.</p>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Département de Physique, Faculté des Sciences, Université de Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Mis à jour en octobre 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Sources sur GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>
