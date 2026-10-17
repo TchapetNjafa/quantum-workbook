@@ -474,6 +474,50 @@
           <p>Comparison with BB84 (lab 4.3): sifting keeps only half of the detected photons, so, with two equiprobable bases, about 512 detections give 256 sifted bits on average, before error correction and privacy amplification, which consume more. The 1.07 million total is a count of <em>final-key</em> bits, after those steps. The real rate varies during the pass (distance, elevation): the computed value is an order of magnitude.</p>
         </div></details>
       </article>
+
+      <article class="exo" data-id="4.14" data-answer="c">
+        <div class="exo-head"><span class="num">Exercise 4.14</span><h3>Assess: twins and entanglement</h3><span class="stars" aria-label="difficulty 3 out of 3">★★★</span></div>
+        <p>Analogy: “among the Yoruba (the ibeji) as among the Bamileke, twins are linked beyond distance: what touches one concerns the other”, for an entangled pair. Which assessment is correct?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: distance is not the issue. Entanglement does not depend on distance."><input type="radio" name="e414" value="a">Evocative, but it breaks only because the twins are too far apart; closer together, their link would be measurable.</label></li>
+          <li><label class="choice" data-why="No: an entangled pair allows no signalling. Alice alone sees 50/50 randomness, whatever Bob does."><input type="radio" name="e414" value="b">Explanatory. The twin bond transmits an influence, which explains the correlations of the Bell pair.</label></li>
+          <li><label class="choice" data-why="Correct: three alignable differences, one of them quantitative."><input type="radio" name="e414" value="c">Evocative. It maps “described as a whole”; it breaks because entanglement is a tested numerical prediction (\(S = 2\sqrt2\) for a Bell pair at optimal settings), it allows no signalling, and each qubit of the pair has no pure state of its own (its reduced state is \(\mathbb 1/2\)).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Evaluation grid</summary><div><ol><li><strong>Mapped relations:</strong> “described as a whole” rather than as two independent parts.</li><li><strong>Alignable difference:</strong> entanglement is a tested quantitative prediction (\(S = 2\sqrt2\) for a Bell pair) with no usable signal; the twin bond is a cultural belief, which is not physical proof.</li><li><strong>Status:</strong> evocative.</li><li><strong>Correct wording:</strong> rewrite the analogy as one sentence that states its limit (“…, but …”).</li></ol></div></details>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Ethics and data sovereignty</span>
+        <p>A quantum key or a post-quantum algorithm only protects what is entrusted to it. An adversary can copy communications encrypted with RSA or elliptic curves today and decrypt them later, if a sufficiently powerful quantum computer becomes available (“harvest now, decrypt later”). The risk concerns data that must stay secret for a long time: medical records, civil registers, land titles, mining data, state secrets. A software answer already exists: the NIST post-quantum cryptography standards (August 2024: FIPS 203 for key establishment, FIPS 204 and 205 for signatures), which require no quantum hardware.</p>
+        <p>The sovereignty question therefore becomes concrete: who holds the keys, where is the data hosted, who decides the migration schedule, and with what local training?</p>
+        <cite>NIST, “NIST Releases First 3 Finalized Post-Quantum Encryption Standards”, August 2024 — nist.gov</cite>
+      </div>
+
+      <article class="exo" data-id="4.15" data-answer="b">
+        <div class="exo-head"><span class="num">Exercise 4.15</span><h3>Which data to migrate first?</h3><span class="stars" aria-label="difficulty 1 out of 3">★☆☆</span></div>
+        <p>An administration is preparing its migration to post-quantum cryptography. Which data should come first, against delayed decryption?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: their lifetime is too short for a late decryption to cause harm."><input type="radio" name="e415" value="a">Appointment confirmation messages, deleted after 24 hours and with no lasting sensitivity.</label></li>
+          <li><label class="choice" data-why="Correct: the longer data must stay secret, the higher the “harvest now, decrypt later” risk."><input type="radio" name="e415" value="b">Medical records and civil registers, which must stay confidential for several decades and are already transmitted encrypted.</label></li>
+          <li><label class="choice" data-why="No: already-public data has no secret to protect."><input type="radio" name="e415" value="c">Information published daily on the administration’s website.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="4.16" data-answer="b">
+        <div class="exo-head"><span class="num">Exercise 4.16</span><h3>Does QKD protect a hospital?</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
+        <p>A hospital is considering buying a quantum key distribution (QKD) link to “secure its data”. Which answer is most accurate?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: QKD only concerns key distribution over a specific link."><input type="radio" name="e416" value="a">Yes: QKD protects all of the hospital’s data, including data already stored.</label></li>
+          <li><label class="choice" data-why="Correct: reason about the whole system, not a single link."><input type="radio" name="e416" value="b">Under security assumptions and with an authenticated classical channel, QKD secures key distribution over one link, not the workstations, the storage or data already intercepted; software post-quantum cryptography is a simpler alternative to deploy.</label></li>
+          <li><label class="choice" data-why="No: QKD security does not rest on factoring. Its limits lie elsewhere: hardware, authentication, cost."><input type="radio" name="e416" value="c">No: QKD is broken by Shor’s algorithm.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
     </section>
 
     <section class="section" id="usage">
