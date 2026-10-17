@@ -93,6 +93,11 @@
 
       <p>Le sixième postulat, l’équation de Schrödinger, dit comment l’état change entre deux mesures (section 3.2). Le laboratoire ci-dessous enchaîne les trois actes d’une expérience sur un qubit.</p>
 
+      <div class="box note rise">
+        <span class="box-title">Prédire, observer, expliquer</span>
+        <p>Avant de lancer le labo : écrivez votre prédiction, lancez, comparez, puis expliquez l’écart en une phrase. Choisissez un état de départ et une durée d’évolution : quelle probabilité de mesurer \(\ket1\) prédisez-vous ?</p>
+      </div>
+
       <figure class="lab rise" data-lab="postulats" aria-labelledby="lab-pq-t">
         <div class="lab-head"><h3 id="lab-pq-t">Préparer, évoluer, mesurer</h3><span class="tag">LABO 3.1</span></div>
         <div class="lab-body split">
@@ -258,7 +263,8 @@
         <p>Un parent demande sans arrêt à son enfant : « Tu n’as pas bougé, hein ? ». À force, l’enfant reste figé. Le cours compare ainsi l’effet Zénon à une attention constante qui fige l’évolution.</p>
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>L’enfant se fige par crainte : c’est une force, une influence qui s’ajoute. Dans l’effet Zénon, la mesure n’exerce aucune poussée ; elle projette l’état, et c’est la croissance en \(t^2\) des probabilités qui fait le reste. Si la probabilité croissait linéairement, comme pour une désintégration ordinaire, mesurer souvent ne changerait rien. Enfin, chaque mesure a une petite chance de trouver l’enfant… déjà parti : le gel n’est jamais total.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Scène familiale, sans tradition particulière.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
     </section>
 
@@ -340,7 +346,8 @@
         <p>Le maître-tambour fait vibrer un tambour éloigné en frappant le sien à la bonne fréquence. De même, un champ à la fréquence de résonance fait passer l’atome d’un niveau à l’autre.</p>
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>Le tambour éloigné est un oscillateur classique : son amplitude de vibration prend n’importe quelle valeur et on la voit directement. Le qubit n’a que deux niveaux. Ce qui oscille, c’est une <em>probabilité</em> ; chaque mesure donne 0 ou 1, jamais « à moitié excité ». Et sous un champ maintenu, le qubit ne fait pas que monter : il redescend, se réexcite, et ainsi de suite. Le tambour, lui, n’est pas « désexcité » par la frappe qui l’a mis en vibration.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Tambour parlant ou de cérémonie : le cours ne précise pas la tradition.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
 
       <h3>Des oscillations de Rabi aux horloges : la méthode de Ramsey</h3>
@@ -413,6 +420,35 @@
         <div class="feedback"></div>
         <details class="reveal"><summary>Grille d’évaluation</summary><div><ol><li><strong>Relations mises en correspondance :</strong> fréquence de résonance \(\nu_0 = \Delta E/h\) ↔ écart d’énergie entre les deux niveaux.</li><li><strong>Différence alignable :</strong> le tambour est un oscillateur classique à amplitude continue ; le qubit n’a que deux niveaux et une probabilité qui oscille.</li><li><strong>Statut :</strong> évocative.</li><li><strong>Formulation correcte :</strong> reformulez l’analogie en une phrase qui annonce sa limite (« …, mais … »).</li></ol></div></details>
       </article>
+
+      <article class="exo" data-id="3.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 3.Q1</span><h3>Ce qui se conserve</h3></div>
+        <p>Un qubit de hamiltonien \(\hat H = \hbar\omega\sigma_z/2\) (\(\omega\ne0\)) est dans l’état \((\ket0+\ket1)/\sqrt2\). Que peut-on dire ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : \(\langle\sigma_x\rangle\) oscille à la fréquence de Bohr."><input type="radio" name="cq3Q1" value="a">\(\langle H\rangle\) et \(\langle\sigma_x\rangle\) sont constants.</label></li>
+          <li><label class="choice" data-why="Exact : \(\hat H\) commute avec lui-même, pas avec \(\sigma_x\)."><input type="radio" name="cq3Q1" value="b">\(\langle H\rangle\) est constant, mais \(\langle\sigma_x\rangle\) peut osciller.</label></li>
+          <li><label class="choice" data-why="Non : l’énergie moyenne est conservée."><input type="radio" name="cq3Q1" value="c">\(\langle H\rangle\) oscille à la fréquence de Bohr.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="3.Q2" data-answer="a">
+        <div class="exo-head"><span class="num">Question conceptuelle 3.Q2</span><h3>Impulsion de Rabi</h3></div>
+        <p>À résonance, on applique le champ pendant une durée telle que \(\Omega t = \pi\), en partant de \(\ket0\). Quel est l’état final (à une phase près) ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact : une impulsion \(\pi\) retourne le qubit."><input type="radio" name="cq3Q2" value="a">\(\ket1\).</label></li>
+          <li><label class="choice" data-why="Non : c’est, à une phase relative près, le résultat d’une impulsion \(\pi/2\)."><input type="radio" name="cq3Q2" value="b">\((\ket0+\ket1)/\sqrt2\).</label></li>
+          <li><label class="choice" data-why="Non : il faudrait une impulsion \(2\pi\), qui ramène à \(-\ket0\)."><input type="radio" name="cq3Q2" value="c">\(\ket0\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Dossier avec un détenteur de savoirs</span>
+        <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">

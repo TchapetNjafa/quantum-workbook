@@ -109,6 +109,11 @@
 
       <p>Mean and spread are computed as for any statistical distribution: \(\langle x\rangle = \int x\,|\psi|^2\,\mathrm dx\) and \((\Delta x)^2 = \langle x^2\rangle - \langle x\rangle^2\).</p>
 
+      <div class="box note rise">
+        <span class="box-title">Predict, observe, explain</span>
+        <p>Before running the lab: write down your prediction, run it, compare, then explain the gap in one sentence. What is the total area under \(|\psi|^2\)? If the Gaussian is widened, what happens to the height of the peak?</p>
+      </div>
+
       <figure class="lab rise" data-lab="density" aria-labelledby="lab-dens-t">
         <div class="lab-head"><h3 id="lab-dens-t">The area under the presence cloud</h3><span class="tag">LAB 5.1</span></div>
         <div class="lab-body split">
@@ -167,7 +172,8 @@
         <p>The lecture notes compare \(|\psi(x)|^2\) to the density of a cloud: thick where the quantum object is likely to be found, transparent elsewhere.</p>
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>A real cloud is made of droplets, each of which has a position: its blur comes from our ignorance of the details. The blur of \(|\psi|^2\) is not of this kind: before measurement, the quantum object has no hidden position that we would simply need to read off. Another difference: two clouds that meet add up, whereas two amplitudes can cancel.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Physics image, no particular tradition.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
     </section>
 
@@ -233,7 +239,8 @@
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>First, a correction: in the accounts collected among the Dogon, Amma is the creator god, and the Nommo are the twin beings he begets. Amma and Nommo therefore do not form a pair of twins, contrary to what the lecture notes suggest. Second, quantum complementarity is quantitative: \(\psi\) and \(\varphi\) contain exactly the same information, linked by a Fourier transform, and the bound \(\Delta x\,\Delta p \ge \hbar/2\) can be calculated. A mythological duality provides neither this equivalence nor this bound.</p>
         <p>A mythological narrative is not a predictive model. Test: which new prediction (a value, a bound, an experiment) does the analogy yield? None. It is evocative, not scientific, and should be read that way.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Dogon cosmology (Mali), from narratives collected in the 20th century: to be set against current Dogon sources.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
     </section>
 
@@ -349,7 +356,8 @@
         <p>The lecture notes compare stationary states to the rhythms that the master drummer of Yoruba or Akan traditions keeps up throughout a ceremony: stable, recognisable “modes”. More concretely, a stretched drumhead vibrates in a lasting way only in certain normal modes, each with its own frequency.</p>
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>The modes of a drumhead are real and visible: the skin moves. In a stationary state, nothing observable moves; only a global phase rotates, with no measurable effect. The comparison with normal modes holds; the one with ritual rhythms is symbolic and predicts nothing. Moreover, a rhythm is a sequence of events in time, whereas a stationary state is precisely what does not change in time.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Master drummers of the Yoruba and Akan traditions, according to the course.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
     </section>
 
@@ -460,6 +468,35 @@
         <div class="feedback"></div>
         <details class="reveal"><summary>Evaluation grid</summary><div><ol><li><strong>Mapped relations:</strong> cloud thickness ↔ probability density of presence.</li><li><strong>Alignable difference:</strong> blur from ignorance (cloud) versus probability density of interfering amplitudes (quanton); clouds add whereas amplitudes interfere.</li><li><strong>Status:</strong> evocative.</li><li><strong>Correct wording:</strong> rewrite the analogy as one sentence that states its limit (“…, but …”).</li></ol></div></details>
       </article>
+
+      <article class="exo" data-id="5.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 5.Q1</span><h3>Width in position and momentum</h3></div>
+        <p>A minimum-uncertainty Gaussian packet (no position–momentum correlation) is made narrower in position. How does its momentum width change? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: \(\sigma_x\sigma_p = \hbar/2\) for a Gaussian."><input type="radio" name="cq5Q1" value="a">It also decreases.</label></li>
+          <li><label class="choice" data-why="Correct: squeezing in position broadens in momentum."><input type="radio" name="cq5Q1" value="b">It increases, as \(1/\sigma_x\).</label></li>
+          <li><label class="choice" data-why="No: the two widths are tied by the Fourier transform."><input type="radio" name="cq5Q1" value="c">It does not change.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="5.Q2" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 5.Q2</span><h3>Free packet</h3></div>
+        <p>A free minimum-uncertainty Gaussian packet evolves for \(t>0\). What happens to its width in position? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: the packet spreads."><input type="radio" name="cq5Q2" value="a">It stays constant.</label></li>
+          <li><label class="choice" data-why="Correct: momentum is conserved; it is the relative phases that spread the packet."><input type="radio" name="cq5Q2" value="b">It increases, while its momentum width does not change.</label></li>
+          <li><label class="choice" data-why="No: barring special preparation, a free packet spreads."><input type="radio" name="cq5Q2" value="c">It decreases.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">File with a knowledge holder</span>
+        <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">

@@ -106,6 +106,11 @@
       <p>A Stern–Gerlach device with one output blocked becomes a <strong>filter</strong>: it prepares atoms in a known state. We write \(\mathrm{SG}_\theta\) for a device oriented at angle \(\theta\) from the \(z\) axis, in the \(xz\) plane. For an atom prepared in \(\ket{+}_{\theta_1}\), the probability of leaving through the \(+\) output of a device \(\mathrm{SG}_{\theta_2}\) is</p>
       <div class="eq">$$P(+_{\theta_2} \leftarrow +_{\theta_1}) = |\braket{+_{\theta_2}|+_{\theta_1}}|^2 = \cos^2\frac{\theta_2 - \theta_1}{2}.$$</div>
 
+      <div class="box note rise">
+        <span class="box-title">Predict, observe, explain</span>
+        <p>Before running the lab: write down your prediction, run it, compare, then explain the gap in one sentence. If the second analyser is oriented along \(x\), what fraction of \(+\hbar/2\) results do you expect at the output of the third?</p>
+      </div>
+
       <figure class="lab rise" data-lab="sg" aria-labelledby="lab-sg-t">
         <div class="lab-head"><h3 id="lab-sg-t">Cascaded Stern–Gerlach devices</h3><span class="tag">LAB 2.1</span></div>
         <div class="lab-body">
@@ -202,7 +207,8 @@
         <p>Before the consultation, the future is a set of possibilities. The divination practice “forces” the revelation of a single path, just as measurement forces a single eigenvalue. Superposition ↔ open future; measurement ↔ consultation; eigenstate ↔ announced path.</p>
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>A quantum measurement is a physical interaction: it depends neither on the intention nor on the beliefs of the experimenter, and two identical devices give the same statistics. Quantum probabilities can be calculated (Born rule) and checked on a large number of atoms, which no consultation allows. Finally, the atom has no “destiny” to be read: before the measurement along \(x\), there was no value of \(S_x\) to reveal.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Divination practices of Africa: the course does not name the tradition, to be specified with a practitioner.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
     </section>
 
@@ -421,7 +427,8 @@
         <p>In many cultures, a sacred mask sleeps outside ceremonies; its identity shows itself only during the ritual that “activates” it. Sleeping mask ↔ quantity not defined before measurement; ritual ↔ measurement; possible manifestations of the spirit ↔ eigenvalues.</p>
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>The ritual follows rules set by a community and depends on the intentions of the participants. Quantum measurement, by contrast, is a physical interaction that gives the same statistics whoever the human operator is. Above all, the analogy says nothing about <em>incompatibility</em>: a mask can show several qualities at once, whereas \(S_x\) and \(S_z\) cannot be defined together.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Ceremonial masks of many cultures: the course names none, to be specified.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
     </section>
 
@@ -475,6 +482,35 @@
         <div class="feedback"></div>
         <details class="reveal"><summary>Evaluation grid</summary><div><ol><li><strong>Mapped relations:</strong> superposition ↔ open future; measurement ↔ consultation; eigenstate ↔ announced path.</li><li><strong>Alignable difference:</strong> before an \(x\) measurement, \(S_x\) has no hidden value; the measurement statistics are reproducible and independent of the operator’s beliefs.</li><li><strong>Status:</strong> evocative.</li><li><strong>Correct wording:</strong> rewrite the analogy as one sentence that states its limit (“…, but …”).</li></ol></div></details>
       </article>
+
+      <article class="exo" data-id="2.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 2.Q1</span><h3>Indeterminacy or ignorance?</h3></div>
+        <p>The state is \(\ket{+x}\) and we measure \(S_z\). What does “\(\Delta S_z \ne 0\)” mean? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: this is the “ignorance” reading (Styer 1996), which the course formalism does not adopt: the state gives no definite value to \(S_z\)."><input type="radio" name="cq2Q1" value="a">Our ignorance of a value of \(S_z\) that the atom already has.</label></li>
+          <li><label class="choice" data-why="Correct: indeterminacy, not ignorance."><input type="radio" name="cq2Q1" value="b">In this state \(S_z\) has no definite value; the spread is a property of the state.</label></li>
+          <li><label class="choice" data-why="No: even a perfect device would give this spread."><input type="radio" name="cq2Q1" value="c">An imprecision of the measuring device.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="2.Q2" data-answer="a">
+        <div class="exo-head"><span class="num">Conceptual question 2.Q2</span><h3>Two measurements in a row</h3></div>
+        <p>We measure \(S_z\) and find \(+\hbar/2\). With no evolution, we measure \(S_z\) again. What do we find? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Correct: after the first measurement the state is the corresponding eigenstate."><input type="radio" name="cq2Q2" value="a">\(+\hbar/2\) with certainty.</label></li>
+          <li><label class="choice" data-why="No: the state is no longer a superposition of \(S_z\) eigenstates."><input type="radio" name="cq2Q2" value="b">\(\pm\hbar/2\) with probability ½ each.</label></li>
+          <li><label class="choice" data-why="No: the first outcome fixes the state."><input type="radio" name="cq2Q2" value="c">It depends on the device used the first time.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">File with a knowledge holder</span>
+        <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">

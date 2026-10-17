@@ -75,6 +75,18 @@ Un bouton **FR / EN** dans la barre du haut bascule vers la page équivalente (m
 
 **Règle : toute modification doit être faite dans les deux langues.**
 
+## Pages annexes et notebooks
+
+| Français | Anglais | Contenu |
+|---|---|---|
+| `prolonger.html` | `en/further.html` | notebooks, ressources vérifiées, lecture prudente des textes quantique et spiritualité (exercice P.1) |
+| `annexe-algorithmes.html` | `en/appendix-algorithms.html` | Deutsch, Grover, Shor (exercices A.1 à A.3) |
+| `diagnostic.html` | `en/diagnostic.html` | 10 questions avant / après (`assets/js/diagnostic.js`, réponses dans `localStorage`) |
+
+Les notebooks (`notebooks/fr`, `notebooks/en`) sont générés et exécutés par `python3 outils/generer_notebooks.py`
+(numpy, matplotlib, nbformat, nbconvert ; `--sans-exec` pour ne pas les exécuter). Ne pas les modifier à la main :
+modifier le script puis relancer.
+
 ## Résumés audio
 
 Chaque chapitre propose un résumé parlé d'environ 1 min 20 (`assets/audio/chN.mp3`, 48 kb/s mono).

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Annexe · Algorithmes quantiques — Carnet PHY321</title>
+<meta name="description" content="Deutsch, Grover et Shor avec les outils des chapitres 1 et 4 : amplitudes, interférences, Hadamard.">
+<meta property="og:title" content="Annexe · Algorithmes quantiques">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17150f" media="(prefers-color-scheme: dark)">
+<link rel="alternate" hreflang="fr" href="annexe-algorithmes.html">
+<link rel="alternate" hreflang="en" href="en/appendix-algorithms.html">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<link rel="stylesheet" href="assets/css/home.css">
+<script src="assets/js/mathjax-config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <a class="brand" href="index.html"><b>Carnet PHY321</b><span>Mécanique quantique · UY1</span></a>
+  <nav aria-label="Principal">
+    <a href="index.html#sommaire">Sommaire</a>
+    <a href="prolonger.html">Prolonger</a>
+    <a href="annexe-algorithmes.html" aria-current="page">Algorithmes</a>
+    <a href="diagnostic.html">Diagnostic</a>
+    <a href="https://tchapetnjafa.github.io/quantum-quiz/">Quiz</a>
+  </nav>
+  <button class="icon-btn" data-theme-toggle type="button" aria-label="Thème">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>
+  </button>
+</header>
+
+<main id="contenu" class="wrap annex">
+  <header class="chapter-head">
+    <p class="eyebrow">Annexe · hors du programme du polycopié</p>
+    <h1>Annexe · Horizons : trois algorithmes quantiques</h1>
+    <p class="lede">Avec les amplitudes, les interférences et la porte de Hadamard du chapitre 1, on comprend le principe de trois algorithmes célèbres, sans formalisme supplémentaire.</p>
+  </header>
+
+  <section class="section" id="idee">
+    <h2><span class="n">A.0</span>L’idée commune</h2>
+    <p>Un registre de \(n\) qubits porte \(2^n\) amplitudes. Un algorithme quantique ne « teste pas tous les cas en même temps » : il fait interférer ces amplitudes pour que les mauvaises réponses s’annulent et que la bonne reste. La mesure finale fait le reste. Cela ne marche que pour certains problèmes.</p>
+  </section>
+
+  <section class="section" id="deutsch">
+    <h2><span class="n">A.1</span>Deutsch</h2>
+    <p>Une boîte noire calcule \(f:\{0,1\}\to\{0,1\}\) par \(U_f\ket{x}\ket{y} = \ket{x}\ket{y\oplus f(x)}\). On veut savoir si \(f\) est constante (\(f(0)=f(1)\)) ou équilibrée (\(f(0)\ne f(1)\)). Classiquement, il faut deux appels ; quantiquement, un seul.</p>
+    <p>Circuit : partir de \(\ket0\ket1\), appliquer \(H\otimes H\), puis \(U_f\), puis \(H\) sur le premier qubit, et mesurer le premier qubit.</p>
+    <div class="eq">$$\tfrac{1}{\sqrt2}\sum_x \ket{x}\ket{-}\ \xrightarrow{U_f}\ \tfrac{1}{\sqrt2}\sum_x (-1)^{f(x)}\ket{x}\ket{-}\ \xrightarrow{H}\ \pm\ket{f(0)\oplus f(1)}\ket{-}.$$</div>
+    <p>La valeur de \(f\) passe dans une <em>phase</em> \((-1)^{f(x)}\) (le « rebond de phase »), et le second \(H\) la convertit en une probabilité : on lit \(0\) si \(f\) est constante, \(1\) si elle est équilibrée.</p>
+  </section>
+
+    <article class="exo" data-id="A.1" data-answer="a">
+      <div class="exo-head"><span class="num">Exercice A.1</span><h3>Deutsch : constante ou équilibrée ?</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+      <p>Pour la fonction \(f(0)=1,\ f(1)=1\), on exécute le circuit de Deutsch. Que mesure-t-on sur le premier qubit ?</p>
+      <ul class="choices">
+          <li><label class="choice" data-why="Exact : on mesure \(f(0)\oplus f(1) = 1\oplus1 = 0\)."><input type="radio" name="ea1" value="a">\(0\), avec certitude : la fonction est constante.</label></li>
+          <li><label class="choice" data-why="Non : \(1\) correspondrait à une fonction équilibrée, \(f(0)\ne f(1)\)."><input type="radio" name="ea1" value="b">\(1\), avec certitude.</label></li>
+          <li><label class="choice" data-why="Non : le résultat est déterministe, c’est tout l’intérêt de l’interférence."><input type="radio" name="ea1" value="c">\(0\) ou \(1\) avec probabilité ½.</label></li>
+      </ul>
+      <button class="btn small" data-check type="button">Vérifier</button>
+      <div class="feedback"></div>
+    </article>
+
+  <section class="section" id="grover">
+    <h2><span class="n">A.2</span>Grover</h2>
+    <p>On cherche un élément marqué parmi \(N\). On part de l’état uniforme \(\ket s = H^{\otimes n}\ket0\) (toutes les amplitudes égales à \(1/\sqrt N\)), puis on répète deux étapes : l’oracle change le signe de l’amplitude de l’élément marqué ; la <em>diffusion</em> \(2\ket s\bra s - \mathbb 1\) renvoie chaque amplitude de l’autre côté de la moyenne. Pour \(N=4\), une itération suffit : l’oracle donne \((\tfrac12,\tfrac12,\tfrac12,-\tfrac12)\), de moyenne \(\tfrac14\), et l’inversion autour de la moyenne donne \((0,0,0,1)\).</p>
+    <p>Pour \(N\) grand, il faut environ \(\tfrac\pi4\sqrt N\) itérations : un gain <em>quadratique</em> sur la recherche classique (environ \(N/2\) essais en moyenne), pas exponentiel.</p>
+  </section>
+
+    <article class="exo" data-id="A.2" data-num="6" data-tol="0.01" data-ok="Exact : \(k=6\), probabilité \(\approx 0{,}997\)." data-ko="Comparez \((2k+1)\theta\) à \(\pi/2\), avec \(\theta=\arcsin(1/8)\approx0{,}125\).">
+      <div class="exo-head"><span class="num">Exercice A.2</span><h3>Grover sur 64 éléments</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+      <p>On cherche un élément parmi \(N=64\) avec l’algorithme de Grover. La probabilité de succès après \(k\) itérations est \(\sin^2\!\big((2k+1)\theta\big)\) avec \(\sin\theta = 1/\sqrt N\). Quel nombre entier \(k \le 10\) d’itérations (premier maximum) donne la meilleure probabilité ?</p>
+      <div class="num-answer"><label for="ea2">k =</label><input id="ea2" type="text" inputmode="decimal" autocomplete="off" placeholder="6"><button class="btn small" data-check type="button">Vérifier</button></div>
+      <div class="feedback"></div>
+      <details class="reveal"><summary>Solution</summary><div>\(\theta = \arcsin(1/8) \approx 0{,}1253\). Le maximum est atteint quand \((2k+1)\theta \approx \pi/2\), soit \(k \approx \pi/(4\theta) - 1/2 \approx 5{,}8\), donc \(k = 6\) : \(\sin^2(13\theta) \approx 0{,}9966\). Avec \(k=5\), on n’a que \(0{,}9635\) ; avec \(k=7\), la probabilité redescend à \(0{,}9074\). Le nombre d’itérations croît comme \(\sqrt N\), pas comme \(N\).</div></details>
+    </article>
+
+  <section class="section" id="shor">
+    <h2><span class="n">A.3</span>Shor</h2>
+    <p>Factoriser \(N\) se ramène à trouver la <em>période</em> \(r\) de \(x\mapsto a^x \bmod N\). Exemple : \(N=15\), \(a=7\) : \(7, 4, 13, 1,\dots\) donc \(r=4\), puis \(\gcd(7^2-1,15)=3\) et \(\gcd(7^2+1,15)=5\). Le calcul de la période est la seule étape quantique : la transformée de Fourier quantique fait interférer les amplitudes ; la mesure donne une approximation d’un rapport \(s/r\), dont un calcul classique (fractions continues, avec répétitions éventuelles) tire la période \(r\).</p>
+    <div class="box note rise">
+      <span class="box-title">Pourquoi c’est important, et ce que cela ne dit pas</span>
+      <p>On ne connaît aucun algorithme classique efficace de factorisation, alors que Shor est efficace en théorie : c’est la menace sur RSA évoquée au chapitre 4 (exercice 1.10). Mais cela exige un ordinateur quantique à correction d’erreurs de grande taille, qui n’existe pas aujourd’hui. Les gains de Deutsch, Grover et Shor sont ceux de <em>problèmes précis</em> ; un ordinateur quantique n’accélère pas tout.</p>
+    </div>
+  </section>
+
+    <article class="exo" data-id="A.3" data-num="6" data-tol="0.01" data-ok="Exact : \(2^6 = 64 = 3\times21+1\)." data-ko="Calculez les puissances de 2 modulo 21 : 2, 4, 8, 16, 11, …">
+      <div class="exo-head"><span class="num">Exercice A.3</span><h3>Shor : la période de 2 modulo 21</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+      <p>Pour factoriser \(N=21\) avec \(a=2\), il faut la période \(r\) : le plus petit \(r>0\) tel que \(2^r \equiv 1 \pmod{21}\). Que vaut \(r\) ?</p>
+      <div class="num-answer"><label for="ea3">r =</label><input id="ea3" type="text" inputmode="decimal" autocomplete="off" placeholder="6"><button class="btn small" data-check type="button">Vérifier</button></div>
+      <div class="feedback"></div>
+      <details class="reveal"><summary>Solution</summary><div>Puissances de 2 modulo 21 : 2, 4, 8, 16, 11, 1. Donc \(r=6\), pair. Alors \(2^{3}=8\) et \(\gcd(8-1,21)=7\), \(\gcd(8+1,21)=3\) : on retrouve \(21=3\times7\). La partie quantique de l’algorithme sert uniquement à trouver \(r\) quand \(N\) est très grand.</div></details>
+    </article>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>PHY321 · Département de Physique, Faculté des Sciences, Université de Yaoundé I · S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou</span>
+    <span>Mis à jour en octobre 2026 · <a href="https://github.com/TchapetNjafa/quantum-workbook">Sources sur GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

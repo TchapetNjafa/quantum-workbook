@@ -93,6 +93,11 @@
         <li>Après quelques milliers d’impacts, les franges réapparaissent.</li>
       </ul>
 
+      <div class="box note rise">
+        <span class="box-title">Prédire, observer, expliquer</span>
+        <p>Avant de lancer le labo : écrivez votre prédiction, lancez, comparez, puis expliquez l’écart en une phrase. Où tomberont les dix premiers impacts : au hasard ou en franges ? Que verra-t-on après plusieurs milliers ?</p>
+      </div>
+
       <figure class="lab rise" data-lab="young" aria-labelledby="lab-young-t">
         <div class="lab-head"><h3 id="lab-young-t">Fentes d’Young, photon par photon</h3><span class="tag">LABO 1.1</span></div>
         <div class="lab-body split">
@@ -181,7 +186,8 @@
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>Dans le jeu, le résultat du « choix » est écrit dans le code : il est déterminé. Une mesure quantique donne en général un résultat <em>réellement</em> aléatoire, dont seule la probabilité est fixée (sauf si l’état est déjà un état propre de la grandeur mesurée). Autre limite : le héros ne peut pas interférer avec lui-même. Or c’est l’interférence entre les deux « possibles » qui fait la signature quantique.</p>
         <p>Garde-fou : une superposition se définit par rapport à une base, et sa cohérence dépend d’interactions physiques. Une mesure est une interaction avec un appareil ; la conscience de l’observateur n’intervient pas dans le résultat.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Jeu vidéo imaginaire, fiction pédagogique du cours, qui s’inspire de la cosmologie dogon (Mali) sans s’appuyer sur un récit dogon identifié.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
     </section>
 
@@ -253,7 +259,8 @@
         <p>Dans un Ndolé réussi, l’amertume des feuilles et la douceur de l’arachide se compensent ou se renforcent selon les quantités <em>et</em> le moment où on les ajoute. Quantité ↔ module de l’amplitude ; moment ↔ phase.</p>
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>Deux saveurs ne s’<em>annulent</em> jamais complètement : aucune ne vaut « moins une ». Les amplitudes, elles, peuvent être exactement opposées et donner une probabilité nulle. Et une recette bien suivie donne toujours le même plat, alors qu’une mesure quantique bien préparée donne des résultats aléatoires.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Plat camerounais ; la recette varie selon les familles et les régions, ce qui est un bon sujet d’enquête.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
     </section>
 
@@ -438,6 +445,35 @@
         <div class="feedback"></div>
         <details class="reveal"><summary>Grille d’évaluation</summary><div><ol><li><strong>Relations mises en correspondance :</strong> quantité ↔ module de l’amplitude ; moment d’ajout ↔ phase.</li><li><strong>Différence alignable :</strong> des saveurs ne se combinent pas comme des amplitudes complexes ; deux amplitudes opposées menant au même résultat s’annulent.</li><li><strong>Statut :</strong> évocative.</li><li><strong>Formulation correcte :</strong> reformulez l’analogie en une phrase qui annonce sa limite (« …, mais … »).</li></ol></div></details>
       </article>
+
+      <article class="exo" data-id="1.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 1.Q1</span><h3>Un photon à la fois</h3></div>
+        <p>Un seul photon à la fois traverse l’interféromètre, et des franges apparaissent après des milliers de photons. Quelle conclusion est correcte ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : chaque photon est détecté en un seul point, jamais en deux moitiés."><input type="radio" name="cq1Q1" value="a">Chaque photon se divise en deux moitiés qui interfèrent.</label></li>
+          <li><label class="choice" data-why="Exact : l’interférence est celle des amplitudes de probabilité, visible dans la statistique des impacts."><input type="radio" name="cq1Q1" value="b">Chaque photon est détecté en un point ; la répartition des impacts suit les amplitudes, qui interfèrent.</label></li>
+          <li><label class="choice" data-why="Non : les franges apparaissent même avec un photon à la fois."><input type="radio" name="cq1Q1" value="c">Les photons s’influencent entre eux.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="1.Q2" data-answer="a">
+        <div class="exo-head"><span class="num">Question conceptuelle 1.Q2</span><h3>Superposition ou mélange ?</h3></div>
+        <p>Quelle observation distingue l’état \((\ket0+\ket1)/\sqrt2\) d’un mélange statistique à moitié \(\ket0\), à moitié \(\ket1\) ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact : c’est l’interférence entre les deux termes, absente du mélange."><input type="radio" name="cq1Q2" value="a">Mesuré dans la base \(\{\ket+,\ket-\}\), il donne \(\ket+\) avec certitude, ce que le mélange ne fait pas.</label></li>
+          <li><label class="choice" data-why="Non : le mélange donne exactement les mêmes statistiques dans cette base."><input type="radio" name="cq1Q2" value="b">Mesuré dans la base \(\{\ket0,\ket1\}\), il donne 0 ou 1 avec probabilité ½ chacun.</label></li>
+          <li><label class="choice" data-why="Non : c’est précisément la confusion entre superposition et ignorance."><input type="radio" name="cq1Q2" value="c">Rien ne les distingue : une superposition n’est que de l’ignorance.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Dossier avec un détenteur de savoirs</span>
+        <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">

@@ -106,6 +106,11 @@
       <p>Un appareil de Stern-Gerlach dont on bloque une sortie devient un <strong>filtre</strong> : il prépare des atomes dans un état connu. On note \(\mathrm{SG}_\theta\) un appareil orienté à l’angle \(\theta\) de l’axe \(z\), dans le plan \(xz\). Pour un atome préparé dans \(\ket{+}_{\theta_1}\), la probabilité de sortir par la voie \(+\) d’un appareil \(\mathrm{SG}_{\theta_2}\) est</p>
       <div class="eq">$$P(+_{\theta_2} \leftarrow +_{\theta_1}) = |\braket{+_{\theta_2}|+_{\theta_1}}|^2 = \cos^2\frac{\theta_2 - \theta_1}{2}.$$</div>
 
+      <div class="box note rise">
+        <span class="box-title">Prédire, observer, expliquer</span>
+        <p>Avant de lancer le labo : écrivez votre prédiction, lancez, comparez, puis expliquez l’écart en une phrase. Si le deuxième analyseur est orienté selon \(x\), quelle proportion de résultats \(+\hbar/2\) attendez-vous à la sortie du troisième ?</p>
+      </div>
+
       <figure class="lab rise" data-lab="sg" aria-labelledby="lab-sg-t">
         <div class="lab-head"><h3 id="lab-sg-t">Stern-Gerlach en cascade</h3><span class="tag">LABO 2.1</span></div>
         <div class="lab-body">
@@ -202,7 +207,8 @@
         <p>Avant la consultation, l’avenir est un ensemble de possibles. La pratique divinatoire « force » la révélation d’une seule voie, comme la mesure force une seule valeur propre. Superposition ↔ avenir ouvert ; mesure ↔ consultation ; état propre ↔ voie annoncée.</p>
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>Une mesure quantique est une interaction physique : elle ne dépend ni de l’intention ni des croyances de l’expérimentateur, et deux appareils identiques donnent les mêmes statistiques. Les probabilités quantiques sont calculables (règle de Born) et vérifiables sur un grand nombre d’atomes, ce qu’aucune consultation ne permet. Enfin, l’atome n’a pas de « destin » à lire : avant la mesure selon \(x\), il n’y avait pas de valeur de \(S_x\) à révéler.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Pratiques divinatoires d’Afrique : le cours ne précise pas la tradition, à préciser auprès d’un praticien.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
     </section>
 
@@ -421,7 +427,8 @@
         <p>Dans de nombreuses cultures, un masque sacré dort hors des cérémonies ; son identité ne se manifeste que pendant le rituel qui l’« active ». Masque dormant ↔ grandeur non définie avant la mesure ; rituel ↔ mesure ; manifestations possibles de l’esprit ↔ valeurs propres.</p>
         <details class="reveal"><summary>Où l’analogie casse-t-elle ?</summary><div>
           <p>Le rituel suit des règles fixées par une communauté et dépend des intentions des participants. La mesure quantique, elle, est une interaction physique qui donne les mêmes statistiques quel que soit l’opérateur humain. Surtout, l’analogie ne dit rien de l’<em>incompatibilité</em> : un masque peut manifester plusieurs qualités à la fois, alors que \(S_x\) et \(S_z\) ne peuvent pas être définis ensemble.</p>
-        </div></details>        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
+        </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Masques cérémoniels de nombreuses cultures : le cours n’en nomme aucune, à préciser.</p>
+        <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
     </section>
 
@@ -475,6 +482,35 @@
         <div class="feedback"></div>
         <details class="reveal"><summary>Grille d’évaluation</summary><div><ol><li><strong>Relations mises en correspondance :</strong> superposition ↔ avenir ouvert ; mesure ↔ consultation ; état propre ↔ voie annoncée.</li><li><strong>Différence alignable :</strong> avant la mesure selon \(x\), \(S_x\) n’a pas de valeur cachée ; les statistiques de la mesure sont reproductibles et indépendantes des croyances de l’opérateur.</li><li><strong>Statut :</strong> évocative.</li><li><strong>Formulation correcte :</strong> reformulez l’analogie en une phrase qui annonce sa limite (« …, mais … »).</li></ol></div></details>
       </article>
+
+      <article class="exo" data-id="2.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 2.Q1</span><h3>Indétermination ou ignorance ?</h3></div>
+        <p>L’état est \(\ket{+x}\) et l’on mesure \(S_z\). Que signifie « \(\Delta S_z \ne 0\) » ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : c’est la lecture « ignorance » (Styer 1996), que le formalisme du cours ne retient pas : l’état ne donne pas de valeur définie à \(S_z\)."><input type="radio" name="cq2Q1" value="a">Notre ignorance d’une valeur de \(S_z\) que l’atome possède déjà.</label></li>
+          <li><label class="choice" data-why="Exact : indétermination, pas ignorance."><input type="radio" name="cq2Q1" value="b">Dans cet état, \(S_z\) n’a pas de valeur définie ; la dispersion est une propriété de l’état.</label></li>
+          <li><label class="choice" data-why="Non : même un appareil parfait donnerait cette dispersion."><input type="radio" name="cq2Q1" value="c">Une imprécision de l’appareil de mesure.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="2.Q2" data-answer="a">
+        <div class="exo-head"><span class="num">Question conceptuelle 2.Q2</span><h3>Deux mesures de suite</h3></div>
+        <p>On mesure \(S_z\) et l’on trouve \(+\hbar/2\). Sans évolution, on mesure \(S_z\) de nouveau. Que trouve-t-on ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact : après la première mesure, l’état est l’état propre correspondant."><input type="radio" name="cq2Q2" value="a">\(+\hbar/2\) avec certitude.</label></li>
+          <li><label class="choice" data-why="Non : l’état n’est plus une superposition de \(S_z\)."><input type="radio" name="cq2Q2" value="b">\(\pm\hbar/2\) avec probabilité ½ chacun.</label></li>
+          <li><label class="choice" data-why="Non : le résultat de la première mesure fixe l’état."><input type="radio" name="cq2Q2" value="c">Cela dépend de l’appareil utilisé la première fois.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Dossier avec un détenteur de savoirs</span>
+        <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">

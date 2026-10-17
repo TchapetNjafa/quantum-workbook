@@ -117,7 +117,8 @@
         <p>Djembe, balafon and kora each play their own cycle. Together they form a global pattern that no single musician plays. The space of the ensemble resembles a tensor product: each combination of beats of the three instruments is a possible “cell”.</p>
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>Each musician plays a definite part. Each track can be recorded separately and remixed: the whole is rebuilt from the parts. That is the picture of a <em>separable</em> state, or of a classical correlation. An entangled state has no track of its own for each qubit: the reduced state of one qubit of \(\ket{\Phi^+}\) is completely random noise. And no rhythm violates a Bell inequality.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Djembé, balafon and kora: West African instruments, played together in specific repertoires to be identified.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
     </section>
 
@@ -151,6 +152,11 @@
         </table>
       </div>
       <p>+1: results always identical; −1: always opposite. The table in the lecture notes speaks of “XX or YY” correlations for the X basis: read this as “results \(++\) or \(--\)”. In every case, each result <em>taken alone</em> remains 50/50. The singlet \(\Psi^-\) is anticorrelated in every direction.</p>
+
+      <div class="box note rise">
+        <span class="box-title">Predict, observe, explain</span>
+        <p>Before running the lab: write down your prediction, run it, compare, then explain the gap in one sentence. Is the state obtained by Hadamard then CNOT separable or entangled? What value do you predict for \(\alpha\delta-\beta\gamma\)?</p>
+      </div>
 
       <figure class="lab rise" data-lab="twoq" aria-labelledby="lab-2q-t">
         <div class="lab-head"><h3 id="lab-2q-t">Build a two-qubit state</h3><span class="tag">LAB 4.1</span></div>
@@ -274,7 +280,8 @@
         <p>Among the Yoruba (the <em>ibeji</em>) as among the Bamileke, twins are thought of as bound beyond distance: what affects one would concern the other. The image helps to remember that an entangled pair is described as a whole.</p>
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>The twin bond is a belief, not tested by any statistics. Entanglement is a quantitative prediction (\(S = 2\sqrt2\)) verified in the laboratory. Above all, the twins of tradition “pass” something to each other; an entangled pair transmits nothing: Alice alone sees only 50/50 randomness, whatever Bob does. Finally, each twin has their own state; a qubit of a Bell pair does not.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Ibeji twins among the Yoruba (Nigeria, Benin) and twins among the Bamileke (Cameroon): two distinct traditions, not to be conflated.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
 
       <h3>From entanglement to a secret key: BB84</h3>
@@ -518,6 +525,35 @@
         <button class="btn small" data-check type="button">Check</button>
         <div class="feedback"></div>
       </article>
+
+      <article class="exo" data-id="4.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 4.Q1</span><h3>What Bob sees</h3></div>
+        <p>Alice and Bob share a Bell pair and are far apart. What does Bob alone see, whatever Alice does? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: no information passes."><input type="radio" name="cq4Q1" value="a">He directly reads the basis Alice chose.</label></li>
+          <li><label class="choice" data-why="Correct: no signal, hence compatibility with relativity."><input type="radio" name="cq4Q1" value="b">50/50 randomness; correlations appear only when comparing with Alice over a classical channel.</label></li>
+          <li><label class="choice" data-why="No: Bob’s local statistics do not change."><input type="radio" name="cq4Q1" value="c">He detects the moment of Alice’s measurement.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="4.Q2" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 4.Q2</span><h3>Correlation or entanglement?</h3></div>
+        <p>Two envelopes hold a red slip and a blue slip; opening one reveals the other. Is this entanglement? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: it is a classical correlation."><input type="radio" name="cq4Q2" value="a">Yes: it is the same thing.</label></li>
+          <li><label class="choice" data-why="Correct: the Bell test tells them apart."><input type="radio" name="cq4Q2" value="b">No: this model obeys \(S \le 2\) in the CHSH test, whereas entanglement can reach \(2\sqrt2\).</label></li>
+          <li><label class="choice" data-why="No: apparent instantaneity is not the criterion."><input type="radio" name="cq4Q2" value="c">Yes, because the revelation is instantaneous.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">File with a knowledge holder</span>
+        <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">

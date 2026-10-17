@@ -93,6 +93,11 @@
 
       <p>The sixth postulate, the Schrödinger equation, tells how the state changes between two measurements (section 3.2). The lab below runs through the three acts of an experiment on a qubit.</p>
 
+      <div class="box note rise">
+        <span class="box-title">Predict, observe, explain</span>
+        <p>Before running the lab: write down your prediction, run it, compare, then explain the gap in one sentence. Choose a starting state and an evolution time: what probability of measuring \(\ket1\) do you predict?</p>
+      </div>
+
       <figure class="lab rise" data-lab="postulats" aria-labelledby="lab-pq-t">
         <div class="lab-head"><h3 id="lab-pq-t">Prepare, evolve, measure</h3><span class="tag">LAB 3.1</span></div>
         <div class="lab-body split">
@@ -258,7 +263,8 @@
         <p>A parent keeps asking their child: “You haven’t moved, have you?” In the end, the child stays frozen. The lecture notes compare the Zeno effect to this constant attention that freezes the evolution.</p>
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>The child freezes out of fear: that is a force, an added influence. In the Zeno effect, the measurement exerts no push; it projects the state, and the \(t^2\) growth of the probabilities does the rest. If the probability grew linearly, as for an ordinary decay, measuring often would change nothing. Finally, each measurement has a small chance of finding the child… already gone: the freeze is never total.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Everyday family scene, no particular tradition.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
     </section>
 
@@ -340,7 +346,8 @@
         <p>The master drummer makes a distant drum vibrate by striking his own at the right frequency. In the same way, a field at the resonance frequency moves the atom from one level to the other.</p>
         <details class="reveal"><summary>Where does the analogy break down?</summary><div>
           <p>The distant drum is a classical oscillator: its vibration amplitude takes any value and we see it directly. The qubit has only two levels. What oscillates is a <em>probability</em>; each measurement gives 0 or 1, never “half excited”. And under a sustained field, the qubit does not just go up: it comes back down, gets excited again, and so on. The drum, for its part, is not “de-excited” by the strikes that set it vibrating.</p>
-        </div></details>        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
+        </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Talking or ceremonial drum: the course does not name the tradition.</p>
+        <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
 
       <h3>From Rabi oscillations to clocks: the Ramsey method</h3>
@@ -413,6 +420,35 @@
         <div class="feedback"></div>
         <details class="reveal"><summary>Evaluation grid</summary><div><ol><li><strong>Mapped relations:</strong> resonance frequency \(\nu_0 = \Delta E/h\) ↔ energy gap between the two levels.</li><li><strong>Alignable difference:</strong> the drum is a classical oscillator with continuous amplitude; the qubit has two levels and an oscillating probability.</li><li><strong>Status:</strong> evocative.</li><li><strong>Correct wording:</strong> rewrite the analogy as one sentence that states its limit (“…, but …”).</li></ol></div></details>
       </article>
+
+      <article class="exo" data-id="3.Q1" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 3.Q1</span><h3>What is conserved</h3></div>
+        <p>A qubit with Hamiltonian \(\hat H = \hbar\omega\sigma_z/2\) (\(\omega\ne0\)) is in the state \((\ket0+\ket1)/\sqrt2\). What can be said? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: \(\langle\sigma_x\rangle\) oscillates at the Bohr frequency."><input type="radio" name="cq3Q1" value="a">\(\langle H\rangle\) and \(\langle\sigma_x\rangle\) are both constant.</label></li>
+          <li><label class="choice" data-why="Correct: \(\hat H\) commutes with itself, not with \(\sigma_x\)."><input type="radio" name="cq3Q1" value="b">\(\langle H\rangle\) is constant, but \(\langle\sigma_x\rangle\) may oscillate.</label></li>
+          <li><label class="choice" data-why="No: the mean energy is conserved."><input type="radio" name="cq3Q1" value="c">\(\langle H\rangle\) oscillates at the Bohr frequency.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="3.Q2" data-answer="a">
+        <div class="exo-head"><span class="num">Conceptual question 3.Q2</span><h3>Rabi pulse</h3></div>
+        <p>On resonance, the field is applied for a duration such that \(\Omega t = \pi\), starting from \(\ket0\). What is the final state (up to a phase)? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Correct: a \(\pi\) pulse flips the qubit."><input type="radio" name="cq3Q2" value="a">\(\ket1\).</label></li>
+          <li><label class="choice" data-why="No: that is, up to a relative phase, the result of a \(\pi/2\) pulse."><input type="radio" name="cq3Q2" value="b">\((\ket0+\ket1)/\sqrt2\).</label></li>
+          <li><label class="choice" data-why="No: that needs a \(2\pi\) pulse, which returns to \(-\ket0\)."><input type="radio" name="cq3Q2" value="c">\(\ket0\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">File with a knowledge holder</span>
+        <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
     </section>
 
     <section class="section" id="usage">
