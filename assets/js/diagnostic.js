@@ -77,9 +77,20 @@
     const d = load(); d[mode()] = { a: ans, t: new Date().toISOString().slice(0, 10) }; save(d);
     show(mode() === 'post');
   });
+  /* Export anonyme : lignes lisibles + bloc machine « PHY321-DIAG v1 » (1 = bonne réponse, une valeur par question),
+     lu par outils/analyser_diagnostic.py. Aucun nom, aucun identifiant. */
+  function exportText() {
+    const d = load(), code = ['PHY321-DIAG v1'];
+    ['pre', 'post'].forEach(k => { if (d[k]) code.push(`${k}=${d[k].a.map((v, i) => (v === Q[i].a ? 1 : 0)).join('')}`); });
+    return summary().join('\n') + '\n\n' + code.join('\n');
+  }
   document.getElementById('diag-copy').addEventListener('click', async () => {
-    const txt = 'PHY321 ' + T('diagnostic', 'diagnostic') + '\n' + summary().join('\n');
-    try { await navigator.clipboard.writeText(txt); out.insertAdjacentHTML('afterbegin', `<p>${T('Résultats copiés.', 'Results copied.')}</p>`); } catch { out.textContent = txt; }
+    const txt = exportText();
+    let copied = false;
+    try { await navigator.clipboard.writeText(txt); copied = true; } catch { /* presse-papiers refusé : on affiche le texte */ }
+    const pre = document.createElement('pre'); pre.id = 'diag-export'; pre.textContent = txt;
+    out.innerHTML = `<p>${copied ? T('Résultats copiés. Les voici :', 'Results copied. Here they are:') : T('Copie impossible : sélectionnez le texte ci-dessous.', 'Copy not possible: select the text below.')}</p>`;
+    out.appendChild(pre);
   });
   document.getElementById('diag-reset').addEventListener('click', () => { save({}); form.reset(); out.textContent = T('Réponses effacées.', 'Answers cleared.'); });
   show(false);
