@@ -474,6 +474,50 @@
           <p>Comparaison avec BB84 (labo 4.3) : le tamisage ne garde que la moitié des photons détectés, donc, avec deux bases équiprobables, environ 512 détections donnent en moyenne 256 bits tamisés, avant correction d’erreurs et amplification de confidentialité, qui en consomment davantage. Le total de 1,07 million est un nombre de bits <em>de clé finale</em>, après ces étapes. Le débit réel varie pendant le passage (distance, élévation) : le chiffre calculé est un ordre de grandeur.</p>
         </div></details>
       </article>
+
+      <article class="exo" data-id="4.14" data-answer="c">
+        <div class="exo-head"><span class="num">Exercice 4.14</span><h3>Évaluez : les jumeaux et l’intrication</h3><span class="stars" aria-label="difficulté 3 sur 3">★★★</span></div>
+        <p>Analogie : « chez les Yoruba (les ibeji) comme chez les Bamiléké, les jumeaux sont liés au-delà de la distance : ce qui touche l’un concernerait l’autre », pour une paire intriquée. Quel bilan est correct ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : la distance n’est pas le problème. L’intrication ne dépend pas de la distance."><input type="radio" name="e414" value="a">Évocative, mais elle casse seulement parce que les jumeaux sont trop éloignés ; plus proches, leur lien serait mesurable.</label></li>
+          <li><label class="choice" data-why="Non : une paire intriquée ne permet aucun signal. Alice seule voit du hasard 50/50, quoi que fasse Bob."><input type="radio" name="e414" value="b">Explicative. Le lien gémellaire transmet une influence, ce qui explique les corrélations de la paire de Bell.</label></li>
+          <li><label class="choice" data-why="Exact : trois différences alignables, dont une quantitative."><input type="radio" name="e414" value="c">Évocative. Elle met en correspondance « se décrire comme un tout » ; elle casse parce que l’intrication est une prédiction chiffrée testée (\(S = 2\sqrt2\) pour une paire de Bell aux réglages optimaux), qu’elle ne permet aucun signal, et que chaque qubit de la paire n’a pas d’état pur propre (son état réduit est \(\mathbb 1/2\)).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Grille d’évaluation</summary><div><ol><li><strong>Relations mises en correspondance :</strong> « se décrire comme un tout » plutôt que comme deux parties indépendantes.</li><li><strong>Différence alignable :</strong> l’intrication est une prédiction quantitative testée (\(S = 2\sqrt2\) pour une paire de Bell) sans signal utilisable ; le lien gémellaire est une croyance culturelle, qui ne constitue pas une preuve physique.</li><li><strong>Statut :</strong> évocative.</li><li><strong>Formulation correcte :</strong> reformulez l’analogie en une phrase qui annonce sa limite (« …, mais … »).</li></ol></div></details>
+      </article>
+
+      <div class="box note rise">
+        <span class="box-title">Éthique et souveraineté des données</span>
+        <p>Une clé quantique ou un algorithme post-quantique ne protège que ce qu’on lui confie. Un adversaire peut copier dès aujourd’hui des communications chiffrées par RSA ou par courbes elliptiques et les déchiffrer plus tard, si un ordinateur quantique suffisamment puissant devient disponible (« récolter maintenant, déchiffrer plus tard »). Le risque porte sur les données qui doivent rester secrètes longtemps : dossiers médicaux, état civil, titres fonciers, données minières, secrets d’État. Une réponse logicielle existe déjà : les normes de cryptographie post-quantique du NIST (août 2024 : FIPS 203 pour l’établissement de clés, FIPS 204 et 205 pour les signatures), qui ne demandent aucun matériel quantique.</p>
+        <p>La question de souveraineté se pose donc en termes concrets : qui détient les clés, où sont hébergées les données, qui décide du calendrier de migration, et avec quelle formation locale ?</p>
+        <cite>NIST, « NIST Releases First 3 Finalized Post-Quantum Encryption Standards », août 2024 — nist.gov</cite>
+      </div>
+
+      <article class="exo" data-id="4.15" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 4.15</span><h3>Quelles données migrer en premier ?</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Une administration prépare sa migration vers la cryptographie post-quantique. Quelles données traiter en priorité, face à un déchiffrement différé ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : leur durée de vie est trop courte pour qu’un déchiffrement tardif nuise."><input type="radio" name="e415" value="a">Les messages de confirmation de rendez-vous, effacés après 24 h et sans sensibilité durable.</label></li>
+          <li><label class="choice" data-why="Exact : plus la donnée doit rester secrète longtemps, plus le risque « récolter maintenant, déchiffrer plus tard » est élevé."><input type="radio" name="e415" value="b">Les dossiers médicaux et l’état civil, qui doivent rester confidentiels pendant plusieurs décennies et sont déjà transmis chiffrés.</label></li>
+          <li><label class="choice" data-why="Non : une donnée déjà publique n’a pas de secret à protéger."><input type="radio" name="e415" value="c">Les informations publiées chaque jour sur le site de l’administration.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
+      <article class="exo" data-id="4.16" data-answer="b">
+        <div class="exo-head"><span class="num">Exercice 4.16</span><h3>La QKD protège-t-elle un hôpital ?</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Un hôpital envisage d’acheter une liaison de distribution quantique de clés (QKD) pour « sécuriser ses données ». Quelle réponse est la plus juste ?</p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : la QKD ne concerne que la distribution de clés sur un lien précis."><input type="radio" name="e416" value="a">Oui : la QKD protège toutes les données de l’hôpital, y compris celles déjà stockées.</label></li>
+          <li><label class="choice" data-why="Exact : il faut raisonner sur le système complet, pas sur un seul maillon."><input type="radio" name="e416" value="b">Sous des hypothèses de sécurité et avec un canal classique authentifié, la QKD sécurise la distribution de clés sur un lien, pas les postes, le stockage ni les données déjà interceptées ; la cryptographie post-quantique logicielle est une alternative plus simple à déployer.</label></li>
+          <li><label class="choice" data-why="Non : la sécurité de la QKD ne repose pas sur la factorisation. Sa limite est ailleurs : matériel, authentification, coût."><input type="radio" name="e416" value="c">Non : la QKD est cassée par l’algorithme de Shor.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
     </section>
 
     <section class="section" id="usage">
