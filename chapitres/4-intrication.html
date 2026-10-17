@@ -463,6 +463,17 @@
           <p><strong>Précision</strong> : le cours dit que Bob obtient une « copie parfaite ». C’est un transfert, pas une copie : l’état d’Alice est détruit par sa mesure, comme l’exige le théorème de non-clonage. Et le transfert ne va pas plus vite que les deux bits classiques.</p>
         </div></details>
       </article>
+
+      <article class="exo" data-id="4.13" data-num="86" data-tol="0.02" data-ok="Exact : environ 86 ms par clé de 256 bits." data-ko="Estimez le débit moyen \(1{,}07\times10^6\ \text{bits}/360\ \text{s}\), puis \(t = 256/\text{débit}\).">
+        <div class="exo-head"><span class="num">Exercice 4.13</span><h3>Une clé de 256 bits par satellite</h3><span class="stars" aria-label="difficulté 1 sur 3">★☆☆</span></div>
+        <p>Le 1,07 million de bits secrets du lien Stellenbosch–Jinan-1 a été produit pendant un passage dont la fenêtre de réception dure environ 6 minutes. En supposant un débit uniforme sur toute la fenêtre (estimation grossière), combien de millisecondes faut-il pour produire une clé de 256 bits ?</p>
+        <div class="num-answer"><label for="e413">t (ms) =</label><input id="e413" type="text" inputmode="decimal" autocomplete="off"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>Débit moyen : \(1{,}07\times10^6/360 \approx 2{,}97\times10^3\) bit/s, donc \(t = 256/2970 \approx 0{,}086\) s, soit 86 ms. Un passage fournirait environ 4 180 clés de 256 bits.</p>
+          <p>Comparaison avec BB84 (labo 4.3) : le tamisage ne garde que la moitié des photons détectés, donc, avec deux bases équiprobables, environ 512 détections donnent en moyenne 256 bits tamisés, avant correction d’erreurs et amplification de confidentialité, qui en consomment davantage. Le total de 1,07 million est un nombre de bits <em>de clé finale</em>, après ces étapes. Le débit réel varie pendant le passage (distance, élévation) : le chiffre calculé est un ordre de grandeur.</p>
+        </div></details>
+      </article>
     </section>
 
     <section class="section" id="usage">

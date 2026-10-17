@@ -451,6 +451,17 @@
         <span class="box-title">Précision</span>
         <p>Dans l’énoncé du cours (exercice 2.5.4), les trois qubits interceptés par Eve sont justement ceux où Bob n’a pas choisi la base d’Alice. La question « quel QBER trahit Eve ? » a donc pour réponse 0 : l’exemple ne montre pas la détection. Pour l’illustrer, il faut qu’Eve intercepte au moins un qubit conservé, par exemple le 2 ou le 8.</p>
       </div>
+
+      <article class="exo" data-id="2.11" data-num="2.09" data-tol="0.02" data-ok="Exact : \(N = 1/\delta\varphi^2 \approx 2{,}1\times10^{5}\) atomes." data-ko="Calculez d’abord \(\delta\varphi = 17{,}5\ \mathrm{mrad}/8\), puis \(N = 1/\delta\varphi^2\).">
+        <div class="exo-head"><span class="num">Exercice 2.11</span><h3>Limite standard d’un gradiomètre atomique</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
+        <p>Dans l’expérience de Stray et al. (<i>Nature</i> 2022), le tunnel de 2 m produit un déphasage attendu de 17,5 mrad dans l’interféromètre atomique, détecté avec un rapport signal sur bruit de 8. Prenez une incertitude de phase \(\delta\varphi = 17{,}5/8\) mrad. Pour \(N\) atomes indépendants, la limite quantique standard est \(\delta\varphi = 1/\sqrt N\). Combien d’atomes faut-il, dans ce modèle simplifié d’une seule mesure ?</p>
+        <div class="num-answer"><label for="e211">N (en \(10^5\)) =</label><input id="e211" type="text" inputmode="decimal" autocomplete="off" placeholder="ex. 1,5"><button class="btn small" data-check type="button">Vérifier</button></div>
+        <div class="feedback"></div>
+        <details class="reveal"><summary>Solution</summary><div>
+          <p>\(\delta\varphi = 2{,}19\times10^{-3}\) rad, donc \(N = 1/\delta\varphi^2 \approx 2{,}1\times10^{5}\). Avec des atomes corrélés (états comprimés ou intriqués) et des mesures adaptées, la limite de Heisenberg \(\delta\varphi = 1/N\) donnerait en principe \(N = 1/\delta\varphi \approx 460\) seulement : comme \(\Delta x\,\Delta p \ge \hbar/2\), c’est une borne imposée par la mécanique quantique à la précision, atteignable seulement avec une préparation d’état soignée.</p>
+          <p>Ordre de grandeur seulement (la correspondance avec une mesure unique est fictive) : l’instrument réel moyenne beaucoup de cycles et son bruit comprend aussi les vibrations et les lasers. La limite standard reste le plancher à battre par la préparation de l’état.</p>
+        </div></details>
+      </article>
     </section>
 
     <section class="section" id="usage">
