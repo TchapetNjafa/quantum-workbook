@@ -359,3 +359,7 @@ details.reveal > div { padding: 0 0 1rem 1.5rem; animation: unfold .3s var(--eas
   font: 600 .74rem var(--mono); letter-spacing: .06em; transition: background .2s, color .2s;
 }
 .lang-switch:hover { background: var(--paper-2); color: var(--accent-ink); }
+.analogy-q { font-size: .92rem; color: var(--ink-2); border-top: 1px dashed var(--rule); padding-top: .7rem; margin-top: 1rem; }
+.box.use { border-color: var(--blue); }
+.box.use .box-title { color: var(--blue); }
+.box.use cite { display: block; font-family: var(--sans); font-size: .78rem; font-style: normal; color: var(--muted); margin-top: .5rem; }
