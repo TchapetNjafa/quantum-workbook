@@ -11,7 +11,7 @@ par bootstrap, détail par question et par thème) et verdict sur les critères 
 
 Usage : python3 outils/analyser_diagnostic.py resultats.txt [--lang fr|en] [--sortie rapport.md]
         python3 outils/analyser_diagnostic.py --test      (auto-contrôle sur données simulées)
-Critères (proposés, à valider par l'enseignant) : n apparié >= 20 ; gain normalisé de classe >= 0,30 ;
+Critères (validés par l'enseignant le 2026-10-18) : n apparié >= 20 ; gain normalisé de classe >= 0,30 ;
 borne basse de l'IC95 % de la différence moyenne > 0 ; aucun thème en recul."""
 import argparse, math, random, re, statistics, sys
 
