@@ -21,7 +21,7 @@ correlation, decoherence, the status of analogies).
    The report gives the paired sample size, the means, Hake's normalised gain, the mean difference with its bootstrap
    confidence interval, the breakdown by theme and by question, and the verdict.
 
-## Acceptance criterion (proposed, to be confirmed by the teacher)
+## Acceptance criterion (confirmed by the teacher on 2026-10-18)
 
 The refinement is considered successful for the pilot class if all four conditions hold:
 

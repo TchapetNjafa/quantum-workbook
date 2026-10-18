@@ -21,7 +21,7 @@ mélange, intrication contre corrélation, décohérence, statut des analogies).
    Le rapport donne l'effectif apparié, les moyennes, le gain normalisé de Hake, la différence moyenne avec son intervalle de
    confiance (bootstrap), le détail par thème et par question, et le verdict.
 
-## Critère d'acceptation (proposé, à valider par l'enseignant)
+## Critère d'acceptation (validé par l'enseignant le 2026-10-18)
 
 Le raffinement est considéré comme concluant pour la promotion pilote si les quatre conditions suivantes sont réunies :
 
