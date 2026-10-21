@@ -20,6 +20,18 @@
   }
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Lien « Connexion » : seulement sur l'hébergement Vercel (les fonctions serveur n'existent pas sur GitHub Pages)
+  if (!/\.github\.io$/.test(location.hostname) && location.protocol !== 'file:') {
+    addEventListener('DOMContentLoaded', () => {
+      const nav = document.querySelector('.topbar nav');
+      const href = LANG === 'en' ? '/en/login.html' : '/connexion.html';
+      if (!nav || nav.querySelector('a[href$="connexion.html"], a[href$="login.html"]')) return;
+      const a = document.createElement('a');
+      a.href = href; a.textContent = t('Connexion', 'Sign in');
+      nav.appendChild(a);
+    });
+  }
+
   /* ---------- stockage local (peut être indisponible : navigation privée) ---------- */
   const store = {
     read() {
