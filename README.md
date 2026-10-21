@@ -116,6 +116,23 @@ puis remplacement des adresses absolues GitHub Pages par des adresses du même s
 - Essai local : `QUIZ_DIR=../quantum-quiz sh outils/assembler_vercel.sh && cd dist && python3 -m http.server 8766`.
   Tests : `node test-carnet.mjs http://localhost:8766/` et `CARNET_ROOT=http://localhost:8766/ node test-quiz.mjs http://localhost:8766/quiz/`.
 
+### API et connexion Google (Vercel seulement)
+
+`api/[...route].js` reçoit toutes les adresses `/api/*` (une seule fonction : le plan gratuit limite leur nombre) ;
+le code est dans `api/_lib/`. Sur GitHub Pages il n'existe pas : `assets/js/compte.js` le détecte et l'explique.
+Variables d'environnement Vercel (Settings > Environment Variables, jamais dans le dépôt) :
+
+| Variable | Rôle |
+|---|---|
+| `GOOGLE_CLIENT_ID` | ID client OAuth Google (type Web) |
+| `SESSION_SECRET` | chaîne aléatoire d'au moins 32 caractères (signature des sessions) |
+| `TEACHER_EMAIL` | adresse de l'enseignant (rôle « prof ») |
+| `ALLOWED_DOMAIN` | optionnel, défaut `facsciences-uy1.cm` |
+| `DOMAIN_RULE` | optionnel : `both` (défaut : adresse ET revendication `hd`), `email` ou `hd` |
+| `ALIAS_DEBUG` | `1` pendant le test d'alias : la page de connexion montre `email` et `hd` renvoyés par Google ; à retirer ensuite |
+
+Tests : `node tests/test-api.mjs` (jetons Google simulés, 18 contrôles) et `node tests/test-connexion.mjs` (page, 360 et 1366 px).
+
 ## Signalements d'erreurs
 
 Le lien « Signaler une erreur dans ce chapitre », en bas de chaque chapitre, ouvre un formulaire d'issue

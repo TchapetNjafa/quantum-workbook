@@ -1,7 +1,7 @@
 /* Service worker du Carnet PHY321 : lecture hors connexion après une première visite.
    Pages HTML : réseau d'abord (contenu à jour), cache en secours.
    Autres ressources (CSS, JS, polices, MathJax) : cache d'abord. */
-const VERSION = 'carnet-2026-10-18-boadi'
+const VERSION = 'carnet-2026-10-21-connexion'
 const CORE = [
   './', './index.html', './en/index.html', './manifest.json', './manifest.en.json',
   './assets/css/carnet.css', './assets/js/carnet.js', './assets/js/mathjax-config.js',
@@ -24,6 +24,7 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  if (url.pathname.startsWith('/api/')) return; // l'API ne se met jamais en cache
   const cacheable = url.origin === location.origin ||
     /^(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)$/.test(url.hostname);
   if (!cacheable) return;
