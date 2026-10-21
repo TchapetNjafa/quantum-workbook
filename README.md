@@ -103,6 +103,19 @@ python3 outils/generer_audio.py 3     # régénère le chapitre 3 (sans argument
 
 Pensez ensuite à changer `VERSION` dans `sw.js` pour que les navigateurs récupèrent les nouveaux fichiers.
 
+## Hébergement Vercel (Carnet + Quiz sur un seul site)
+
+Adresse : <https://quantum-workbook.vercel.app/> (Carnet à la racine, Quiz sous `/quiz/`, `/quiz/en/`).
+Vercel récupère ce dépôt sur GitHub ; `vercel.json` lance `outils/assembler_vercel.sh`, qui construit `dist/` :
+copie du Carnet, téléchargement du Quiz (`TchapetNjafa/quantum-quiz`, branche `main`) dans `dist/quiz/`,
+puis remplacement des adresses absolues GitHub Pages par des adresses du même site.
+
+- Rien ne change pour GitHub Pages : les deux dépôts restent indépendants et publiés comme avant.
+- Mettre le site à jour = publier sur GitHub comme d'habitude. Une fusion dans ce dépôt redéploie Vercel ;
+  pour une modification du Quiz seul, relancer un déploiement Vercel (ou un « Deploy Hook », voir SUIVI.md).
+- Essai local : `QUIZ_DIR=../quantum-quiz sh outils/assembler_vercel.sh && cd dist && python3 -m http.server 8766`.
+  Tests : `node test-carnet.mjs http://localhost:8766/` et `CARNET_ROOT=http://localhost:8766/ node test-quiz.mjs http://localhost:8766/quiz/`.
+
 ## Signalements d'erreurs
 
 Le lien « Signaler une erreur dans ce chapitre », en bas de chaque chapitre, ouvre un formulaire d'issue
