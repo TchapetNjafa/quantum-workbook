@@ -11,7 +11,7 @@ import * as classement from './_lib/classement.js';
 import * as defis from './_lib/defis.js';
 import { Readable, pipeline } from 'node:stream';
 
-const DOMAIN = () => process.env.ALLOWED_DOMAIN || 'facsciences-uy1.cm';
+const DOMAIN = () => process.env.ALLOWED_DOMAIN || 'facsciences-uy1.cm,ens-uy1.cm'; // liste séparée par des virgules
 
 function json(res, status, body, headers = {}) {
   res.statusCode = status;

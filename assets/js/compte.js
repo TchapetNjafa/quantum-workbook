@@ -34,7 +34,7 @@
       ? `<p class="muted">${t('Ce que Google a renvoyé pour ce compte (test de configuration) :', 'What Google returned for this account (configuration test):')}</p>
          <pre>${esc(JSON.stringify(j.claims, null, 2))}</pre>` : '';
     etat(`<p>${t('Connexion refusée : ', 'Sign-in refused: ')}${esc(j.error || '')}.
-      ${t('Utilisez votre adresse institutionnelle se terminant par @facsciences-uy1.cm.', 'Use your institutional address ending in @facsciences-uy1.cm.')}</p>${c}`);
+      ${t('Utilisez votre adresse institutionnelle se terminant par @facsciences-uy1.cm ou @ens-uy1.cm.', 'Use your institutional address ending in @facsciences-uy1.cm or @ens-uy1.cm.')}</p>${c}`);
   };
 
   const demarrer = async () => {
