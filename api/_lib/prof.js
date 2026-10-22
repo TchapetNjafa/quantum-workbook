@@ -15,20 +15,27 @@ const iso = d => (d ? new Date(d).toISOString() : null);
 export function profOk(req, session) {
   if (!session || session.role !== 'prof') return false;
   const p = depuisRequete(req, COOKIE_PROF);
-  return !!p && p.email === session.email;
+  // `typ` distingue ce jeton d'un cookie de session Google (même clé de signature) recopié dans le cookie du verrou.
+  return !!p && p.typ === 'verrou-prof' && p.email === session.email;
 }
 
 export async function login({ session, body }) {
   if (!session || session.role !== 'prof') return [403, { error: 'réservé à l’enseignant' }];
   const attendu = process.env.TEACHER_PASSWORD;
   if (!attendu) return [503, { error: 'mot de passe enseignant non configuré' }];
-  const depuis = new Date(maintenant().getTime() - FENETRE_MS).toISOString();
-  const [{ n }] = await q('SELECT count(*)::int AS n FROM prof_essais WHERE NOT ok AND at > $1', [depuis]);
-  if (n >= ESSAIS_MAX) return [429, { error: 'trop d’essais, réessayez dans quelques minutes' }];
+  // L'essai est réservé (compté comme échec) AVANT de comparer le mot de passe, en une seule instruction :
+  // des requêtes parallèles ne peuvent pas toutes passer sous la limite. Un succès retransforme la ligne en réussite.
+  const now = maintenant();
+  const depuis = new Date(now.getTime() - FENETRE_MS).toISOString();
+  const reserve = await q(
+    `INSERT INTO prof_essais (at, ok) SELECT $1, FALSE
+      WHERE (SELECT count(*) FROM prof_essais WHERE NOT ok AND at > $2) < $3 RETURNING id`,
+    [now.toISOString(), depuis, ESSAIS_MAX]);
+  if (!reserve.length) return [429, { error: 'trop d’essais, réessayez dans quelques minutes' }];
   const bon = timingSafeEqual(empreinte(body?.password ?? ''), empreinte(attendu));
-  await q('INSERT INTO prof_essais (at, ok) VALUES ($1, $2)', [maintenant().toISOString(), bon]);
   if (!bon) return [401, { error: 'mot de passe incorrect' }];
-  return [200, { ok: true }, { cookieProf: creer({ email: session.email }, undefined, DUREE_PROF) }];
+  await q('UPDATE prof_essais SET ok = TRUE WHERE id = $1', [reserve[0].id]);
+  return [200, { ok: true }, { cookieProf: creer({ typ: 'verrou-prof', email: session.email }, undefined, DUREE_PROF) }];
 }
 
 export async function listeDevoirs() {

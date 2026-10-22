@@ -21,7 +21,8 @@ export async function liste({ session }) {
   const devoirs = lignes.map(d => ({
     id: d.id, titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), limite: iso(limite(d)),
     etat: etat(d, now), rendu: !!d.recu, recu: iso(d.recu), retard: !!d.retard,
-    ...(d.resultat_visible && d.recu ? { note: Number(d.note), total: Number(d.total), manuel: d.manuel } : {})
+    // La note n'est montrée qu'après la fin du délai de remise : sinon, des remises répétées permettraient de deviner les réponses.
+    ...(d.resultat_visible && d.recu && now > limite(d) ? { note: Number(d.note), total: Number(d.total), manuel: d.manuel } : {})
   }));
   return [200, { maintenant: now.toISOString(), devoirs, a_faire: devoirs.filter(d => d.etat === 'ouvert' && !d.rendu).length }];
 }
@@ -61,11 +62,15 @@ export async function remettre({ session, params, body }) {
 
   const c = corriger(d.questions, reponses);
   const retard = e === 'retard';
-  await q(
+  // Une requête plus ancienne, arrivée en retard, ne doit pas écraser une remise plus récente (WHERE sur recu).
+  const ecrit = await q(
     `INSERT INTO remises (devoir_id, email, nom, reponses, note, total, manuel, details, declare, recu, retard)
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-     ON CONFLICT (devoir_id, email) DO UPDATE SET nom=$3, reponses=$4, note=$5, total=$6, manuel=$7, details=$8, declare=$9, recu=$10, retard=$11`,
+     ON CONFLICT (devoir_id, email) DO UPDATE SET nom=$3, reponses=$4, note=$5, total=$6, manuel=$7, details=$8, declare=$9, recu=$10, retard=$11
+       WHERE remises.recu <= $10 RETURNING devoir_id`,
     [d.id, session.email, session.name || '', JSON.stringify(reponses), c.note, c.total, c.manuel, JSON.stringify(c.details),
       declare && declare.toISOString(), now.toISOString(), retard]);
-  return [200, { recu: now.toISOString(), retard, limite: iso(limite(d)), ...(d.resultat_visible ? { note: c.note, total: c.total, manuel: c.manuel } : {}) }];
+  if (!ecrit.length) return [409, { error: 'une remise plus récente existe déjà' }];
+  // Pas de note ici : elle n'est révélée qu'après la fin du délai (voir liste()).
+  return [200, { recu: now.toISOString(), retard, limite: iso(limite(d)) }];
 }

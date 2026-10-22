@@ -40,7 +40,8 @@ export function valider(d) {
     questions.push(out);
   });
   if (JSON.stringify(questions).length > 200_000) erreurs.push('devoir trop volumineux');
-  return { ok: erreurs.length === 0, erreurs, devoir: { titre: d?.titre, ouvre: ouvre.toISOString?.(), ferme: ferme.toISOString?.(), questions } };
+  if (erreurs.length) return { ok: false, erreurs }; // avant toute conversion : toISOString() lève une exception sur une date invalide
+  return { ok: true, erreurs, devoir: { titre: d.titre, ouvre: ouvre.toISOString(), ferme: ferme.toISOString(), questions } };
 }
 
 /** Questions telles que l'étudiant les voit : jamais les réponses ni les explications. */
