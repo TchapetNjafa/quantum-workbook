@@ -91,6 +91,25 @@
       <button class="btn ghost" type="button" data-exemple>${t('Insérer un exemple', 'Insert an example')}</button></div>
       <div data-msg role="status" aria-live="polite"></div>`);
 
+    // ----- test de la configuration réelle du serveur (variables, base, stockage privé) -----
+    const diag = document.createElement('div');
+    diag.innerHTML = `<h2>${t('Configuration', 'Configuration')}</h2><div class="btn-row"><button class="btn small ghost" type="button" data-diag>${t('Tester la configuration (base, stockage)', 'Test the configuration (database, storage)')}</button></div><div data-diag-res role="status" aria-live="polite"></div>`;
+    root.appendChild(diag);
+    diag.querySelector('[data-diag]').onclick = async () => {
+      const sortie = diag.querySelector('[data-diag-res]'); sortie.textContent = t('Test en cours…', 'Testing…');
+      const r = await api('/api/prof/diagnostic');
+      if (r.status === 401) return verrou();
+      if (!r.ok) { sortie.textContent = t('Le test lui-même a échoué : ', 'The test itself failed: ') + r.status; return; }
+      const j = await r.json(), v = j.variables;
+      const ok = b => (b ? t('présent', 'present') : t('ABSENT', 'MISSING'));
+      const res = x => (x.ok ? t('fonctionne', 'works') : t('ÉCHEC : ', 'FAILED: ') + esc(x.erreur));
+      sortie.innerHTML = `<ul>
+        <li>GOOGLE_CLIENT_ID : ${ok(v.GOOGLE_CLIENT_ID)}</li><li>SESSION_SECRET (32 caractères ou plus) : ${ok(v.SESSION_SECRET)}</li>
+        <li>TEACHER_EMAIL : ${ok(v.TEACHER_EMAIL)}</li><li>TEACHER_PASSWORD : ${ok(v.TEACHER_PASSWORD)}</li><li>${t('Adresse de la base', 'Database address')} : ${ok(v.BASE_DE_DONNEES)}</li>
+        <li>${t('Authentification du stockage', 'Storage authentication')} : <b>${esc(v.BLOB_AUTHENTIFICATION)}</b> ${v.BLOB_AUTHENTIFICATION === 'aucun' ? t('(ni jeton ni BLOB_STORE_ID : le dépôt de fichiers ne marchera pas)', '(neither token nor BLOB_STORE_ID: file uploads will not work)') : ''}</li>
+        <li>${t('Base de données', 'Database')} : ${res(j.base)}</li><li>${t('Stockage privé (écriture, lecture, suppression)', 'Private storage (write, read, delete)')} : ${res(j.stockage)}</li></ul>`;
+    };
+
     root.querySelector('[data-exemple]').onclick = () => { root.querySelector('[data-json]').value = JSON.stringify(EXEMPLE, null, 2); };
     root.querySelector('[data-creer]').onclick = async () => {
       const msg = root.querySelector('[data-msg]'); let corps;

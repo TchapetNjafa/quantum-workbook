@@ -109,6 +109,7 @@ const TABLE = [
   ['GET', '/api/devoirs/:id/sujet', 'session', 0, fichiers.sujetLire],
   ['POST', '/api/prof/devoirs/:id/sujet', 'prof', 2 * 1024 * 1024, fichiers.sujetDeposer, true],
   ['GET', '/api/prof/devoirs/:id/copie/:email', 'prof', 0, fichiers.copieLire],
+  ['GET', '/api/prof/diagnostic', 'prof', 0, prof.diagnostic],
   ['GET', '/api/prof/devoirs/:id/export.csv', 'prof', 0, prof.exportCsv],
   ['GET', '/api/prof/devoirs/:id/remises/:email', 'prof', 0, prof.lireRemise],
   ['POST', '/api/prof/devoirs/:id/remises/:email/note', 'prof', 1_000, prof.noterManuel],

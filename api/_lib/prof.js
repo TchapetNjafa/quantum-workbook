@@ -3,7 +3,7 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { q, maintenant } from './db.js';
 import { valider, decoderEmail } from './grade.js';
 import { creer, depuisRequete } from './session.js';
-import { supprimer } from './stockage.js';
+import { supprimer, essai, modeAuth } from './stockage.js';
 
 export const COOKIE_PROF = 'phy321_prof';
 export const DUREE_PROF = 3600; // secondes : il faut ressaisir le mot de passe après une heure
@@ -77,6 +77,19 @@ export async function modifierDevoir({ params, body }) {
   await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, publie=$5, resultat_visible=$6, copie=$7 WHERE id=$1',
     [d.id, titre, ouvre.toISOString(), ferme.toISOString(), publie, visible, copie]);
   return [200, { ok: true }];
+}
+
+/** Vérifie la configuration réelle du serveur. Ne renvoie jamais de valeur secrète : seulement présent/absent et le message d'erreur du service. */
+export async function diagnostic() {
+  const present = nom => !!process.env[nom];
+  const variables = {
+    GOOGLE_CLIENT_ID: present('GOOGLE_CLIENT_ID'), SESSION_SECRET: (process.env.SESSION_SECRET || '').length >= 32, TEACHER_EMAIL: present('TEACHER_EMAIL'),
+    TEACHER_PASSWORD: present('TEACHER_PASSWORD'), BASE_DE_DONNEES: present('DATABASE_URL') || present('POSTGRES_URL'), BLOB_AUTHENTIFICATION: modeAuth()
+  };
+  const essayer = async f => { try { await f(); return { ok: true }; } catch (e) { return { ok: false, erreur: String(e.message || e).slice(0, 300) }; } };
+  const base = await essayer(async () => { await q('SELECT 1 AS ok'); });
+  const stockage = await essayer(essai);
+  return [200, { variables, base, stockage }];
 }
 
 // ---------- export, correction manuelle, purge, suppression ----------

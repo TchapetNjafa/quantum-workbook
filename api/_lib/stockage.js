@@ -15,6 +15,18 @@ export function typeReel(buf) {
   return null;
 }
 
-export const deposer = (chemin, buffer, mime) => impl.put(chemin, buffer, { access: 'private', allowOverwrite: true, addRandomSuffix: false, contentType: mime });
+/** Mode d'authentification du Blob : jeton lecture-écriture, ou OIDC (BLOB_STORE_ID, sans jeton), ou aucun. */
+export const modeAuth = () => (process.env.BLOB_READ_WRITE_TOKEN ? 'jeton' : process.env.BLOB_STORE_ID ? 'oidc' : 'aucun');
+
+/** Écrit, relit puis supprime un petit fichier de test : prouve que le stockage privé fonctionne vraiment. */
+export async function essai() {
+  const chemin = 'diagnostic/essai.txt';
+  await impl.put(chemin, Buffer.from('ok'), { access: 'private', allowOverwrite: true, addRandomSuffix: false, contentType: 'text/plain' });
+  const r = await impl.get(chemin, { access: 'private' });
+  if (!r || !r.stream) throw new Error('lecture impossible juste après l’écriture');
+  await impl.del(chemin);
+}
+
+export const deposer =(chemin, buffer, mime) => impl.put(chemin, buffer, { access: 'private', allowOverwrite: true, addRandomSuffix: false, contentType: mime });
 export const lire = chemin => impl.get(chemin, { access: 'private' });   // { stream, blob } ou null
 export const supprimer = chemin => impl.del(chemin);
