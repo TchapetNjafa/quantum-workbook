@@ -17,14 +17,17 @@ export { etat as etatDevoir, limite as limiteDevoir }; // utilisés aussi par fi
 export async function liste({ session }) {
   const now = maintenant();
   const lignes = await q(
-    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, r.recu, r.retard, r.note, r.total, r.manuel
+    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, r.recu, r.retard, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel
        FROM devoirs d LEFT JOIN remises r ON r.devoir_id = d.id AND r.email = $1
       WHERE d.publie ORDER BY d.ferme DESC`, [session.email]);
   const devoirs = lignes.map(d => ({
     id: d.id, titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), limite: iso(limite(d)),
     copie: !!d.copie, sujet: !!d.sujet, etat: etat(d, now), rendu: !!d.recu, recu: iso(d.recu), retard: !!d.retard,
     // La note n'est montrée qu'après la fin du délai de remise : sinon, des remises répétées permettraient de deviner les réponses.
-    ...(d.resultat_visible && d.recu && now > limite(d) ? { note: Number(d.note), total: Number(d.total), manuel: d.manuel } : {})
+    ...(d.resultat_visible && d.recu && now > limite(d) ? {
+      note: Number(d.note), total: Number(d.total), manuel: d.manuel,
+      ...(d.manuel ? { note_manuelle: d.note_manuelle === null ? null : Number(d.note_manuelle), total_manuel: Number(d.total_manuel) } : {})
+    } : {})
   }));
   return [200, { maintenant: now.toISOString(), devoirs, a_faire: devoirs.filter(d => d.etat === 'ouvert' && !d.rendu).length }];
 }
@@ -69,12 +72,13 @@ export async function remettre({ session, params, body }) {
   // l'heure déclarée par l'appareil reste indicative et est présentée comme telle à l'enseignant.
   const horsLigne = body.offline === true;
   const ecrit = await q(
-    `INSERT INTO remises (devoir_id, email, nom, reponses, note, total, manuel, details, declare, recu, retard, hors_ligne)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-     ON CONFLICT (devoir_id, email) DO UPDATE SET nom=$3, reponses=$4, note=$5, total=$6, manuel=$7, details=$8, declare=$9, recu=$10, retard=$11, hors_ligne=$12
+    `INSERT INTO remises (devoir_id, email, nom, reponses, note, total, manuel, details, declare, recu, retard, hors_ligne, total_manuel)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+     ON CONFLICT (devoir_id, email) DO UPDATE SET nom=$3, reponses=$4, note=$5, total=$6, manuel=$7, details=$8, declare=$9, recu=$10, retard=$11, hors_ligne=$12,
+       total_manuel=$13, note_manuelle=NULL  -- de nouvelles réponses annulent une correction manuelle déjà saisie
        WHERE remises.recu <= $10 RETURNING devoir_id`,
     [d.id, session.email, session.name || '', JSON.stringify(reponses), c.note, c.total, c.manuel, JSON.stringify(c.details),
-      declare && declare.toISOString(), now.toISOString(), retard, horsLigne]);
+      declare && declare.toISOString(), now.toISOString(), retard, horsLigne, c.totalManuel]);
   if (!ecrit.length) return [409, { error: 'une remise plus récente existe déjà' }];
   // Pas de note ici : elle n'est révélée qu'après la fin du délai (voir liste()).
   return [200, { recu: now.toISOString(), retard, limite: iso(limite(d)) }];

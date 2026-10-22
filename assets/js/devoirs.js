@@ -45,7 +45,8 @@
     const corps = devoirs.length ? devoirs.map(d => {
       const peut = d.etat === 'ouvert' || d.etat === 'retard';
       const rendu = d.rendu ? `<p>${t('Remise enregistrée le ', 'Submission recorded on ')}<b>${esc(quand(d.recu))}</b> ${t('(heure du serveur)', '(server time)')}${d.retard ? t(' — en retard', ' — late') : ''}.
-        ${d.note !== undefined ? t(`Note automatique : <b>${d.note} / ${d.total}</b>${d.manuel ? ' (hors questions à correction manuelle)' : ''}.`, `Automatic mark: <b>${d.note} / ${d.total}</b>${d.manuel ? ' (excluding manually marked questions)' : ''}.`) : ''}</p>` : '';
+        ${d.note !== undefined ? t(`Note automatique : <b>${d.note} / ${d.total}</b>.`, `Automatic mark: <b>${d.note} / ${d.total}</b>.`) : ''}
+        ${d.manuel && d.note !== undefined ? (d.note_manuelle === null ? t('Correction manuelle en cours.', 'Manual marking in progress.') : t(`Correction manuelle : <b>${d.note_manuelle} / ${d.total_manuel}</b>.`, `Manual marking: <b>${d.note_manuelle} / ${d.total_manuel}</b>.`)) : ''}</p>` : '';
       return `<article class="devoir-card" data-etat="${esc(d.etat)}">
         <h3>${esc(d.titre)}</h3>
         <p class="muted">${esc(ETAT[d.etat])} · ${t('ouvre le ', 'opens ')}${esc(quand(d.ouvre))} · ${t('ferme le ', 'closes ')}${esc(quand(d.ferme))}${peut ? t(' · dernier délai ', ' · final deadline ') + esc(quand(d.limite)) : ''}</p>

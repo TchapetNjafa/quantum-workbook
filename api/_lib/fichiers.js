@@ -4,6 +4,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { q, maintenant } from './db.js';
 import { deposer, lire, supprimer, typeReel, TAILLE_MAX } from './stockage.js';
 import { etatDevoir, limiteDevoir } from './devoirs.js';
+import { decoderEmail } from './grade.js';
 
 const iso = d => (d ? new Date(d).toISOString() : null);
 // Le chemin ne contient pas l'adresse e-mail de l'étudiant.
@@ -83,7 +84,8 @@ export async function sujetDeposer({ params, body }) {
 /** Téléchargement d'une copie par l'enseignant. */
 export async function copieLire({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
-  const email = decodeURIComponent(params.email).toLowerCase();
+  const email = decoderEmail(params.email);
+  if (!email) return [400, { error: 'adresse invalide' }];
   const [f] = await q('SELECT chemin, type FROM fichiers WHERE devoir_id = $1 AND email = $2', [Number(params.id), email]);
   if (!f) return [404, { error: 'pas de copie déposée' }];
   const r = await lire(f.chemin);

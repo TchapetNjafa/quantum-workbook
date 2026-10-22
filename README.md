@@ -155,7 +155,15 @@ passent que par l'API : le serveur contrôle la taille, le type réel (octets de
 est réduite en JPEG par le navigateur avant l'envoi. Chaque dépôt a un chemin unique ; l'ancien fichier est supprimé quand le nouveau est enregistré.
 Un fichier ne s'envoie pas hors connexion (il faut du réseau avant l'heure limite).
 
-Tests : `node tests/test-devoirs-api.mjs` (39, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
+Espace enseignant (`/prof/`) : liste et dates des devoirs, publication, résultats visibles, remises (heure serveur, retard, hors connexion, copie),
+export CSV (`;`, UTF-8 avec BOM, formules neutralisées), ZIP de toutes les copies construit dans le navigateur, correction manuelle des questions
+`interpretation` (la note est liée à la version lue : si l'étudiant remet de nouveau, elle est refusée en 409), « Supprimer les copies du serveur »
+(actif seulement après le ZIP, supprime exactement les versions contenues dans le ZIP, confirmation SUPPRIMER) et « Supprimer le devoir »
+(confirmation = titre exact ; copies et sujet supprimés avec lui). Les notes et remises restent après une purge des copies.
+Limite connue : si la base échoue après la suppression des fichiers d'un devoir, des références peuvent pointer vers des fichiers absents
+(l'API répond alors 404 proprement) ; un dépôt simultané à une suppression peut laisser un fichier non référencé.
+
+Tests : `node tests/test-devoirs-api.mjs` (46, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
 `node tests/serveur-local.mjs 8767` pour servir le site assemblé avec son API (puis `test-carnet.mjs http://localhost:8767/`).
 
 ## Signalements d'erreurs
