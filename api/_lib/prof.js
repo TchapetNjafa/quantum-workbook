@@ -80,7 +80,7 @@ export async function modifierDevoir({ params, body }) {
 export async function remisesDevoir({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
   const l = await q(
-    `SELECT r.email, r.nom, r.note, r.total, r.manuel, r.declare, r.recu, r.retard, b.debut
+    `SELECT r.email, r.nom, r.note, r.total, r.manuel, r.declare, r.recu, r.retard, r.hors_ligne, b.debut
        FROM remises r LEFT JOIN debuts b ON b.devoir_id = r.devoir_id AND b.email = r.email
       WHERE r.devoir_id = $1 ORDER BY r.email`, [Number(params.id)]);
   return [200, { remises: l.map(r => ({ ...r, note: Number(r.note), total: Number(r.total), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut) })) }];

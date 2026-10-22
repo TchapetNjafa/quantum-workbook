@@ -1,4 +1,4 @@
-/* Devoirs PHY321 (Vercel seulement) : liste, passage d'un devoir, remise.
+/* Devoirs PHY321 (Vercel seulement) : liste, passage d'un devoir, remise, remise hors connexion.
    L'heure de remise est celle du serveur ; l'heure de l'appareil n'est qu'indicative. Aucune bibliothèque. */
 (() => {
   'use strict';
@@ -12,6 +12,13 @@
   const api = (path, opt) => fetch(path, { credentials: 'same-origin', ...opt });
   const post = (path, body) => api(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const montrer = html => { root.innerHTML = html; if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([root]).catch(() => {}); };
+  const File = () => window.phy321File || { liste: () => [], ajouter() {}, retirer() {}, flush: async () => {} };
+  // Copie locale (lecture hors connexion) : titres, dates et énoncés, jamais de réponses ni de notes.
+  const memo = {
+    lire(cle) { try { return JSON.parse(localStorage.getItem(cle)); } catch { return null; } },
+    ecrire(cle, v) { try { localStorage.setItem(cle, JSON.stringify(v)); } catch { /* stockage bloqué */ } }
+  };
+  let vue = 'liste';
 
   if (/\.github\.io$/.test(location.hostname) || location.protocol === 'file:') {
     montrer(`<p class="muted">${t('Les devoirs n’existent que sur le site hébergé sur Vercel.', 'Assignments only exist on the Vercel-hosted site.')}</p>`);
@@ -22,17 +29,20 @@
     a_venir: t('à venir', 'upcoming'), ouvert: t('ouvert', 'open'),
     retard: t('fermé, remise tardive acceptée', 'closed, late submission accepted'), clos: t('clos', 'closed')
   };
+  const reseau = t('Pas de connexion : ce que vous voyez vient de votre appareil.', 'No connection: what you see comes from your device.');
 
-  async function liste() {
-    const r = await api('/api/devoirs');
-    if (r.status === 401) {
-      return montrer(`<p>${t('Connectez-vous avec votre compte universitaire pour voir les devoirs.', 'Sign in with your university account to see the assignments.')}</p>
-        <p><a class="btn accent" href="${EN ? '/en/login.html' : '/connexion.html'}">${t('Se connecter', 'Sign in')}</a></p>`);
-    }
-    if (!r.ok) throw new Error('liste');
-    const { devoirs } = await r.json();
-    if (!devoirs.length) return montrer(`<p class="muted">${t('Aucun devoir publié pour le moment.', 'No assignment published yet.')}</p>`);
-    montrer(devoirs.map(d => {
+  function enAttente() {
+    const l = File().liste();
+    if (!l.length) return '';
+    return `<div class="devoir-card" data-etat="attente"><h3>${t('Remises sur cet appareil', 'Submissions on this device')}</h3>` + l.map(x => x.etat === 'refusee'
+      ? `<p><b>${esc(x.titre)}</b> — ${t('refusée par le serveur : ', 'refused by the server: ')}${esc(x.raison)}. <button class="btn small ghost" type="button" data-retirer="${esc(x.id)}">${t('Retirer', 'Remove')}</button></p>`
+      : `<p><b>${esc(x.titre)}</b> — ${t('en attente d’envoi (préparée le ', 'waiting to be sent (prepared on ')}${esc(quand(x.declared_at))}${t(' sur cet appareil). Elle doit parvenir au serveur avant ', ' on this device). It must reach the server before ')}<b>${esc(quand(x.limite))}</b>${t(', sinon elle sera refusée.', ', otherwise it will be refused.')}</p>`
+    ).join('') + `<p><button class="btn small accent" type="button" data-envoyer-file>${t('Envoyer maintenant', 'Send now')}</button></p></div>`;
+  }
+
+  function afficherListe(devoirs, horsLigne) {
+    vue = 'liste';
+    const corps = devoirs.length ? devoirs.map(d => {
       const peut = d.etat === 'ouvert' || d.etat === 'retard';
       const rendu = d.rendu ? `<p>${t('Remise enregistrée le ', 'Submission recorded on ')}<b>${esc(quand(d.recu))}</b> ${t('(heure du serveur)', '(server time)')}${d.retard ? t(' — en retard', ' — late') : ''}.
         ${d.note !== undefined ? t(`Note automatique : <b>${d.note} / ${d.total}</b>${d.manuel ? ' (hors questions à correction manuelle)' : ''}.`, `Automatic mark: <b>${d.note} / ${d.total}</b>${d.manuel ? ' (excluding manually marked questions)' : ''}.`) : ''}</p>` : '';
@@ -42,8 +52,26 @@
         ${rendu}
         ${peut ? `<button class="btn ${d.rendu ? 'ghost' : 'accent'}" type="button" data-ouvrir="${d.id}">${d.rendu ? t('Modifier ma remise', 'Edit my submission') : t('Commencer', 'Start')}</button>` : ''}
       </article>`;
-    }).join(''));
+    }).join('') : `<p class="muted">${t('Aucun devoir publié pour le moment.', 'No assignment published yet.')}</p>`;
+    montrer((horsLigne ? `<p class="muted" role="status">${reseau}</p>` : '') + enAttente() + corps);
     root.querySelectorAll('[data-ouvrir]').forEach(b => { b.onclick = () => ouvrir(b.dataset.ouvrir).catch(erreur); });
+    root.querySelectorAll('[data-retirer]').forEach(b => { b.onclick = () => File().retirer(b.dataset.retirer); });
+    const e = root.querySelector('[data-envoyer-file]'); if (e) e.onclick = () => File().flush();
+  }
+
+  async function liste() {
+    let r;
+    try { r = await api('/api/devoirs'); }
+    catch { const c = memo.lire('phy321.devoirs.cache.v1'); return c ? afficherListe(c.devoirs, true) : erreur(); }
+    if (r.status === 401) {
+      vue = 'connexion';
+      return montrer(`<p>${t('Connectez-vous avec votre compte universitaire pour voir les devoirs.', 'Sign in with your university account to see the assignments.')}</p>
+        <p><a class="btn accent" href="${EN ? '/en/login.html' : '/connexion.html'}">${t('Se connecter', 'Sign in')}</a></p>`);
+    }
+    if (!r.ok) throw new Error('liste');
+    const { devoirs } = await r.json();
+    memo.ecrire('phy321.devoirs.cache.v1', { devoirs: devoirs.map(({ note, total, manuel, ...d }) => d) });
+    afficherListe(devoirs, false);
   }
 
   function champ(q) {
@@ -57,17 +85,23 @@
   const estRadio = els => els && els.length !== undefined && els[0] && els[0].type === 'radio';
 
   async function ouvrir(id) {
-    const r = await api(`/api/devoirs/${id}`);
-    if (!r.ok) {
-      const j = await r.json().catch(() => ({}));
-      montrer(`<p>${esc(j.error || t('Devoir indisponible.', 'Assignment unavailable.'))}</p><p><button class="btn ghost" type="button" data-retour>${t('Retour', 'Back')}</button></p>`);
-      root.querySelector('[data-retour]').onclick = () => liste().catch(erreur);
-      return;
+    let r, d, horsLigne = false;
+    try { r = await api(`/api/devoirs/${id}`); }
+    catch { d = memo.lire(`phy321.devoir.${id}`); horsLigne = true; if (!d) return erreur(); }
+    if (r) {
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        montrer(`<p>${esc(j.error || t('Devoir indisponible.', 'Assignment unavailable.'))}</p><p><button class="btn ghost" type="button" data-retour>${t('Retour', 'Back')}</button></p>`);
+        root.querySelector('[data-retour]').onclick = () => liste().catch(erreur);
+        return;
+      }
+      d = await r.json();
+      memo.ecrire(`phy321.devoir.${id}`, { ...d, reponses: {} }); // énoncés seulement : permet de répondre si le réseau coupe
     }
-    const d = await r.json();
-    montrer(`<h3>${esc(d.titre)}</h3>
+    vue = 'devoir';
+    montrer(`${horsLigne ? `<p class="muted" role="status">${reseau}</p>` : ''}<h3>${esc(d.titre)}</h3>
       <p class="muted">${t('Fermeture : ', 'Closes: ')}${esc(quand(d.ferme))}. ${t('Une remise reçue après cette heure et avant ', 'A submission received after that time and before ')}${esc(quand(d.limite))}${t(' est acceptée mais marquée en retard.', ' is accepted but marked late.')}
-        ${t('L’heure retenue est celle du serveur, pas celle de votre appareil.', 'The time recorded is the server’s, not your device’s.')}</p>
+        ${t('L’heure retenue est celle du serveur, pas celle de votre appareil. Sans connexion, la remise est gardée sur votre appareil et envoyée au retour du réseau : elle doit parvenir au serveur avant l’heure limite.', 'The time recorded is the server’s, not your device’s. Without a connection, your submission is kept on your device and sent when the network returns: it must reach the server before the final deadline.')}</p>
       <form id="dev-form">${d.questions.map((q, i) => `<fieldset class="diag-q"><legend>${i + 1}. ${esc(q.question)}${q.points > 1 ? ` <span class="muted">(${q.points} pts)</span>` : ''}</legend>${champ(q)}</fieldset>`).join('')}</form>
       <div class="btn-row"><button class="btn accent" type="button" data-envoyer>${t('Remettre', 'Submit')}</button><button class="btn ghost" type="button" data-retour>${t('Retour', 'Back')}</button></div>
       <div id="dev-msg" role="status" aria-live="polite"></div>`);
@@ -87,15 +121,23 @@
         if (v !== undefined && v !== '') reponses[q.id] = q.type === 'vrai_faux' ? v === 'true' : v;
       }
       const msg = root.querySelector('#dev-msg'); msg.textContent = t('Envoi…', 'Sending…');
-      const rep = await post(`/api/devoirs/${d.id}/remise`, { reponses, declared_at: new Date().toISOString() });
+      let rep;
+      try { rep = await post(`/api/devoirs/${d.id}/remise`, { reponses, declared_at: new Date().toISOString() }); }
+      catch {
+        File().ajouter({ devoir: d.id, titre: d.titre, limite: d.limite, reponses });
+        msg.innerHTML = `<p><b>${t('Pas de connexion.', 'No connection.')}</b> ${t('Votre remise est enregistrée sur cet appareil et sera envoyée dès que le réseau reviendra. Gardez cette page ou rouvrez le site avec du réseau avant ', 'Your submission is saved on this device and will be sent as soon as the network returns. Keep this page or reopen the site with a connection before ')}<b>${esc(quand(d.limite))}</b>${t(' : après cette heure, elle sera refusée.', ': after that time it will be refused.')}</p>`;
+        return;
+      }
       const j = await rep.json().catch(() => ({}));
       msg.innerHTML = rep.ok
         ? `<p><b>${t('Remise enregistrée', 'Submission recorded')}</b> ${t('le ', 'on ')}${esc(quand(j.recu))} ${t('(heure du serveur)', '(server time)')}${j.retard ? t(' — marquée en retard.', ' — marked late.') : '.'}
-           ${j.note !== undefined ? t(` Note automatique : ${j.note} / ${j.total}.`, ` Automatic mark: ${j.note} / ${j.total}.`) : t(' Les résultats seront publiés par l’enseignant.', ' Results will be released by the teacher.')}</p>`
+           ${t(' Les résultats seront publiés par l’enseignant.', ' Results will be released by the teacher.')}</p>`
         : `<p>${t('Remise refusée : ', 'Submission refused: ')}${esc(j.error || rep.status)}</p>`;
     };
   }
 
   const erreur = () => montrer(`<p class="muted">${t('Impossible de joindre le serveur. Vérifiez votre connexion internet puis réessayez.', 'Cannot reach the server. Check your internet connection and try again.')}</p>`);
+  // quand la file change (envoi réussi, refus), la liste se met à jour ; une saisie en cours n'est jamais écrasée
+  addEventListener('phy321:file', () => { if (vue === 'liste') liste().catch(erreur); });
   liste().catch(erreur);
 })();

@@ -97,7 +97,7 @@
     const { remises } = await r.json();
     detail.innerHTML = `<h3>${esc(d.titre)} — ${t('remises', 'submissions')}</h3>` + (remises.length
       ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Étudiant', 'Student')}</th><th>${t('Note auto', 'Auto mark')}</th><th>${t('Reçue (serveur)', 'Received (server)')}</th><th>${t('Ouverte (serveur)', 'Opened (server)')}</th><th>${t('Déclarée (appareil, non vérifiable)', 'Declared (device, unverifiable)')}</th><th>${t('Retard', 'Late')}</th></tr></thead><tbody>
-        ${remises.map(x => `<tr><td>${esc(x.nom)} <span class="muted">${esc(x.email)}</span></td><td>${x.note} / ${x.total}${x.manuel ? t(' + manuel', ' + manual') : ''}</td><td>${esc(quand(x.recu))}</td><td>${esc(quand(x.debut))}</td><td>${esc(quand(x.declare))}</td><td>${x.retard ? t('oui', 'yes') : t('non', 'no')}</td></tr>`).join('')}</tbody></table></div>`
+        ${remises.map(x => `<tr><td>${esc(x.nom)} <span class="muted">${esc(x.email)}</span></td><td>${x.note} / ${x.total}${x.manuel ? t(' + manuel', ' + manual') : ''}</td><td>${esc(quand(x.recu))}</td><td>${esc(quand(x.debut))}</td><td>${esc(quand(x.declare))}${x.hors_ligne ? t(' <span class="muted">(préparée hors connexion)</span>', ' <span class="muted">(prepared offline)</span>') : ''}</td><td>${x.retard ? t('oui', 'yes') : t('non', 'no')}</td></tr>`).join('')}</tbody></table></div>`
       : `<p class="muted">${t('Aucune remise.', 'No submission.')}</p>`);
   }
 
