@@ -22,11 +22,15 @@
         <button class="btn accent" type="submit">${t('Enregistrer', 'Save')}</button></form>
         <p class="muted">${t('Données conservées 5 mois après votre dernière activité, puis supprimées. Vous pouvez tout effacer à tout moment depuis la page Profil.', 'Data kept for 5 months after your last activity, then deleted. You can erase everything at any time from the Profile page.')}</p>
         <div data-msg-mat role="status" aria-live="polite"></div>`;
+      // Liste de classe de l'enseignant : le matricule lié à cette adresse est proposé d'avance.
+      const champ = zone.querySelector('[name=m]');
+      Profil.lire().then(p => { if (p && p.matricule_propose && !champ.value) champ.value = p.matricule_propose; });
       zone.querySelector('[data-matricule]').onsubmit = async e => {
         e.preventDefault();
         const rep = await post('/api/profil', { matricule: e.target.m.value, visible: e.target.v.checked });
         const j = await rep.json().catch(() => ({}));
         if (rep.ok) return surSucces && surSucces(j);
+        if (j.matricule_propose) champ.value = j.matricule_propose;
         zone.querySelector('[data-msg-mat]').innerHTML = `<p class="prof-erreurs">${esc(j.error || rep.status)}</p>`;
       };
     }
@@ -61,7 +65,7 @@
         ${h.par_chapitre.map(c => `<tr><td>${c.chapitre ?? t('Tous', 'All')}</td><td>${c.series}</td><td>${pct(c.ok, c.n)}</td></tr>`).join('')}</tbody></table>` : `<p class="muted">${t('Aucune série envoyée pour le moment : elles s’enregistrent quand vous terminez un quiz en étant connecté.', 'No set sent yet: they are recorded when you finish a quiz while signed in.')}</p>`}
       ${h.dernieres.length ? `<details><summary>${t('Dernières séries', 'Latest sets')}</summary><ul>${h.dernieres.map(s => `<li>${esc(quand(s.quand))} — ${t('chapitre', 'chapter')} ${s.chapitre ?? '—'}${s.exam ? t(' (examen)', ' (exam)') : ''} : ${s.ok} / ${s.n}</li>`).join('')}</ul></details>` : ''}
       <h2>${t('Effacer mes données', 'Erase my data')}</h2>
-      <p class="muted">${t('Supprime votre profil, vos scores et vos défis. Les devoirs déjà remis et leurs notes restent chez l’enseignant. Vous devrez enregistrer un matricule pour utiliser de nouveau le classement et les devoirs.', 'Deletes your profile, scores and challenges. Assignments already submitted and their marks stay with the teacher. You will need to register a student number again to use the leaderboard and assignments.')}</p>
+      <p class="muted">${t('Supprime votre profil, vos scores et vos défis. Les devoirs déjà remis et leurs notes restent chez l’enseignant jusqu’à 5 mois après la fermeture du devoir. Vous devrez enregistrer un matricule pour utiliser de nouveau le classement et les devoirs.', 'Deletes your profile, scores and challenges. Assignments already submitted and their marks stay with the teacher until 5 months after the assignment closes. You will need to register a student number again to use the leaderboard and assignments.')}</p>
       <button class="btn small ghost" type="button" data-effacer>${t('Effacer mes données', 'Erase my data')}</button><div data-msg-eff role="status" aria-live="polite"></div>`);
     root.querySelector('[data-visible]').onchange = async e => { await post('/api/profil', { visible: e.target.checked }); };
     root.querySelector('[data-effacer]').onclick = async () => {

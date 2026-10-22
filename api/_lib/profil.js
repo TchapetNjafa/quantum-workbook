@@ -1,6 +1,7 @@
 // Profil de l'étudiant : le MATRICULE est obligatoire pour déposer un devoir, figurer au classement et jouer un défi.
 // Conservation : 5 mois (150 jours) après la dernière activité ; l'étudiant peut aussi tout supprimer à tout moment.
 import { q, maintenant } from './db.js';
+import { supprimer } from './stockage.js';
 
 export const RETENTION_JOURS = 150; // 5 mois
 const JOUR = 24 * 3600 * 1000;
@@ -15,7 +16,9 @@ export const toucher = email => q('UPDATE profils SET activite = $2 WHERE email 
 
 export async function lire({ session }) {
   const p = await profilDe(session.email);
-  return [200, p ? { matricule: p.matricule, visible: p.visible, nom: p.nom, conservation_jours: RETENTION_JOURS } : { matricule: null, conservation_jours: RETENTION_JOURS }];
+  if (p) return [200, { matricule: p.matricule, visible: p.visible, nom: p.nom, conservation_jours: RETENTION_JOURS }];
+  const [l] = await q('SELECT matricule FROM liste_classe WHERE email = $1', [session.email]);
+  return [200, { matricule: null, matricule_propose: l ? l.matricule : null, conservation_jours: RETENTION_JOURS }];
 }
 
 export async function enregistrer({ session, body }) {
@@ -28,7 +31,23 @@ export async function enregistrer({ session, body }) {
     return [200, { matricule: existant.matricule, visible }];
   }
   const m = normaliser(body?.matricule);
+  // Liste de classe importée par l'enseignant : si elle existe, le matricule doit y figurer et correspondre à cette adresse.
+  const [{ n }] = await q('SELECT count(*)::int AS n FROM liste_classe');
+  if (n) {
+    const [parAdresse] = await q('SELECT matricule FROM liste_classe WHERE email = $1', [session.email]);
+    if (parAdresse) {
+      if (m && m !== parAdresse.matricule) return [400, { error: `votre matricule dans la liste de classe est ${parAdresse.matricule}`, matricule_propose: parAdresse.matricule }];
+      return creerProfil(session, parAdresse.matricule, visible);
+    }
+    const [ligne] = FORMAT_MATRICULE.test(m) ? await q('SELECT email FROM liste_classe WHERE matricule = $1', [m]) : [];
+    if (!ligne) return [403, { error: 'ce matricule ne figure pas dans la liste de classe : vérifiez-le ou contactez l’enseignant' }];
+    if (ligne.email) return [403, { error: 'ce matricule est réservé à une autre adresse : contactez l’enseignant' }];
+  }
   if (!FORMAT_MATRICULE.test(m)) return [400, { error: 'matricule invalide : 4 à 15 lettres ou chiffres, sans espace ni signe' }];
+  return creerProfil(session, m, visible);
+}
+
+async function creerProfil(session, m, visible) {
   const maintenantISO = maintenant().toISOString();
   try {
     await q('INSERT INTO profils (email, matricule, nom, visible, cree, activite) VALUES ($1,$2,$3,$4,$5,$5)', [session.email, m, session.name || '', visible, maintenantISO]);
@@ -39,7 +58,7 @@ export async function enregistrer({ session, body }) {
   return [200, { matricule: m, visible }];
 }
 
-/** Droit à l'effacement : supprime le profil, les scores et les défis de l'étudiant. Les devoirs remis et leurs notes restent chez l'enseignant. */
+/** Droit à l'effacement : supprime le profil, les scores et les défis de l'étudiant. Les devoirs remis et leurs notes restent chez l'enseignant (5 mois après la fermeture du devoir). */
 export async function supprimerMesDonnees({ session, body }) {
   if (body?.confirmation !== 'SUPPRIMER') return [400, { error: 'confirmation requise : tapez SUPPRIMER' }];
   await q('DELETE FROM profils WHERE email = $1', [session.email]); // scores, défis créés et essais de défis partent avec lui (ON DELETE CASCADE)
@@ -56,6 +75,24 @@ export async function purgerAnciennes(force = false) {
   const s = await q('DELETE FROM scores WHERE quand < $1 RETURNING id', [limite]);
   const d = await q('DELETE FROM defis WHERE cree < $1 RETURNING code', [limite]);
   const p = await q('DELETE FROM profils WHERE activite < $1 RETURNING email', [limite]);
-  return { scores: s.length, defis: d.length, profils: p.length };
+  return { scores: s.length, defis: d.length, profils: p.length, ...(await purgerDevoirs(limite)) };
+}
+
+/** Remises, ouvertures et copies des devoirs fermés depuis plus de 5 mois. Le devoir (énoncé, questions, sujet) reste.
+ *  Une copie dont le fichier ne peut pas être supprimé garde sa ligne : elle sera reprise au passage suivant. */
+async function purgerDevoirs(limite) {
+  const maintenantISO = maintenant().toISOString();
+  let devoirs = 0, copies = 0, echecs = 0;
+  for (const d of await q('SELECT id FROM devoirs WHERE ferme < $1 AND purge IS NULL', [limite])) {
+    for (const f of await q('SELECT chemin FROM fichiers WHERE devoir_id = $1', [d.id])) {
+      try { await supprimer(f.chemin); await q('DELETE FROM fichiers WHERE devoir_id = $1 AND chemin = $2', [d.id, f.chemin]); copies++; }
+      catch (e) { echecs++; console.error('purge copie', e.message); }
+    }
+    await q('DELETE FROM remises WHERE devoir_id = $1', [d.id]);
+    await q('DELETE FROM debuts WHERE devoir_id = $1', [d.id]);
+    const [{ reste }] = await q('SELECT count(*)::int AS reste FROM fichiers WHERE devoir_id = $1', [d.id]);
+    if (!reste) { await q('UPDATE devoirs SET purge = $2 WHERE id = $1', [d.id, maintenantISO]); devoirs++; }
+  }
+  return { devoirs, copies, echecs_copies: echecs };
 }
 export const reinitialiserPurge = () => { derniere = 0; };

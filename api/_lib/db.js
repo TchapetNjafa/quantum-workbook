@@ -47,7 +47,10 @@ const SCHEMA = [
      code TEXT PRIMARY KEY, createur TEXT NOT NULL REFERENCES profils(email) ON DELETE CASCADE, chapitre INT, ids JSONB NOT NULL, cree TIMESTAMPTZ NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS defis_scores (
      code TEXT NOT NULL REFERENCES defis(code) ON DELETE CASCADE, email TEXT NOT NULL REFERENCES profils(email) ON DELETE CASCADE,
-     ok INT NOT NULL, duree INT NOT NULL, quand TIMESTAMPTZ NOT NULL, PRIMARY KEY (code, email))`
+     ok INT NOT NULL, duree INT NOT NULL, quand TIMESTAMPTZ NOT NULL, PRIMARY KEY (code, email))`,
+  // ----- phase 7 : liste de classe importée par l'enseignant (matricule ↔ nom ↔ adresse) ; purge des remises 5 mois après la fermeture du devoir -----
+  `CREATE TABLE IF NOT EXISTS liste_classe (matricule TEXT PRIMARY KEY, nom TEXT NOT NULL DEFAULT '', email TEXT UNIQUE)`,
+  `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS purge TIMESTAMPTZ` // date à laquelle remises, ouvertures et copies ont été supprimées
 ];
 
 function connexion() {

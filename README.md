@@ -184,7 +184,13 @@ l'enseignant le réinitialise en cas d'erreur) pour remettre un devoir, déposer
   un seul essai par étudiant (le premier compte), valable 30 jours.
 - **Conservation de 5 mois (150 jours)** : scores et défis plus anciens sont supprimés, ainsi que les profils sans activité depuis 5 mois (remettre un devoir ou déposer une copie compte comme activité).
   La suppression est faite par la tâche planifiée `/api/cron/purge` (tous les jours à 03 h 17 UTC, `vercel.json` > `crons` ; `CRON_SECRET` facultatif) et au passage d'une requête. L'étudiant peut tout effacer
-  depuis sa page Profil ; les clés étrangères en cascade emportent scores, défis et essais. Les devoirs remis, leurs notes, ouvertures et copies restent avec le devoir (export CSV et suppression dans `/prof/`).
+  depuis sa page Profil ; les clés étrangères en cascade emportent scores, défis et essais. Les remises, notes, ouvertures et copies d'un devoir sont supprimées **150 jours après sa fermeture** (`devoirs.ferme`) par la même tâche : le devoir lui-même (énoncé, questions, sujet PDF) reste.
+  Une copie dont le fichier ne peut pas être supprimé garde sa ligne et est reprise au passage suivant ; `devoirs.purge` note la date de suppression ; `/prof/` affiche pour chaque devoir la date prévue
+  (téléchargez l'export CSV et le ZIP des copies avant). Seul le droit à l'effacement ci-dessus et la suppression d'un devoir dans `/prof/` agissent plus tôt.
+- **Liste de classe** (`/prof/` > « Liste de classe », table `liste_classe`) : import d'un CSV `matricule ; nom ; adresse` (l'adresse peut manquer). Tant que la liste est vide, le matricule est libre (comportement précédent) ;
+  une fois importée, l'étudiant dont l'adresse figure dans la liste reçoit son matricule (prérempli, tout autre est refusé) ; sinon il ne peut saisir qu'un matricule de la liste sans adresse et encore libre.
+  Sont ignorées et signalées : matricule invalide, adresse en double, matricule partagé par deux personnes différentes. Un nouvel import remplace la liste. Elle contient des données personnelles :
+  elle n'est jamais dans le dépôt, reste sur le serveur jusqu'à ce que l'enseignant la vide, et la connexion reste limitée à `@facsciences-uy1.cm` (une adresse d'un autre domaine ne peut donc pas se connecter).
 - Limites connues : un étudiant peut saisir le matricule d'un camarade avant lui (l'enseignant voit matricule, nom et adresse côte à côte et réinitialise) ; les scores sont déclaratifs.
 
 ### Mise à jour hors connexion par différence (Vercel)
