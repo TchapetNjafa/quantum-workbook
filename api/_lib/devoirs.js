@@ -63,13 +63,16 @@ export async function remettre({ session, params, body }) {
   const c = corriger(d.questions, reponses);
   const retard = e === 'retard';
   // Une requête plus ancienne, arrivée en retard, ne doit pas écraser une remise plus récente (WHERE sur recu).
+  // `offline` : la remise a été préparée sans réseau puis envoyée plus tard. Seule l'heure de réception (serveur) décide du retard ;
+  // l'heure déclarée par l'appareil reste indicative et est présentée comme telle à l'enseignant.
+  const horsLigne = body.offline === true;
   const ecrit = await q(
-    `INSERT INTO remises (devoir_id, email, nom, reponses, note, total, manuel, details, declare, recu, retard)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-     ON CONFLICT (devoir_id, email) DO UPDATE SET nom=$3, reponses=$4, note=$5, total=$6, manuel=$7, details=$8, declare=$9, recu=$10, retard=$11
+    `INSERT INTO remises (devoir_id, email, nom, reponses, note, total, manuel, details, declare, recu, retard, hors_ligne)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+     ON CONFLICT (devoir_id, email) DO UPDATE SET nom=$3, reponses=$4, note=$5, total=$6, manuel=$7, details=$8, declare=$9, recu=$10, retard=$11, hors_ligne=$12
        WHERE remises.recu <= $10 RETURNING devoir_id`,
     [d.id, session.email, session.name || '', JSON.stringify(reponses), c.note, c.total, c.manuel, JSON.stringify(c.details),
-      declare && declare.toISOString(), now.toISOString(), retard]);
+      declare && declare.toISOString(), now.toISOString(), retard, horsLigne]);
   if (!ecrit.length) return [409, { error: 'une remise plus récente existe déjà' }];
   // Pas de note ici : elle n'est révélée qu'après la fin du délai (voir liste()).
   return [200, { recu: now.toISOString(), retard, limite: iso(limite(d)) }];

@@ -45,6 +45,15 @@
     };
     window.phy321MajNav = majNav; // rappelée par compte.js après une connexion, sans changer de page
     addEventListener('DOMContentLoaded', majNav);
+    // Remise faite sans réseau : où que l'étudiant rouvre le site, la file d'attente est chargée et envoyée dès que possible
+    try {
+      if (localStorage.getItem('phy321.file.v1') && scriptSrc && !window.phy321File) {
+        const s = document.createElement('script');
+        s.src = new URL('file-remises.js', scriptSrc).href;
+        s.onload = () => { window.phy321File.flush(); };
+        document.head.appendChild(s);
+      }
+    } catch { /* stockage bloqué */ }
   }
 
   /* ---------- stockage local (peut être indisponible : navigation privée) ---------- */

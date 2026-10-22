@@ -144,6 +144,11 @@ au-delà elle est refusée ; l'espace enseignant demande le compte Google `TEACH
 Le lien « Devoirs » de la barre du haut prend la couleur d'accent, avec le nombre, tant qu'un devoir ouvert n'est pas rendu (`/api/statut`).
 Variable à ajouter : `TEACHER_PASSWORD`.
 
+Remises hors connexion : si le réseau est coupé au moment de remettre, `assets/js/file-remises.js` garde la remise dans l'appareil
+(`localStorage`, clé `phy321.file.v1`) et l'envoie dès que le réseau revient (événement `online`, ou à la réouverture du site, Carnet ou quiz).
+Le serveur ne retient que l'heure de réception : une remise arrivée plus de 24 h après la fermeture est refusée. L'heure notée par
+l'appareil est conservée à titre indicatif, et l'enseignant voit « préparée hors connexion ».
+
 Tests : `node tests/test-devoirs-api.mjs` (24, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
 `node tests/serveur-local.mjs 8767` pour servir le site assemblé avec son API (puis `test-carnet.mjs http://localhost:8767/`).
 
