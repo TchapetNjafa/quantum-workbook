@@ -12,7 +12,7 @@ rm -rf "$OUT"
 mkdir -p "$OUT/quiz"
 
 # Carnet : tout sauf les dossiers de travail.
-tar --exclude=./.git --exclude=./.github --exclude=./dist --exclude=./outils --exclude=./docs --exclude=./api --exclude=./package.json -cf - . | tar -xf - -C "$OUT"
+tar --exclude=./.git --exclude=./.github --exclude=./dist --exclude=./outils --exclude=./docs --exclude=./api --exclude=./package.json --exclude=./package-lock.json --exclude=./node_modules -cf - . | tar -xf - -C "$OUT"
 
 # Quiz : source locale ou archive GitHub.
 if [ -n "${QUIZ_DIR:-}" ]; then

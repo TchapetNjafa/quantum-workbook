@@ -133,6 +133,20 @@ Variables d'environnement Vercel (Settings > Environment Variables, jamais dans 
 
 Tests : `node tests/test-api.mjs` (jetons Google simulés, 18 contrôles) et `node tests/test-connexion.mjs` (page, 360 et 1366 px).
 
+### Devoirs (Vercel seulement)
+
+Pages : `devoirs.html` / `en/assignments.html` (étudiants), `prof/index.html` / `en/prof/index.html` (enseignant).
+Stockage : Postgres Neon (`DATABASE_URL`, créée par l'intégration Marketplace) ; tables créées automatiquement (`api/_lib/db.js`).
+Les questions des devoirs notés sont dans la base (jamais dans le dépôt public) : on les crée en collant du JSON dans l'espace
+enseignant (type `qcm`, `vrai_faux`, `numerical` à tolérance absolue, `interpretation` à corriger à la main).
+Règles : l'heure de remise est celle du serveur ; une remise reçue jusqu'à 24 h après la fermeture est acceptée et marquée en retard,
+au-delà elle est refusée ; l'espace enseignant demande le compte Google `TEACHER_EMAIL` puis `TEACHER_PASSWORD` (5 essais par 15 min).
+Le lien « Devoirs » de la barre du haut prend la couleur d'accent, avec le nombre, tant qu'un devoir ouvert n'est pas rendu (`/api/statut`).
+Variable à ajouter : `TEACHER_PASSWORD`.
+
+Tests : `node tests/test-devoirs-api.mjs` (24, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
+`node tests/serveur-local.mjs 8767` pour servir le site assemblé avec son API (puis `test-carnet.mjs http://localhost:8767/`).
+
 ## Signalements d'erreurs
 
 Le lien « Signaler une erreur dans ce chapitre », en bas de chaque chapitre, ouvre un formulaire d'issue
