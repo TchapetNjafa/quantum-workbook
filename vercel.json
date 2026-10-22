@@ -2,6 +2,7 @@
   "buildCommand": "sh outils/assembler_vercel.sh",
   "outputDirectory": "dist",
   "framework": null,
+  "crons": [{ "path": "/api/cron/purge", "schedule": "17 3 * * *" }],
   "rewrites": [{ "source": "/api/:path*", "destination": "/api/index" }],
   "headers": [
     { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },

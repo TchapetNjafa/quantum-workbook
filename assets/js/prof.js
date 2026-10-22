@@ -137,6 +137,30 @@
       if (avertissement) root.querySelector('[data-msg-nouveau]').innerHTML = `<p class="prof-erreurs">${esc(avertissement)}</p>`;
     };
 
+    // ----- profils des étudiants : matricule ↔ nom ↔ adresse, et réinitialisation en cas d'erreur -----
+    const prf = document.createElement('div');
+    prf.innerHTML = `<h2>${t('Profils des étudiants', 'Student profiles')}</h2>
+      <p class="muted">${t('Le matricule est obligatoire pour remettre un devoir, figurer au classement et jouer un défi. Les données du classement sont supprimées 5 mois après la dernière activité.', 'The student number is required to submit assignments, appear in the leaderboard and play challenges. Leaderboard data is deleted 5 months after the last activity.')}</p>
+      <div class="btn-row"><button class="btn small ghost" type="button" data-profils>${t('Afficher les profils', 'Show profiles')}</button></div><div data-profils-res></div>`;
+    root.appendChild(prf);
+    prf.querySelector('[data-profils]').onclick = async () => {
+      const sortie = prf.querySelector('[data-profils-res]');
+      const r = await api('/api/prof/profils');
+      if (r.status === 401) return verrou();
+      if (!r.ok) { sortie.textContent = r.status; return; }
+      const { profils } = await r.json();
+      sortie.innerHTML = profils.length ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Matricule', 'Student number')}</th><th>${t('Nom', 'Name')}</th><th>${t('Adresse', 'Address')}</th><th>${t('Dernière activité', 'Last activity')}</th><th></th></tr></thead><tbody>
+        ${profils.map(p => `<tr><td><b>${esc(p.matricule)}</b></td><td>${esc(p.nom)}</td><td>${esc(p.email)}</td><td>${esc(quand(p.activite))}</td>
+          <td><button class="btn small ghost" type="button" data-reinit="${esc(p.email)}">${t('Réinitialiser', 'Reset')}</button></td></tr>`).join('')}</tbody></table></div>` : `<p class="muted">${t('Aucun profil.', 'No profile.')}</p>`;
+      sortie.querySelectorAll('[data-reinit]').forEach(b => {
+        b.onclick = async () => {
+          if (!confirm(t(`Effacer le matricule et le classement de ${b.dataset.reinit} ? L’étudiant devra en enregistrer un nouveau.`, `Erase the student number and leaderboard data of ${b.dataset.reinit}? The student will have to register a new one.`))) return;
+          const rep = await post(`/api/prof/profils/${encodeURIComponent(b.dataset.reinit)}/reinitialiser`, {});
+          if (rep.ok) prf.querySelector('[data-profils]').click();
+        };
+      });
+    };
+
     // ----- test de la configuration réelle du serveur (variables, base, stockage privé) -----
     const diag = document.createElement('div');
     diag.innerHTML = `<h2>${t('Configuration', 'Configuration')}</h2><div class="btn-row"><button class="btn small ghost" type="button" data-diag>${t('Tester la configuration (base, stockage)', 'Test the configuration (database, storage)')}</button></div><div data-diag-res role="status" aria-live="polite"></div>`;
@@ -205,7 +229,7 @@
     const { remises } = await r.json();
     detail.innerHTML = `<h3>${esc(d.titre)} — ${t('remises', 'submissions')}</h3>` + (remises.length
       ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Étudiant', 'Student')}</th><th>${t('Note auto', 'Auto mark')}</th><th>${t('Reçue (serveur)', 'Received (server)')}</th><th>${t('Ouverte (serveur)', 'Opened (server)')}</th><th>${t('Déclarée (appareil, non vérifiable)', 'Declared (device, unverifiable)')}</th><th>${t('Retard', 'Late')}</th><th>${t('Copie', 'Paper')}</th></tr></thead><tbody>
-        ${remises.map(x => `<tr><td>${esc(x.nom)} <span class="muted">${esc(x.email)}</span></td><td>${esc(noteTxt(x))} ${x.total_manuel > 0 ? `<button class="btn small ghost" type="button" data-corriger="${esc(x.email)}">${t('Corriger', 'Mark')}</button>` : ''}</td><td>${esc(quand(x.recu))}</td><td>${esc(quand(x.debut))}</td><td>${esc(quand(x.declare))}${x.hors_ligne ? t(' <span class="muted">(préparée hors connexion)</span>', ' <span class="muted">(prepared offline)</span>') : ''}</td><td>${x.recu ? (x.retard ? t('oui', 'yes') : t('non', 'no')) : '—'}</td>
+        ${remises.map(x => `<tr><td>${esc(x.nom)} <b>${esc(x.matricule ?? t('(sans matricule)', '(no student number)'))}</b> <span class="muted">${esc(x.email)}</span></td><td>${esc(noteTxt(x))} ${x.total_manuel > 0 ? `<button class="btn small ghost" type="button" data-corriger="${esc(x.email)}">${t('Corriger', 'Mark')}</button>` : ''}</td><td>${esc(quand(x.recu))}</td><td>${esc(quand(x.debut))}</td><td>${esc(quand(x.declare))}${x.hors_ligne ? t(' <span class="muted">(préparée hors connexion)</span>', ' <span class="muted">(prepared offline)</span>') : ''}</td><td>${x.recu ? (x.retard ? t('oui', 'yes') : t('non', 'no')) : '—'}</td>
           <td>${x.copie_taille ? `<a href="/api/prof/devoirs/${id}/copie/${encodeURIComponent(x.email)}">${t('Télécharger', 'Download')}</a> <span class="muted">(${Math.max(1, Math.round(x.copie_taille / 1024))} ${t('Ko', 'KB')}, ${esc(quand(x.copie_recu))}${x.copie_retard ? t(', en retard', ', late') : ''})</span>` : '—'}</td></tr>`).join('')}</tbody></table></div>`
       : `<p class="muted">${t('Aucune remise.', 'No submission.')}</p>`);
 

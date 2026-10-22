@@ -70,6 +70,11 @@
         <p><a class="btn accent" href="${EN ? '/en/login.html' : '/connexion.html'}">${t('Se connecter', 'Sign in')}</a></p>`);
     }
     if (!r.ok) throw new Error('liste');
+    // Matricule obligatoire : tant qu'il manque, on le demande avant tout (les remises et dépôts seraient refusés par le serveur).
+    if (window.phy321Profil) {
+      const pr = await window.phy321Profil.lire();
+      if (pr && pr.matricule === null) { vue = 'profil'; montrer('<div id="zone-mat"></div>'); return window.phy321Profil.formulaire(root.querySelector('#zone-mat'), () => liste().catch(erreur)); }
+    }
     const { devoirs } = await r.json();
     memo.ecrire('phy321.devoirs.cache.v1', { devoirs: devoirs.map(({ note, total, manuel, ...d }) => d) });
     afficherListe(devoirs, false);

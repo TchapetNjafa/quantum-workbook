@@ -1,6 +1,7 @@
 // Devoirs côté étudiant : liste, ouverture, remise. L'heure qui compte est celle du serveur.
 import { q, maintenant } from './db.js';
 import { corriger, sansReponses } from './grade.js';
+import { profilDe, toucher } from './profil.js';
 
 export const DELAI_GRACE_MS = 24 * 3600 * 1000; // une remise reçue jusqu'à 24 h après la fermeture est acceptée, marquée en retard
 
@@ -57,6 +58,7 @@ export async function remettre({ session, params, body }) {
   const now = maintenant(), e = etat(d, now);
   if (e === 'a_venir') return [403, { error: 'devoir pas encore ouvert' }];
   if (e === 'clos') return [403, { error: 'remise refusée : délai dépassé', limite: iso(limite(d)) }];
+  if (!(await profilDe(session.email))) return [400, { error: 'enregistrez d’abord votre matricule (page Profil)', matricule_requis: true }];
   if (!d.questions.length) return [400, { error: 'ce devoir n’a pas de questions : il se rend en déposant une copie' }];
   // Garde-fou : un devoir qui demande une copie ne peut pas être remis sans elle (le bouton est aussi désactivé côté interface).
   if (d.copie) {
@@ -86,6 +88,7 @@ export async function remettre({ session, params, body }) {
     [d.id, session.email, session.name || '', JSON.stringify(reponses), c.note, c.total, c.manuel, JSON.stringify(c.details),
       declare && declare.toISOString(), now.toISOString(), retard, horsLigne, c.totalManuel]);
   if (!ecrit.length) return [409, { error: 'une remise plus récente existe déjà' }];
+  await toucher(session.email).catch(() => {});
   // Pas de note ici : elle n'est révélée qu'après la fin du délai (voir liste()).
   return [200, { recu: now.toISOString(), retard, limite: iso(limite(d)) }];
 }

@@ -5,6 +5,7 @@ import { q, maintenant } from './db.js';
 import { deposer, lire, supprimer, typeReel, TAILLE_MAX } from './stockage.js';
 import { etatDevoir, limiteDevoir } from './devoirs.js';
 import { decoderEmail } from './grade.js';
+import { profilDe, toucher } from './profil.js';
 
 const iso = d => (d ? new Date(d).toISOString() : null);
 // Le chemin ne contient pas l'adresse e-mail de l'étudiant.
@@ -20,6 +21,7 @@ export async function deposerCopie({ session, params, body }) {
   const d = await devoirPublie(params.id);
   if (!d) return [404, { error: 'devoir introuvable' }];
   if (!d.copie) return [403, { error: 'ce devoir n’accepte pas de copie déposée' }];
+  if (!(await profilDe(session.email))) return [400, { error: 'enregistrez d’abord votre matricule (page Profil)', matricule_requis: true }];
   const now = maintenant(), e = etatDevoir(d, now);
   if (e === 'a_venir') return [403, { error: 'devoir pas encore ouvert' }];
   if (e === 'clos') return [403, { error: 'dépôt refusé : délai dépassé', limite: iso(limiteDevoir(d)) }];
@@ -48,6 +50,7 @@ export async function deposerCopie({ session, params, body }) {
     await supprimer(chemin).catch(err => console.error('suppression fichier obsolète', err.message));
     return [409, { error: 'un dépôt plus récent existe déjà' }];
   }
+  await toucher(session.email).catch(() => {});
   if (ligne[0].ancien) await supprimer(ligne[0].ancien).catch(err => console.error('suppression ancien fichier', err.message));
   // Devoir sans question : le dépôt de la copie EST la remise. On crée la ligne de remise (à noter à la main sur le barème du devoir),
   // ce qui fait aussi disparaître le devoir de la liste « à rendre » de l'étudiant. Un nouveau dépôt annule la note déjà saisie.
