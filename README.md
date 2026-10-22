@@ -187,6 +187,15 @@ l'enseignant le réinitialise en cas d'erreur) pour remettre un devoir, déposer
   depuis sa page Profil ; les clés étrangères en cascade emportent scores, défis et essais. Les devoirs remis, leurs notes, ouvertures et copies restent avec le devoir (export CSV et suppression dans `/prof/`).
 - Limites connues : un étudiant peut saisir le matricule d'un camarade avant lui (l'enseignant voit matricule, nom et adresse côte à côte et réinitialise) ; les scores sont déclaratifs.
 
+### Mise à jour hors connexion par différence (Vercel)
+
+À chaque déploiement, `outils/generer_versions.mjs` (lancé par `outils/assembler_vercel.sh`) écrit `versions.json` (empreinte de chaque fichier ; `quiz/versions.json` pour le quiz)
+et dérive la `VERSION` des service workers du contenu : un fichier modifié change la version, un contenu identique la laisse intacte. Quand l'étudiant revient en ligne, le navigateur
+détecte le nouveau `sw.js` ; la nouvelle version **recopie localement** les fichiers dont l'empreinte est inchangée (y compris MathJax et les polices) et **ne télécharge que les fichiers
+nouveaux ou modifiés** (`cache: 'reload'`), supprime ceux qui n'existent plus, puis remplace l'ancien cache. Le bilan (`copies`, `telecharges`) est gardé dans le cache sous `/__bilan__`.
+Si le téléchargement échoue (hors connexion), l'ancienne version reste active. Sur GitHub Pages (pas de `versions.json`), le noyau est retéléchargé comme avant et `VERSION` reste à changer à la main.
+Test : `node tests/test-mise-a-jour.mjs` (7 contrôles, service workers actifs, sur une copie de `dist/`).
+
 ## Signalements d'erreurs
 
 Le lien « Signaler une erreur dans ce chapitre », en bas de chaque chapitre, ouvre un formulaire d'issue

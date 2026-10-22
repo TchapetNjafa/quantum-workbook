@@ -33,4 +33,7 @@ find "$OUT" -type f \( -name '*.html' -o -name '*.js' -o -name '*.json' \) ! -na
 sed -i 's#/quantum-workbook/#/#g' "$OUT/404.html"
 sed -i 's#/quantum-quiz/#/quiz/#g' "$OUT/quiz/404.html"
 
+# Mise à jour hors connexion par différence : empreinte de chaque fichier (versions.json) et version des service workers dérivée du contenu.
+node outils/generer_versions.mjs "$OUT"
+
 echo "dist/ prêt : $(find "$OUT" -type f | wc -l) fichiers"
