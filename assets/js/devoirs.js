@@ -45,7 +45,8 @@
     const corps = devoirs.length ? devoirs.map(d => {
       const peut = d.etat === 'ouvert' || d.etat === 'retard';
       const rendu = d.rendu ? `<p>${t('Remise enregistrée le ', 'Submission recorded on ')}<b>${esc(quand(d.recu))}</b> ${t('(heure du serveur)', '(server time)')}${d.retard ? t(' — en retard', ' — late') : ''}.
-        ${d.note !== undefined ? t(`Note automatique : <b>${d.note} / ${d.total}</b>${d.manuel ? ' (hors questions à correction manuelle)' : ''}.`, `Automatic mark: <b>${d.note} / ${d.total}</b>${d.manuel ? ' (excluding manually marked questions)' : ''}.`) : ''}</p>` : '';
+        ${d.note !== undefined && d.total > 0 ? t(`Note automatique : <b>${d.note} / ${d.total}</b>.`, `Automatic mark: <b>${d.note} / ${d.total}</b>.`) : ''}
+        ${d.manuel && d.note !== undefined ? (d.note_manuelle === null ? t('Correction manuelle en cours.', 'Manual marking in progress.') : t(`Correction manuelle : <b>${d.note_manuelle} / ${d.total_manuel}</b>.`, `Manual marking: <b>${d.note_manuelle} / ${d.total_manuel}</b>.`)) : ''}</p>` : '';
       return `<article class="devoir-card" data-etat="${esc(d.etat)}">
         <h3>${esc(d.titre)}</h3>
         <p class="muted">${esc(ETAT[d.etat])} · ${t('ouvre le ', 'opens ')}${esc(quand(d.ouvre))} · ${t('ferme le ', 'closes ')}${esc(quand(d.ferme))}${peut ? t(' · dernier délai ', ' · final deadline ') + esc(quand(d.limite)) : ''}</p>
@@ -110,7 +111,20 @@
         <input type="file" id="dev-fichier" accept="application/pdf,image/jpeg,image/png" aria-label="${t('Choisir un fichier', 'Choose a file')}">
         <p class="muted" id="dev-fichier-etat" role="status" aria-live="polite"></p>
         <button class="btn small accent" type="button" data-envoyer-fichier>${t('Envoyer la copie', 'Send the paper')}</button></fieldset>` : ''}`);
-    if (d.copie) copie(d, horsLigne);
+    if (!d.questions.length) { // devoir « copie seule » : pas de questions, le dépôt de la copie est la remise
+      const f0 = root.querySelector('#dev-form'); f0.hidden = true; root.querySelector('[data-envoyer]').hidden = true;
+      f0.insertAdjacentHTML('beforebegin', `<p>${d.sujet ? t('Téléchargez le sujet, composez sur papier ou dans le PDF, puis déposez votre copie ci-dessous (PDF ou photo).', 'Download the assignment, work it out on paper or in the PDF, then upload your paper below (PDF or photo).') : t('Composez sur papier ou en PDF, puis déposez votre copie ci-dessous (PDF ou photo).', 'Work it out on paper or in a PDF, then upload your paper below (PDF or photo).')}</p>`);
+    }
+    // Garde-fou : avec une copie demandée ET des questions, « Remettre » reste inactif tant que la copie n'est pas ENVOYÉE (et acceptée par le serveur).
+    let activer = () => {};
+    if (d.copie && d.questions.length) {
+      const bouton = root.querySelector('[data-envoyer]');
+      bouton.disabled = true; bouton.title = t('Déposez d’abord votre copie', 'Upload your paper first');
+      bouton.insertAdjacentHTML('afterend', `<span class="muted" id="dev-garde"> ${t('« Remettre » sera disponible après l’envoi de votre copie (ci-dessous).', '“Submit” becomes available once your paper has been sent (below).')}</span>`);
+      activer = () => { bouton.disabled = false; bouton.title = ''; const g = root.querySelector('#dev-garde'); if (g) g.hidden = true; memo.ecrire(`phy321.copie.${d.id}`, true); };
+      if (horsLigne && memo.lire(`phy321.copie.${d.id}`)) activer(); // copie déjà envoyée avant la coupure du réseau
+    }
+    if (d.copie) copie(d, horsLigne, activer);
     const form = root.querySelector('#dev-form');
     for (const q of d.questions) {
       const prev = d.reponses[q.id]; if (prev === undefined || prev === null) continue;
@@ -163,11 +177,12 @@
     return null;
   }
 
-  async function copie(d, horsLigne) {
+  async function copie(d, horsLigne, activer = () => {}) {
     const etat = root.querySelector('#dev-fichier-etat'), choix = root.querySelector('#dev-fichier');
     if (!horsLigne) {
       api(`/api/devoirs/${d.id}/copie`).then(r => (r.ok ? r.json() : null)).then(j => {
-        if (j && j.fichier) etat.textContent = t(`Copie déjà envoyée le ${quand(j.fichier.recu)} (${taille(j.fichier.taille)}, heure du serveur)${j.fichier.retard ? ' — en retard' : ''}. Un nouvel envoi la remplace.`,
+        if (j && j.fichier) activer();
+        if (j && j.fichier) etat.textContent =t(`Copie déjà envoyée le ${quand(j.fichier.recu)} (${taille(j.fichier.taille)}, heure du serveur)${j.fichier.retard ? ' — en retard' : ''}. Un nouvel envoi la remplace.`,
           `Paper already sent on ${quand(j.fichier.recu)} (${taille(j.fichier.taille)}, server time)${j.fichier.retard ? ' — late' : ''}. A new upload replaces it.`);
       }).catch(() => {});
     }
@@ -186,6 +201,7 @@
       try { rep = await api(`/api/devoirs/${d.id}/copie`, { method: 'POST', headers: { 'Content-Type': f.type }, body: f }); }
       catch { etat.textContent = t('Pas de connexion : le dépôt d’une copie demande du réseau. Réessayez avant ', 'No connection: uploading a paper needs a network. Try again before ') + quand(d.limite) + '.'; return; }
       const j = await rep.json().catch(() => ({}));
+      if (rep.ok) activer(); // la copie est acceptée par le serveur : « Remettre » devient disponible
       etat.textContent = rep.ok
         ? t(`Copie enregistrée le ${quand(j.recu)} (${taille(j.taille)}, heure du serveur)${j.retard ? ' — marquée en retard' : ''}.`, `Paper recorded on ${quand(j.recu)} (${taille(j.taille)}, server time)${j.retard ? ' — marked late' : ''}.`)
         : t('Dépôt refusé : ', 'Upload refused: ') + (j.error || rep.status);

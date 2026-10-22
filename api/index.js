@@ -108,7 +108,13 @@ const TABLE = [
   ['GET', '/api/devoirs/:id/copie', 'session', 0, fichiers.maCopie],
   ['GET', '/api/devoirs/:id/sujet', 'session', 0, fichiers.sujetLire],
   ['POST', '/api/prof/devoirs/:id/sujet', 'prof', 2 * 1024 * 1024, fichiers.sujetDeposer, true],
-  ['GET', '/api/prof/devoirs/:id/copie/:email', 'prof', 0, fichiers.copieLire]
+  ['GET', '/api/prof/devoirs/:id/copie/:email', 'prof', 0, fichiers.copieLire],
+  ['GET', '/api/prof/diagnostic', 'prof', 0, prof.diagnostic],
+  ['GET', '/api/prof/devoirs/:id/export.csv', 'prof', 0, prof.exportCsv],
+  ['GET', '/api/prof/devoirs/:id/remises/:email', 'prof', 0, prof.lireRemise],
+  ['POST', '/api/prof/devoirs/:id/remises/:email/note', 'prof', 1_000, prof.noterManuel],
+  ['POST', '/api/prof/devoirs/:id/purger-copies', 'prof', 1_000, prof.purgerCopies],
+  ['POST', '/api/prof/devoirs/:id/supprimer', 'prof', 1_000, prof.supprimerDevoir]
 ].map(([methode, motif, acces, max, fn, binaire = false]) => ({ methode, acces, max, fn, binaire, re: new RegExp('^' + motif.replace(/:(\w+)/g, '(?<$1>[^/]+)') + '$') }));
 
 async function parametree(req, res, chemin) {
@@ -126,6 +132,14 @@ async function parametree(req, res, chemin) {
     if (r.methode === 'POST' && (!memeOrigine(req) || !typeOk)) return json(res, 403, { error: 'origine refusée' });
     const body = r.methode === 'POST' ? (r.binaire ? await octets(req, r.max) : await corps(req, r.max)) : undefined;
     const [statut, reponse, extras = {}] = await r.fn({ req, session, body, params: m.groups || {} });
+    if (reponse && reponse.texte !== undefined) { // export CSV : téléchargé, jamais interprété par le navigateur
+      res.statusCode = statut;
+      res.setHeader('Content-Type', reponse.mime);
+      res.setHeader('Content-Disposition', `attachment; filename="${reponse.nom}"`);
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'private, no-store');
+      return res.end(reponse.texte);
+    }
     if (reponse && reponse.flux) { // fichier privé renvoyé en flux, jamais mis en cache ni interprété par le navigateur
       res.statusCode = statut;
       res.setHeader('Content-Type', reponse.mime);

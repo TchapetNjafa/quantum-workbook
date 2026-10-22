@@ -21,7 +21,13 @@ const SCHEMA = [
      details JSONB NOT NULL, declare TIMESTAMPTZ, recu TIMESTAMPTZ NOT NULL, retard BOOLEAN NOT NULL DEFAULT FALSE,
      PRIMARY KEY (devoir_id, email))`,
   `ALTER TABLE remises ADD COLUMN IF NOT EXISTS hors_ligne BOOLEAN NOT NULL DEFAULT FALSE`,
+  `ALTER TABLE remises ADD COLUMN IF NOT EXISTS note_manuelle NUMERIC`,
+  `ALTER TABLE remises ADD COLUMN IF NOT EXISTS total_manuel NUMERIC NOT NULL DEFAULT 0`,
+  // remises enregistrées avant l'existence de total_manuel : on le recalcule depuis les questions « interpretation » du devoir
+  `UPDATE remises r SET total_manuel = COALESCE((SELECT SUM((q->>'points')::numeric) FROM devoirs d, jsonb_array_elements(d.questions) q
+      WHERE d.id = r.devoir_id AND q->>'type' = 'interpretation'), 0) WHERE r.manuel AND r.total_manuel = 0`,
   `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS copie BOOLEAN NOT NULL DEFAULT FALSE`,
+  `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS bareme NUMERIC`,  // devoir sans question : total des points de la note saisie à la main
   `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS sujet BOOLEAN NOT NULL DEFAULT FALSE`,
   `CREATE TABLE IF NOT EXISTS fichiers (
      devoir_id INT NOT NULL REFERENCES devoirs(id) ON DELETE CASCADE, email TEXT NOT NULL, chemin TEXT NOT NULL,

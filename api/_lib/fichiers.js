@@ -4,6 +4,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { q, maintenant } from './db.js';
 import { deposer, lire, supprimer, typeReel, TAILLE_MAX } from './stockage.js';
 import { etatDevoir, limiteDevoir } from './devoirs.js';
+import { decoderEmail } from './grade.js';
 
 const iso = d => (d ? new Date(d).toISOString() : null);
 // Le chemin ne contient pas l'adresse e-mail de l'étudiant.
@@ -12,7 +13,7 @@ const nomSur = s => String(s).toLowerCase().replace(/[^a-z0-9._-]/g, '_');
 
 async function devoirPublie(id) {
   if (!/^\d+$/.test(id)) return null;
-  return (await q('SELECT id, ouvre, ferme, copie, sujet FROM devoirs WHERE id = $1 AND publie', [Number(id)]))[0] || null;
+  return (await q('SELECT id, ouvre, ferme, copie, sujet, bareme, jsonb_array_length(questions) AS nq FROM devoirs WHERE id = $1 AND publie', [Number(id)]))[0] || null;
 }
 
 export async function deposerCopie({ session, params, body }) {
@@ -48,6 +49,15 @@ export async function deposerCopie({ session, params, body }) {
     return [409, { error: 'un dépôt plus récent existe déjà' }];
   }
   if (ligne[0].ancien) await supprimer(ligne[0].ancien).catch(err => console.error('suppression ancien fichier', err.message));
+  // Devoir sans question : le dépôt de la copie EST la remise. On crée la ligne de remise (à noter à la main sur le barème du devoir),
+  // ce qui fait aussi disparaître le devoir de la liste « à rendre » de l'étudiant. Un nouveau dépôt annule la note déjà saisie.
+  if (Number(d.nq) === 0) {
+    await q(
+      `INSERT INTO remises (devoir_id, email, nom, reponses, note, total, manuel, details, declare, recu, retard, hors_ligne, total_manuel)
+            VALUES ($1,$2,$3,'{}',0,0,TRUE,'[]',NULL,$4,$5,FALSE,$6)
+       ON CONFLICT (devoir_id, email) DO UPDATE SET nom=$3, recu=$4, retard=$5, total_manuel=$6, note_manuelle=NULL WHERE remises.recu <= $4`,
+      [d.id, session.email, session.name || '', now.toISOString(), e === 'retard', Number(d.bareme ?? 20)]);
+  }
   return [200, { recu: now.toISOString(), retard: e === 'retard', taille: body.length, type: type.mime, limite: iso(limiteDevoir(d)) }];
 }
 
@@ -83,7 +93,8 @@ export async function sujetDeposer({ params, body }) {
 /** Téléchargement d'une copie par l'enseignant. */
 export async function copieLire({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
-  const email = decodeURIComponent(params.email).toLowerCase();
+  const email = decoderEmail(params.email);
+  if (!email) return [400, { error: 'adresse invalide' }];
   const [f] = await q('SELECT chemin, type FROM fichiers WHERE devoir_id = $1 AND email = $2', [Number(params.id), email]);
   if (!f) return [404, { error: 'pas de copie déposée' }];
   const r = await lire(f.chemin);

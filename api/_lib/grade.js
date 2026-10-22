@@ -3,6 +3,14 @@
 export const TYPES = ['qcm', 'vrai_faux', 'numerical', 'interpretation'];
 const SECRETS = ['correct_answer', 'tolerance', 'explanation', 'sample_answer'];
 
+/** Adresse e-mail reçue dans l'URL : décodée sans exception, en minuscules, ou null si elle est invalide. */
+export function decoderEmail(brut) {
+  try {
+    const e = decodeURIComponent(String(brut)).trim().toLowerCase();
+    return e.length > 0 && e.length <= 254 && /^[^\s@]+@[^\s@]+$/.test(e) ? e : null;
+  } catch { return null; }
+}
+
 const texte = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
 
 /** Vérifie et normalise un devoir envoyé par l'enseignant. Renvoie { ok, erreurs, devoir }. */
@@ -12,7 +20,10 @@ export function valider(d) {
   if (!texte(d?.titre, 200)) erreurs.push('titre manquant ou trop long');
   if (isNaN(ouvre) || isNaN(ferme)) erreurs.push('dates ouvre/ferme invalides');
   else if (ferme <= ouvre) erreurs.push('ferme doit suivre ouvre');
-  if (!Array.isArray(d?.questions) || d.questions.length < 1 || d.questions.length > 60) erreurs.push('1 à 60 questions attendues');
+  // Un devoir « copie seule » (sujet PDF, l'étudiant dépose sa copie) n'a pas de question ; sinon 1 à 60 questions.
+  const sansQuestion = d?.copie === true && (d.questions === undefined || (Array.isArray(d.questions) && d.questions.length === 0));
+  if (!sansQuestion && (!Array.isArray(d?.questions) || d.questions.length < 1 || d.questions.length > 60)) erreurs.push('1 à 60 questions attendues (ou aucune pour un devoir à copie déposée)');
+  if (d?.bareme !== undefined && !(Number(d.bareme) > 0 && Number(d.bareme) <= 100)) erreurs.push('barème entre 0 et 100');
   const questions = [];
   (Array.isArray(d?.questions) ? d.questions : []).forEach((q, i) => {
     const n = `question ${i + 1}`;
@@ -56,10 +67,10 @@ const nombre = v => {
 
 /** Corrige les réponses { q1: ..., q2: ... }. Les interprétations restent à corriger à la main. */
 export function corriger(questions, reponses = {}) {
-  let note = 0, total = 0, manuel = false;
+  let note = 0, total = 0, manuel = false, totalManuel = 0;
   const details = questions.map(q => {
     const r = reponses[q.id];
-    if (q.type === 'interpretation') { manuel = true; return { id: q.id, ok: null, points: 0 }; }
+    if (q.type === 'interpretation') { manuel = true; totalManuel += q.points; return { id: q.id, ok: null, points: 0 }; }
     total += q.points;
     let ok = false;
     if (q.type === 'qcm') ok = r !== '' && r !== null && r !== undefined && Number(r) === q.correct_answer;
@@ -68,5 +79,5 @@ export function corriger(questions, reponses = {}) {
     if (ok) note += q.points;
     return { id: q.id, ok, points: ok ? q.points : 0 };
   });
-  return { note, total, manuel, details };
+  return { note, total, manuel, totalManuel, details };
 }
