@@ -34,9 +34,11 @@
       const en = LANG === 'en';
       ajouter(en ? '/en/login.html' : '/connexion.html', t('Connexion', 'Sign in'), 'a[href$="connexion.html"], a[href$="login.html"]');
       const lienDevoirs = ajouter(en ? '/en/assignments.html' : '/devoirs.html', t('Devoirs', 'Assignments'), 'a[href$="devoirs.html"], a[href$="assignments.html"]');
+      ajouter(en ? '/en/leaderboard.html' : '/classement.html', t('Classement', 'Leaderboard'), 'a[href$="classement.html"], a[href$="leaderboard.html"]');
       lienDevoirs.dataset.base = lienDevoirs.dataset.base || lienDevoirs.textContent;
       fetch('/api/statut', { credentials: 'same-origin' }).then(r => (r.ok ? r.json() : null)).then(s => {
         if (!s || !s.connecte) return;
+        ajouter(en ? '/en/profile.html' : '/profil.html', t('Profil', 'Profile'), 'a[href$="profil.html"], a[href$="profile.html"]');
         if (s.teacher) ajouter(en ? '/en/prof/' : '/prof/', t('Enseignant', 'Teacher'), 'a[href$="/prof/"], a[href$="/prof/index.html"], a[href="index.html"][aria-current]');
         lienDevoirs.classList.toggle('devoir-actif', !!s.a_faire);
         lienDevoirs.textContent = s.a_faire ? `${lienDevoirs.dataset.base} (${s.a_faire})` : lienDevoirs.dataset.base;

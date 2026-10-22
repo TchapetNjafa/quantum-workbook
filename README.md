@@ -171,8 +171,21 @@ Blob privé (écrire, relire, supprimer un petit fichier). Authentification du B
 Limite connue : si la base échoue après la suppression des fichiers d'un devoir, des références peuvent pointer vers des fichiers absents
 (l'API répond alors 404 proprement) ; un dépôt simultané à une suppression peut laisser un fichier non référencé.
 
-Tests : `node tests/test-devoirs-api.mjs` (48, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
+Tests : `node tests/test-devoirs-api.mjs` (59, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
 `node tests/serveur-local.mjs 8767` pour servir le site assemblé avec son API (puis `test-carnet.mjs http://localhost:8767/`).
+
+### Profil, classement et défis (Vercel seulement)
+
+Pages : `profil.html` / `en/profile.html`, `classement.html` / `en/leaderboard.html`. Le **matricule** est obligatoire (4 à 15 lettres ou chiffres, unique, saisi une fois ;
+l'enseignant le réinitialise en cas d'erreur) pour remettre un devoir, déposer une copie, figurer au classement ou jouer un défi. Le nom et l'adresse viennent de la connexion Google.
+- Le **quiz** envoie le score de chaque série terminée en étant connecté (`/api/scores`) ; une révision ciblée n'est pas comptée. Le **classement** (moyenne, à partir de 3 séries de 5 questions)
+  est un outil d'entraînement : le quiz est corrigé dans le navigateur et sa banque est publique, il ne note jamais. Un étudiant peut masquer son matricule (il ne figure plus dans la liste mais voit sa propre ligne).
+- **Défis différés** : un étudiant fixe 3 à 20 questions de la banque et obtient un code de 6 caractères ; les camarades jouent la même série quand ils veulent (`quiz.html?ids=…&defi=CODE`),
+  un seul essai par étudiant (le premier compte), valable 30 jours.
+- **Conservation de 5 mois (150 jours)** : scores et défis plus anciens sont supprimés, ainsi que les profils sans activité depuis 5 mois (remettre un devoir ou déposer une copie compte comme activité).
+  La suppression est faite par la tâche planifiée `/api/cron/purge` (tous les jours à 03 h 17 UTC, `vercel.json` > `crons` ; `CRON_SECRET` facultatif) et au passage d'une requête. L'étudiant peut tout effacer
+  depuis sa page Profil ; les clés étrangères en cascade emportent scores, défis et essais. Les devoirs remis, leurs notes, ouvertures et copies restent avec le devoir (export CSV et suppression dans `/prof/`).
+- Limites connues : un étudiant peut saisir le matricule d'un camarade avant lui (l'enseignant voit matricule, nom et adresse côte à côte et réinitialise) ; les scores sont déclaratifs.
 
 ## Signalements d'erreurs
 

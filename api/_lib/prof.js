@@ -105,11 +105,11 @@ export async function exportCsv({ params }) {
   const [d] = await q('SELECT titre FROM devoirs WHERE id = $1', [Number(params.id)]);
   if (!d) return [404, { error: 'introuvable' }];
   const [, { remises }] = await remisesDevoir({ params });
-  const entete = ['email', 'nom', 'note_auto', 'total_auto', 'note_manuelle', 'total_manuel', 'note_totale', 'recu_serveur', 'en_retard', 'hors_connexion',
+  const entete = ['email', 'matricule', 'nom', 'note_auto', 'total_auto', 'note_manuelle', 'total_manuel', 'note_totale', 'recu_serveur', 'en_retard', 'hors_connexion',
     'declare_appareil_non_verifiable', 'ouverture_serveur', 'copie', 'copie_octets', 'copie_recu_serveur', 'copie_en_retard'];
   const lignes = remises.map(r => {
     const complet = r.note !== null && (!r.manuel || r.note_manuelle !== null);
-    return [r.email, r.nom, r.note, r.total, r.note_manuelle, r.manuel ? r.total_manuel : '', complet ? r.note + (r.note_manuelle || 0) : '',
+    return [r.email, r.matricule, r.nom, r.note, r.total, r.note_manuelle, r.manuel ? r.total_manuel : '', complet ? r.note + (r.note_manuelle || 0) : '',
       r.recu, r.recu ? (r.retard ? 'oui' : 'non') : '', r.recu ? (r.hors_ligne ? 'oui' : 'non') : '', r.declare, r.debut,
       r.copie_taille ? 'oui' : 'non', r.copie_taille, r.copie_recu, r.copie_taille ? (r.copie_retard ? 'oui' : 'non') : ''];
   });
@@ -186,16 +186,31 @@ export async function supprimerDevoir({ params, body }) {
   return [200, { ok: true, fichiers_supprimes: supprimes }];
 }
 
+/** Profils des étudiants (matricule ↔ adresse), pour retrouver un étudiant et corriger une erreur de matricule. */
+export async function listeProfils() {
+  const l = await q('SELECT email, matricule, nom, visible, cree, activite FROM profils ORDER BY matricule');
+  return [200, { profils: l.map(p => ({ ...p, cree: iso(p.cree), activite: iso(p.activite) })) }];
+}
+
+/** Efface le matricule d'un étudiant (erreur de saisie, usurpation) : il devra en enregistrer un nouveau. Ses scores sont conservés tant que le profil existe ; ils sont supprimés avec lui. */
+export async function reinitialiserProfil({ params }) {
+  const email = decoderEmail(params.email);
+  if (!email) return [400, { error: 'adresse invalide' }];
+  const r = await q('DELETE FROM profils WHERE email = $1 RETURNING email', [email]);
+  return r.length ? [200, { ok: true }] : [404, { error: 'profil introuvable' }];
+}
+
 export async function remisesDevoir({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
   const l = await q(
     // un étudiant apparaît s'il a remis les réponses OU déposé une copie (l'un des deux peut manquer)
     `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.declare, r.recu, r.retard, r.hors_ligne, b.debut,
-            f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard
+            f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard, pr.matricule
        FROM (SELECT email FROM remises WHERE devoir_id = $1 UNION SELECT email FROM fichiers WHERE devoir_id = $1) u
        LEFT JOIN remises r ON r.devoir_id = $1 AND r.email = u.email
        LEFT JOIN debuts b ON b.devoir_id = $1 AND b.email = u.email
        LEFT JOIN fichiers f ON f.devoir_id = $1 AND f.email = u.email
+       LEFT JOIN profils pr ON pr.email = u.email
       ORDER BY u.email`, [Number(params.id)]);
   const num = v => (v === null || v === undefined ? null : Number(v));
   return [200, { remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), note_manuelle: num(r.note_manuelle), total_manuel: num(r.total_manuel), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), copie_recu: iso(r.copie_recu) })) }];

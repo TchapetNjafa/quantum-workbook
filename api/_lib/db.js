@@ -33,7 +33,21 @@ const SCHEMA = [
      devoir_id INT NOT NULL REFERENCES devoirs(id) ON DELETE CASCADE, email TEXT NOT NULL, chemin TEXT NOT NULL,
      type TEXT NOT NULL, taille INT NOT NULL, recu TIMESTAMPTZ NOT NULL, retard BOOLEAN NOT NULL DEFAULT FALSE,
      PRIMARY KEY (devoir_id, email))`,
-  `CREATE TABLE IF NOT EXISTS prof_essais (id SERIAL PRIMARY KEY, at TIMESTAMPTZ NOT NULL, ok BOOLEAN NOT NULL)`
+  `CREATE TABLE IF NOT EXISTS prof_essais (id SERIAL PRIMARY KEY, at TIMESTAMPTZ NOT NULL, ok BOOLEAN NOT NULL)`,
+  // ----- phase 5 : profil (matricule obligatoire), scores du quiz, classement, défis différés ; conservation de 5 mois (voir profil.js) -----
+  `CREATE TABLE IF NOT EXISTS profils (
+     email TEXT PRIMARY KEY, matricule TEXT NOT NULL UNIQUE, nom TEXT NOT NULL DEFAULT '',
+     visible BOOLEAN NOT NULL DEFAULT TRUE, cree TIMESTAMPTZ NOT NULL, activite TIMESTAMPTZ NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS scores (
+     id SERIAL PRIMARY KEY, email TEXT NOT NULL REFERENCES profils(email) ON DELETE CASCADE, chapitre INT, exam BOOLEAN NOT NULL DEFAULT FALSE,
+     n INT NOT NULL, ok INT NOT NULL, duree INT NOT NULL, quand TIMESTAMPTZ NOT NULL)`,
+  `CREATE INDEX IF NOT EXISTS scores_email ON scores (email)`,
+  `CREATE INDEX IF NOT EXISTS scores_quand ON scores (quand)`,
+  `CREATE TABLE IF NOT EXISTS defis (
+     code TEXT PRIMARY KEY, createur TEXT NOT NULL REFERENCES profils(email) ON DELETE CASCADE, chapitre INT, ids JSONB NOT NULL, cree TIMESTAMPTZ NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS defis_scores (
+     code TEXT NOT NULL REFERENCES defis(code) ON DELETE CASCADE, email TEXT NOT NULL REFERENCES profils(email) ON DELETE CASCADE,
+     ok INT NOT NULL, duree INT NOT NULL, quand TIMESTAMPTZ NOT NULL, PRIMARY KEY (code, email))`
 ];
 
 function connexion() {

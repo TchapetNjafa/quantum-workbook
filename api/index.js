@@ -6,6 +6,9 @@ import { creer, cookie, depuisRequete } from './_lib/session.js';
 import * as devoirs from './_lib/devoirs.js';
 import * as prof from './_lib/prof.js';
 import * as fichiers from './_lib/fichiers.js';
+import * as profil from './_lib/profil.js';
+import * as classement from './_lib/classement.js';
+import * as defis from './_lib/defis.js';
 import { Readable, pipeline } from 'node:stream';
 
 const DOMAIN = () => process.env.ALLOWED_DOMAIN || 'facsciences-uy1.cm';
@@ -61,7 +64,16 @@ const directes = {
     if (!s) return json(res, 200, { connecte: false });
     let a_faire = 0;
     try { a_faire = (await devoirs.liste({ session: s }))[1].a_faire; } catch (e) { console.error('statut', e.code || '', e.message); }
+    try { await profil.purgerAnciennes(); } catch (e) { console.error('purge 5 mois', e.code || '', e.message); } // données de plus de 5 mois : supprimées (au plus toutes les 6 h)
     return json(res, 200, { connecte: true, teacher: s.role === 'prof', a_faire });
+  },
+
+  // Tâche planifiée Vercel (vercel.json > crons) : applique la conservation de 5 mois même si personne n'ouvre le site.
+  // Si CRON_SECRET est défini, Vercel envoie « Authorization: Bearer … » et on le vérifie ; la purge est sans danger (idempotente).
+  'GET /api/cron/purge': async (req, res) => {
+    const secret = process.env.CRON_SECRET;
+    if (secret && req.headers.authorization !== `Bearer ${secret}`) return json(res, 401, { error: 'non autorisé' });
+    return json(res, 200, { ok: true, supprime: await profil.purgerAnciennes(true) });
   },
 
   'POST /api/session': async (req, res) => {
@@ -109,6 +121,19 @@ const TABLE = [
   ['GET', '/api/devoirs/:id/sujet', 'session', 0, fichiers.sujetLire],
   ['POST', '/api/prof/devoirs/:id/sujet', 'prof', 2 * 1024 * 1024, fichiers.sujetDeposer, true],
   ['GET', '/api/prof/devoirs/:id/copie/:email', 'prof', 0, fichiers.copieLire],
+  // phase 5 : profil (matricule), scores, classement, défis
+  ['GET', '/api/profil', 'session', 0, profil.lire],
+  ['POST', '/api/profil', 'session', 1_000, profil.enregistrer],
+  ['POST', '/api/profil/supprimer', 'session', 1_000, profil.supprimerMesDonnees],
+  ['POST', '/api/scores', 'session', 1_000, classement.enregistrerScore],
+  ['GET', '/api/classement', 'session', 0, classement.classement],
+  ['GET', '/api/historique', 'session', 0, classement.historique],
+  ['POST', '/api/defis', 'session', 3_000, defis.creer],
+  ['GET', '/api/defis', 'session', 0, defis.mesDefis],
+  ['GET', '/api/defis/:code', 'session', 0, defis.lire],
+  ['POST', '/api/defis/:code/score', 'session', 1_000, defis.envoyerScore],
+  ['GET', '/api/prof/profils', 'prof', 0, prof.listeProfils],
+  ['POST', '/api/prof/profils/:email/reinitialiser', 'prof', 1_000, prof.reinitialiserProfil],
   ['GET', '/api/prof/diagnostic', 'prof', 0, prof.diagnostic],
   ['GET', '/api/prof/devoirs/:id/export.csv', 'prof', 0, prof.exportCsv],
   ['GET', '/api/prof/devoirs/:id/remises/:email', 'prof', 0, prof.lireRemise],
