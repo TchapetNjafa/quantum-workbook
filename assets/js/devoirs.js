@@ -115,7 +115,16 @@
       const f0 = root.querySelector('#dev-form'); f0.hidden = true; root.querySelector('[data-envoyer]').hidden = true;
       f0.insertAdjacentHTML('beforebegin', `<p>${d.sujet ? t('Téléchargez le sujet, composez sur papier ou dans le PDF, puis déposez votre copie ci-dessous (PDF ou photo).', 'Download the assignment, work it out on paper or in the PDF, then upload your paper below (PDF or photo).') : t('Composez sur papier ou en PDF, puis déposez votre copie ci-dessous (PDF ou photo).', 'Work it out on paper or in a PDF, then upload your paper below (PDF or photo).')}</p>`);
     }
-    if (d.copie) copie(d, horsLigne);
+    // Garde-fou : avec une copie demandée ET des questions, « Remettre » reste inactif tant que la copie n'est pas ENVOYÉE (et acceptée par le serveur).
+    let activer = () => {};
+    if (d.copie && d.questions.length) {
+      const bouton = root.querySelector('[data-envoyer]');
+      bouton.disabled = true; bouton.title = t('Déposez d’abord votre copie', 'Upload your paper first');
+      bouton.insertAdjacentHTML('afterend', `<span class="muted" id="dev-garde"> ${t('« Remettre » sera disponible après l’envoi de votre copie (ci-dessous).', '“Submit” becomes available once your paper has been sent (below).')}</span>`);
+      activer = () => { bouton.disabled = false; bouton.title = ''; const g = root.querySelector('#dev-garde'); if (g) g.hidden = true; memo.ecrire(`phy321.copie.${d.id}`, true); };
+      if (horsLigne && memo.lire(`phy321.copie.${d.id}`)) activer(); // copie déjà envoyée avant la coupure du réseau
+    }
+    if (d.copie) copie(d, horsLigne, activer);
     const form = root.querySelector('#dev-form');
     for (const q of d.questions) {
       const prev = d.reponses[q.id]; if (prev === undefined || prev === null) continue;
@@ -168,11 +177,12 @@
     return null;
   }
 
-  async function copie(d, horsLigne) {
+  async function copie(d, horsLigne, activer = () => {}) {
     const etat = root.querySelector('#dev-fichier-etat'), choix = root.querySelector('#dev-fichier');
     if (!horsLigne) {
       api(`/api/devoirs/${d.id}/copie`).then(r => (r.ok ? r.json() : null)).then(j => {
-        if (j && j.fichier) etat.textContent = t(`Copie déjà envoyée le ${quand(j.fichier.recu)} (${taille(j.fichier.taille)}, heure du serveur)${j.fichier.retard ? ' — en retard' : ''}. Un nouvel envoi la remplace.`,
+        if (j && j.fichier) activer();
+        if (j && j.fichier) etat.textContent =t(`Copie déjà envoyée le ${quand(j.fichier.recu)} (${taille(j.fichier.taille)}, heure du serveur)${j.fichier.retard ? ' — en retard' : ''}. Un nouvel envoi la remplace.`,
           `Paper already sent on ${quand(j.fichier.recu)} (${taille(j.fichier.taille)}, server time)${j.fichier.retard ? ' — late' : ''}. A new upload replaces it.`);
       }).catch(() => {});
     }
@@ -191,6 +201,7 @@
       try { rep = await api(`/api/devoirs/${d.id}/copie`, { method: 'POST', headers: { 'Content-Type': f.type }, body: f }); }
       catch { etat.textContent = t('Pas de connexion : le dépôt d’une copie demande du réseau. Réessayez avant ', 'No connection: uploading a paper needs a network. Try again before ') + quand(d.limite) + '.'; return; }
       const j = await rep.json().catch(() => ({}));
+      if (rep.ok) activer(); // la copie est acceptée par le serveur : « Remettre » devient disponible
       etat.textContent = rep.ok
         ? t(`Copie enregistrée le ${quand(j.recu)} (${taille(j.taille)}, heure du serveur)${j.retard ? ' — marquée en retard' : ''}.`, `Paper recorded on ${quand(j.recu)} (${taille(j.taille)}, server time)${j.retard ? ' — marked late' : ''}.`)
         : t('Dépôt refusé : ', 'Upload refused: ') + (j.error || rep.status);

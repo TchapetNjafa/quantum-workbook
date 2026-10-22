@@ -58,6 +58,11 @@ export async function remettre({ session, params, body }) {
   if (e === 'a_venir') return [403, { error: 'devoir pas encore ouvert' }];
   if (e === 'clos') return [403, { error: 'remise refusée : délai dépassé', limite: iso(limite(d)) }];
   if (!d.questions.length) return [400, { error: 'ce devoir n’a pas de questions : il se rend en déposant une copie' }];
+  // Garde-fou : un devoir qui demande une copie ne peut pas être remis sans elle (le bouton est aussi désactivé côté interface).
+  if (d.copie) {
+    const [f] = await q('SELECT 1 AS ok FROM fichiers WHERE devoir_id = $1 AND email = $2', [d.id, session.email]);
+    if (!f) return [400, { error: 'déposez d’abord votre copie (PDF ou photo), puis remettez vos réponses', copie_requise: true }];
+  }
   const reponses = body && typeof body.reponses === 'object' && body.reponses !== null && !Array.isArray(body.reponses) ? body.reponses : null;
   if (!reponses) return [400, { error: 'réponses manquantes' }];
 
