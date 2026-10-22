@@ -118,7 +118,7 @@ puis remplacement des adresses absolues GitHub Pages par des adresses du même s
 
 ### API et connexion Google (Vercel seulement)
 
-`api/[...route].js` reçoit toutes les adresses `/api/*` (une seule fonction : le plan gratuit limite leur nombre) ;
+`api/index.js` reçoit toutes les adresses `/api/*` par une réécriture de `vercel.json` (le chemin arrive dans le paramètre `path` ; une seule fonction : le plan gratuit limite leur nombre) ;
 le code est dans `api/_lib/`. Sur GitHub Pages il n'existe pas : `assets/js/compte.js` le détecte et l'explique.
 Variables d'environnement Vercel (Settings > Environment Variables, jamais dans le dépôt) :
 

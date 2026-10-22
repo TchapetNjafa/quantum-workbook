@@ -1,5 +1,6 @@
 // Point d'entrée unique de l'API (le plan gratuit limite le nombre de fonctions).
-// Le nom de fichier [...route] fait recevoir toutes les adresses /api/* ; req.url garde l'adresse d'origine.
+// vercel.json réécrit /api/* vers cette fonction en passant le chemin dans le paramètre `path` (ex. /api/prof/login -> path=prof/login).
+// Les tests locaux appellent le gestionnaire avec l'adresse complète : les deux formes sont acceptées.
 import { verifyIdToken } from './_lib/google.js';
 import { creer, cookie, depuisRequete } from './_lib/session.js';
 import * as devoirs from './_lib/devoirs.js';
@@ -112,7 +113,10 @@ async function parametree(req, res, chemin) {
 }
 
 export default async function handler(req, res) {
-  const chemin = new URL(req.url, 'http://x').pathname.replace(/\/+$/, '');
+  const u = new URL(req.url, 'http://x');
+  // Réécrit par Vercel : l'adresse reçue est /api/index et le vrai chemin est dans `path` ; sinon on lit l'adresse telle quelle.
+  const reecrit = /^\/api\/index\/?$/.test(u.pathname) ? u.searchParams.get('path') : null;
+  const chemin = (reecrit !== null ? '/api/' + reecrit : u.pathname).replace(/\/+$/, '');
   try {
     const directe = directes[`${req.method} ${chemin}`];
     if (directe) return await directe(req, res);

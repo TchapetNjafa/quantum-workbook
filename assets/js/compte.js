@@ -19,6 +19,7 @@
   }
 
   const montrerSession = s => {
+    if (window.phy321MajNav) window.phy321MajNav(); // « Enseignant » et le compteur de devoirs apparaissent sans changer de page
     root.querySelector('[data-bouton]').hidden = true;
     etat(`<p>${t('Connecté : ', 'Signed in: ')}<b>${esc(s.email)}</b>${s.teacher ? t(' (enseignant)', ' (teacher)') : ''}</p>
       <div class="btn-row"><button class="btn ghost" type="button" data-sortir>${t('Se déconnecter', 'Sign out')}</button></div>`);
