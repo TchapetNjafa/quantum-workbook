@@ -7,7 +7,8 @@
   },
   "description": "Carnet PHY321 : site statique + petite API (api/) pour l'hébergement Vercel. Aucune dépendance pour l'instant.",
   "dependencies": {
-    "@neondatabase/serverless": "^1.2.0"
+    "@neondatabase/serverless": "^1.2.0",
+    "@vercel/blob": "^2.8.2"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.11"

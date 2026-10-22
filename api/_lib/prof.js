@@ -40,7 +40,7 @@ export async function login({ session, body }) {
 
 export async function listeDevoirs() {
   const l = await q(
-    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.publie, d.resultat_visible, jsonb_array_length(d.questions) AS nb_questions,
+    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.publie, d.resultat_visible, d.copie, d.sujet, jsonb_array_length(d.questions) AS nb_questions,
             (SELECT count(*)::int FROM remises r WHERE r.devoir_id = d.id) AS nb_remises
        FROM devoirs d ORDER BY d.ferme DESC`);
   return [200, { devoirs: l.map(d => ({ ...d, ouvre: iso(d.ouvre), ferme: iso(d.ferme) })) }];
@@ -50,8 +50,8 @@ export async function creerDevoir({ body }) {
   const v = valider(body);
   if (!v.ok) return [400, { error: 'devoir invalide', erreurs: v.erreurs }];
   const [d] = await q(
-    'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id',
-    [v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, body.publie === true, body.resultat_visible === true, JSON.stringify(v.devoir.questions)]);
+    'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions, copie) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
+    [v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, body.publie === true, body.resultat_visible === true, JSON.stringify(v.devoir.questions), body.copie === true]);
   return [201, { id: d.id }];
 }
 
@@ -72,16 +72,23 @@ export async function modifierDevoir({ params, body }) {
   const titre = typeof body.titre === 'string' && body.titre.trim() && body.titre.length <= 200 ? body.titre : d.titre;
   const publie = typeof body.publie === 'boolean' ? body.publie : d.publie;
   const visible = typeof body.resultat_visible === 'boolean' ? body.resultat_visible : d.resultat_visible;
-  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, publie=$5, resultat_visible=$6 WHERE id=$1',
-    [d.id, titre, ouvre.toISOString(), ferme.toISOString(), publie, visible]);
+  const copie = typeof body.copie === 'boolean' ? body.copie : d.copie;
+  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, publie=$5, resultat_visible=$6, copie=$7 WHERE id=$1',
+    [d.id, titre, ouvre.toISOString(), ferme.toISOString(), publie, visible, copie]);
   return [200, { ok: true }];
 }
 
 export async function remisesDevoir({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
   const l = await q(
-    `SELECT r.email, r.nom, r.note, r.total, r.manuel, r.declare, r.recu, r.retard, r.hors_ligne, b.debut
-       FROM remises r LEFT JOIN debuts b ON b.devoir_id = r.devoir_id AND b.email = r.email
-      WHERE r.devoir_id = $1 ORDER BY r.email`, [Number(params.id)]);
-  return [200, { remises: l.map(r => ({ ...r, note: Number(r.note), total: Number(r.total), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut) })) }];
+    // un étudiant apparaît s'il a remis les réponses OU déposé une copie (l'un des deux peut manquer)
+    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.declare, r.recu, r.retard, r.hors_ligne, b.debut,
+            f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard
+       FROM (SELECT email FROM remises WHERE devoir_id = $1 UNION SELECT email FROM fichiers WHERE devoir_id = $1) u
+       LEFT JOIN remises r ON r.devoir_id = $1 AND r.email = u.email
+       LEFT JOIN debuts b ON b.devoir_id = $1 AND b.email = u.email
+       LEFT JOIN fichiers f ON f.devoir_id = $1 AND f.email = u.email
+      ORDER BY u.email`, [Number(params.id)]);
+  const num = v => (v === null || v === undefined ? null : Number(v));
+  return [200, { remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), copie_recu: iso(r.copie_recu) })) }];
 }

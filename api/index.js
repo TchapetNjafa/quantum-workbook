@@ -5,6 +5,8 @@ import { verifyIdToken } from './_lib/google.js';
 import { creer, cookie, depuisRequete } from './_lib/session.js';
 import * as devoirs from './_lib/devoirs.js';
 import * as prof from './_lib/prof.js';
+import * as fichiers from './_lib/fichiers.js';
+import { Readable, pipeline } from 'node:stream';
 
 const DOMAIN = () => process.env.ALLOWED_DOMAIN || 'facsciences-uy1.cm';
 
@@ -22,6 +24,17 @@ async function corps(req, max) {
   try { return JSON.parse(Buffer.concat(morceaux).toString() || '{}'); }
   catch { throw Object.assign(new Error('JSON invalide'), { code: 'json' }); }
 }
+
+// Corps binaire (fichier déposé) : refusé dès que la taille annoncée ou reçue dépasse la limite.
+async function octets(req, max) {
+  const annonce = Number(req.headers['content-length']);
+  if (annonce > max) throw Object.assign(new Error('corps trop grand'), { code: 'taille' });
+  let n = 0; const morceaux = [];
+  for await (const c of req) { n += c.length; if (n > max) throw Object.assign(new Error('corps trop grand'), { code: 'taille' }); morceaux.push(c); }
+  return Buffer.concat(morceaux);
+}
+// Types de contenu admis pour un dépôt de fichier : tous hors liste « simple » des navigateurs, donc impossibles à envoyer depuis un autre site sans autorisation préalable.
+const TYPES_FICHIER = /^(application\/(pdf|octet-stream)|image\/(jpeg|png))(;|$)/;
 
 // Les POST doivent venir de notre propre site (protection contre les requêtes intersites).
 function memeOrigine(req) {
@@ -89,8 +102,14 @@ const TABLE = [
   ['POST', '/api/prof/devoirs', 'prof', 250_000, prof.creerDevoir],
   ['GET', '/api/prof/devoirs/:id', 'prof', 0, prof.lireDevoir],
   ['POST', '/api/prof/devoirs/:id', 'prof', 10_000, prof.modifierDevoir],
-  ['GET', '/api/prof/devoirs/:id/remises', 'prof', 0, prof.remisesDevoir]
-].map(([methode, motif, acces, max, fn]) => ({ methode, acces, max, fn, re: new RegExp('^' + motif.replace(/:(\w+)/g, '(?<$1>[^/]+)') + '$') }));
+  ['GET', '/api/prof/devoirs/:id/remises', 'prof', 0, prof.remisesDevoir],
+  // fichiers : 6e valeur true = corps binaire
+  ['POST', '/api/devoirs/:id/copie', 'session', 2 * 1024 * 1024, fichiers.deposerCopie, true],
+  ['GET', '/api/devoirs/:id/copie', 'session', 0, fichiers.maCopie],
+  ['GET', '/api/devoirs/:id/sujet', 'session', 0, fichiers.sujetLire],
+  ['POST', '/api/prof/devoirs/:id/sujet', 'prof', 2 * 1024 * 1024, fichiers.sujetDeposer, true],
+  ['GET', '/api/prof/devoirs/:id/copie/:email', 'prof', 0, fichiers.copieLire]
+].map(([methode, motif, acces, max, fn, binaire = false]) => ({ methode, acces, max, fn, binaire, re: new RegExp('^' + motif.replace(/:(\w+)/g, '(?<$1>[^/]+)') + '$') }));
 
 async function parametree(req, res, chemin) {
   for (const r of TABLE) {
@@ -103,9 +122,19 @@ async function parametree(req, res, chemin) {
       if (session.role !== 'prof') return json(res, 403, { error: 'réservé à l’enseignant' });
       if (!prof.profOk(req, session)) return json(res, 401, { error: 'mot de passe enseignant requis', verrou: true });
     }
-    if (r.methode === 'POST' && (!memeOrigine(req) || !/application\/json/.test(req.headers['content-type'] || ''))) return json(res, 403, { error: 'origine refusée' });
-    const body = r.methode === 'POST' ? await corps(req, r.max) : undefined;
+    const typeOk = r.binaire ? TYPES_FICHIER.test(req.headers['content-type'] || '') : /application\/json/.test(req.headers['content-type'] || '');
+    if (r.methode === 'POST' && (!memeOrigine(req) || !typeOk)) return json(res, 403, { error: 'origine refusée' });
+    const body = r.methode === 'POST' ? (r.binaire ? await octets(req, r.max) : await corps(req, r.max)) : undefined;
     const [statut, reponse, extras = {}] = await r.fn({ req, session, body, params: m.groups || {} });
+    if (reponse && reponse.flux) { // fichier privé renvoyé en flux, jamais mis en cache ni interprété par le navigateur
+      res.statusCode = statut;
+      res.setHeader('Content-Type', reponse.mime);
+      res.setHeader('Content-Disposition', `attachment; filename="${reponse.nom}"`);
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'private, no-store');
+      // pipeline détruit la réponse si le stockage échoue en cours de route (sinon l'erreur échapperait au try/catch)
+      return pipeline(Readable.fromWeb(reponse.flux), res, err => { if (err) console.error('flux fichier', err.code || '', err.message); });
+    }
     const entetes = extras.cookieProf ? { 'Set-Cookie': cookie(extras.cookieProf, { secure: !estLocal(req), maxAge: prof.DUREE_PROF, nom: prof.COOKIE_PROF }) } : {};
     return json(res, statut, reponse, entetes);
   }

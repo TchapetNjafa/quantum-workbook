@@ -12,15 +12,17 @@ function etat(d, now) {
   return now < ouvre ? 'a_venir' : now <= ferme ? 'ouvert' : now <= limite(d) ? 'retard' : 'clos';
 }
 
+export { etat as etatDevoir, limite as limiteDevoir }; // utilisés aussi par fichiers.js (mêmes règles de temps)
+
 export async function liste({ session }) {
   const now = maintenant();
   const lignes = await q(
-    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, r.recu, r.retard, r.note, r.total, r.manuel
+    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, r.recu, r.retard, r.note, r.total, r.manuel
        FROM devoirs d LEFT JOIN remises r ON r.devoir_id = d.id AND r.email = $1
       WHERE d.publie ORDER BY d.ferme DESC`, [session.email]);
   const devoirs = lignes.map(d => ({
     id: d.id, titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), limite: iso(limite(d)),
-    etat: etat(d, now), rendu: !!d.recu, recu: iso(d.recu), retard: !!d.retard,
+    copie: !!d.copie, sujet: !!d.sujet, etat: etat(d, now), rendu: !!d.recu, recu: iso(d.recu), retard: !!d.retard,
     // La note n'est montrée qu'après la fin du délai de remise : sinon, des remises répétées permettraient de deviner les réponses.
     ...(d.resultat_visible && d.recu && now > limite(d) ? { note: Number(d.note), total: Number(d.total), manuel: d.manuel } : {})
   }));
@@ -41,7 +43,7 @@ export async function ouvrir({ session, params }) {
   await q('INSERT INTO debuts (devoir_id, email, debut) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [d.id, session.email, now.toISOString()]);
   const [r] = await q('SELECT reponses, recu, retard FROM remises WHERE devoir_id = $1 AND email = $2', [d.id, session.email]);
   return [200, {
-    id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limite(d)), etat: e, maintenant: now.toISOString(),
+    id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limite(d)), etat: e, maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
     questions: sansReponses(d.questions), rendu: !!r, reponses: r ? r.reponses : {}, recu: r ? iso(r.recu) : null
   }];
 }

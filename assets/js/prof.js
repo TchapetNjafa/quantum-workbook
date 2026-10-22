@@ -53,6 +53,8 @@
         <td>${d.publie ? t('oui', 'yes') : t('non', 'no')}</td><td>${d.resultat_visible ? t('oui', 'yes') : t('non', 'no')}</td><td>${d.nb_remises}</td>
         <td><div class="prof-ligne"><button class="btn small ${d.publie ? 'ghost' : 'accent'}" type="button" data-act="publie">${d.publie ? t('Dépublier', 'Unpublish') : t('Publier', 'Publish')}</button>
         <button class="btn small ghost" type="button" data-act="visible">${d.resultat_visible ? t('Masquer les résultats', 'Hide results') : t('Montrer les résultats', 'Show results')}</button>
+        <button class="btn small ghost" type="button" data-act="copie">${d.copie ? t('Copie déposée : oui', 'Paper upload: on') : t('Copie déposée : non', 'Paper upload: off')}</button>
+        <button class="btn small ghost" type="button" data-act="sujet">${d.sujet ? t('Remplacer le sujet PDF', 'Replace the PDF assignment') : t('Ajouter un sujet PDF', 'Add a PDF assignment')}</button>
         <button class="btn small ghost" type="button" data-act="remises">${t('Remises', 'Submissions')}</button>
         <button class="btn small ghost" type="button" data-act="dates">${t('Dates', 'Dates')}</button></div></td></tr>`).join('')}
       </tbody></table></div>` : `<p class="muted">${t('Aucun devoir.', 'No assignment.')}</p>`}
@@ -83,6 +85,23 @@
       await post(`/api/prof/devoirs/${id}`, act === 'publie' ? { publie: !d.publie } : { resultat_visible: !d.resultat_visible });
       return tableau();
     }
+    if (act === 'copie') {
+      await post(`/api/prof/devoirs/${id}`, { copie: !d.copie });
+      return tableau();
+    }
+    if (act === 'sujet') {
+      detail.innerHTML = `<h3>${esc(d.titre)}</h3><div class="prof-ligne"><label>${t('Sujet au format PDF (2 Mo maximum)', 'Assignment as PDF (2 MB maximum)')} <input type="file" accept="application/pdf"></label>
+        <button class="btn small accent" type="button" data-ok>${t('Envoyer', 'Upload')}</button></div><div data-msg2 role="status" aria-live="polite"></div>`;
+      detail.querySelector('[data-ok]').onclick = async () => {
+        const f = detail.querySelector('input[type=file]').files[0], m = detail.querySelector('[data-msg2]');
+        if (!f) { m.textContent = t('Choisissez un PDF.', 'Choose a PDF.'); return; }
+        const rep = await api(`/api/prof/devoirs/${id}/sujet`, { method: 'POST', headers: { 'Content-Type': 'application/pdf' }, body: f });
+        if (rep.status === 401) return verrou();
+        if (rep.ok) return tableau();
+        m.textContent = (await rep.json().catch(() => ({}))).error || rep.status;
+      };
+      return;
+    }
     if (act === 'dates') {
       detail.innerHTML = `<h3>${esc(d.titre)}</h3><div class="prof-ligne"><label>${t('Ouvre', 'Opens')} <input type="datetime-local" name="o" value="${local(d.ouvre)}"></label>
         <label>${t('Ferme', 'Closes')} <input type="datetime-local" name="f" value="${local(d.ferme)}"></label><button class="btn small accent" type="button" data-ok>${t('Enregistrer', 'Save')}</button></div><div data-msg2></div>`;
@@ -96,8 +115,9 @@
     if (r.status === 401) return verrou();
     const { remises } = await r.json();
     detail.innerHTML = `<h3>${esc(d.titre)} — ${t('remises', 'submissions')}</h3>` + (remises.length
-      ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Étudiant', 'Student')}</th><th>${t('Note auto', 'Auto mark')}</th><th>${t('Reçue (serveur)', 'Received (server)')}</th><th>${t('Ouverte (serveur)', 'Opened (server)')}</th><th>${t('Déclarée (appareil, non vérifiable)', 'Declared (device, unverifiable)')}</th><th>${t('Retard', 'Late')}</th></tr></thead><tbody>
-        ${remises.map(x => `<tr><td>${esc(x.nom)} <span class="muted">${esc(x.email)}</span></td><td>${x.note} / ${x.total}${x.manuel ? t(' + manuel', ' + manual') : ''}</td><td>${esc(quand(x.recu))}</td><td>${esc(quand(x.debut))}</td><td>${esc(quand(x.declare))}${x.hors_ligne ? t(' <span class="muted">(préparée hors connexion)</span>', ' <span class="muted">(prepared offline)</span>') : ''}</td><td>${x.retard ? t('oui', 'yes') : t('non', 'no')}</td></tr>`).join('')}</tbody></table></div>`
+      ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Étudiant', 'Student')}</th><th>${t('Note auto', 'Auto mark')}</th><th>${t('Reçue (serveur)', 'Received (server)')}</th><th>${t('Ouverte (serveur)', 'Opened (server)')}</th><th>${t('Déclarée (appareil, non vérifiable)', 'Declared (device, unverifiable)')}</th><th>${t('Retard', 'Late')}</th><th>${t('Copie', 'Paper')}</th></tr></thead><tbody>
+        ${remises.map(x => `<tr><td>${esc(x.nom)} <span class="muted">${esc(x.email)}</span></td><td>${x.note === null ? '—' : `${x.note} / ${x.total}${x.manuel ? t(' + manuel', ' + manual') : ''}`}</td><td>${esc(quand(x.recu))}</td><td>${esc(quand(x.debut))}</td><td>${esc(quand(x.declare))}${x.hors_ligne ? t(' <span class="muted">(préparée hors connexion)</span>', ' <span class="muted">(prepared offline)</span>') : ''}</td><td>${x.recu ? (x.retard ? t('oui', 'yes') : t('non', 'no')) : '—'}</td>
+          <td>${x.copie_taille ? `<a href="/api/prof/devoirs/${id}/copie/${encodeURIComponent(x.email)}">${t('Télécharger', 'Download')}</a> <span class="muted">(${Math.max(1, Math.round(x.copie_taille / 1024))} ${t('Ko', 'KB')}, ${esc(quand(x.copie_recu))}${x.copie_retard ? t(', en retard', ', late') : ''})</span>` : '—'}</td></tr>`).join('')}</tbody></table></div>`
       : `<p class="muted">${t('Aucune remise.', 'No submission.')}</p>`);
   }
 
