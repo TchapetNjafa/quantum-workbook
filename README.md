@@ -149,7 +149,13 @@ Remises hors connexion : si le réseau est coupé au moment de remettre, `assets
 Le serveur ne retient que l'heure de réception : une remise arrivée plus de 24 h après la fermeture est refusée. L'heure notée par
 l'appareil est conservée à titre indicatif, et l'enseignant voit « préparée hors connexion ».
 
-Tests : `node tests/test-devoirs-api.mjs` (24, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
+Copies et sujets : un devoir peut accepter une copie (PDF, JPEG ou PNG, **2 Mo maximum**, `"copie": true` à la création ou bouton dans
+`/prof/`) et proposer un sujet PDF à remplir. Les fichiers sont dans un Blob **privé** (`BLOB_READ_WRITE_TOKEN`, ajouté par Vercel) et ne
+passent que par l'API : le serveur contrôle la taille, le type réel (octets de début) et les mêmes délais que les remises. Une photo trop lourde
+est réduite en JPEG par le navigateur avant l'envoi. Chaque dépôt a un chemin unique ; l'ancien fichier est supprimé quand le nouveau est enregistré.
+Un fichier ne s'envoie pas hors connexion (il faut du réseau avant l'heure limite).
+
+Tests : `node tests/test-devoirs-api.mjs` (39, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
 `node tests/serveur-local.mjs 8767` pour servir le site assemblé avec son API (puis `test-carnet.mjs http://localhost:8767/`).
 
 ## Signalements d'erreurs

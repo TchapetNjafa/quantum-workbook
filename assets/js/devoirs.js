@@ -102,9 +102,15 @@
     montrer(`${horsLigne ? `<p class="muted" role="status">${reseau}</p>` : ''}<h3>${esc(d.titre)}</h3>
       <p class="muted">${t('Fermeture : ', 'Closes: ')}${esc(quand(d.ferme))}. ${t('Une remise reçue après cette heure et avant ', 'A submission received after that time and before ')}${esc(quand(d.limite))}${t(' est acceptée mais marquée en retard.', ' is accepted but marked late.')}
         ${t('L’heure retenue est celle du serveur, pas celle de votre appareil. Sans connexion, la remise est gardée sur votre appareil et envoyée au retour du réseau : elle doit parvenir au serveur avant l’heure limite.', 'The time recorded is the server’s, not your device’s. Without a connection, your submission is kept on your device and sent when the network returns: it must reach the server before the final deadline.')}</p>
+      ${d.sujet && !horsLigne ? `<p><a class="btn small ghost" href="/api/devoirs/${d.id}/sujet">${t('Télécharger le sujet (PDF à remplir)', 'Download the assignment (PDF to fill in)')}</a></p>` : ''}
       <form id="dev-form">${d.questions.map((q, i) => `<fieldset class="diag-q"><legend>${i + 1}. ${esc(q.question)}${q.points > 1 ? ` <span class="muted">(${q.points} pts)</span>` : ''}</legend>${champ(q)}</fieldset>`).join('')}</form>
       <div class="btn-row"><button class="btn accent" type="button" data-envoyer>${t('Remettre', 'Submit')}</button><button class="btn ghost" type="button" data-retour>${t('Retour', 'Back')}</button></div>
-      <div id="dev-msg" role="status" aria-live="polite"></div>`);
+      <div id="dev-msg" role="status" aria-live="polite"></div>
+      ${d.copie ? `<fieldset class="diag-q"><legend>${t('Copie à déposer (PDF ou photo, 2 Mo maximum)', 'Paper to upload (PDF or photo, 2 MB maximum)')}</legend>
+        <input type="file" id="dev-fichier" accept="application/pdf,image/jpeg,image/png" aria-label="${t('Choisir un fichier', 'Choose a file')}">
+        <p class="muted" id="dev-fichier-etat" role="status" aria-live="polite"></p>
+        <button class="btn small accent" type="button" data-envoyer-fichier>${t('Envoyer la copie', 'Send the paper')}</button></fieldset>` : ''}`);
+    if (d.copie) copie(d, horsLigne);
     const form = root.querySelector('#dev-form');
     for (const q of d.questions) {
       const prev = d.reponses[q.id]; if (prev === undefined || prev === null) continue;
@@ -133,6 +139,56 @@
         ? `<p><b>${t('Remise enregistrée', 'Submission recorded')}</b> ${t('le ', 'on ')}${esc(quand(j.recu))} ${t('(heure du serveur)', '(server time)')}${j.retard ? t(' — marquée en retard.', ' — marked late.') : '.'}
            ${t(' Les résultats seront publiés par l’enseignant.', ' Results will be released by the teacher.')}</p>`
         : `<p>${t('Remise refusée : ', 'Submission refused: ')}${esc(j.error || rep.status)}</p>`;
+    };
+  }
+
+  /* ---------- copie déposée : PDF ou photo, 2 Mo maximum (contrôlé aussi par le serveur) ---------- */
+  const MAX = 2 * 1024 * 1024;
+  const OK = ['application/pdf', 'image/jpeg', 'image/png'];
+  const taille = n => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' Mo' : Math.max(1, Math.round(n / 1024)) + ' Ko').replace('Mo', t('Mo', 'MB')).replace('Ko', t('Ko', 'KB'));
+
+  // Une photo trop lourde est réduite côté navigateur (JPEG, 1800 px au plus) ; un PDF trop lourd est refusé.
+  async function reduire(f) {
+    if (!f.type.startsWith('image/') || typeof createImageBitmap !== 'function') return null;
+    const img = await createImageBitmap(f);
+    for (const cote of [1800, 1400, 1000]) {
+      const k = Math.min(1, cote / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      for (const qual of [0.85, 0.7, 0.55]) {
+        const b = await new Promise(ok => c.toBlob(ok, 'image/jpeg', qual));
+        if (b && b.size <= MAX) return b;
+      }
+    }
+    return null;
+  }
+
+  async function copie(d, horsLigne) {
+    const etat = root.querySelector('#dev-fichier-etat'), choix = root.querySelector('#dev-fichier');
+    if (!horsLigne) {
+      api(`/api/devoirs/${d.id}/copie`).then(r => (r.ok ? r.json() : null)).then(j => {
+        if (j && j.fichier) etat.textContent = t(`Copie déjà envoyée le ${quand(j.fichier.recu)} (${taille(j.fichier.taille)}, heure du serveur)${j.fichier.retard ? ' — en retard' : ''}. Un nouvel envoi la remplace.`,
+          `Paper already sent on ${quand(j.fichier.recu)} (${taille(j.fichier.taille)}, server time)${j.fichier.retard ? ' — late' : ''}. A new upload replaces it.`);
+      }).catch(() => {});
+    }
+    root.querySelector('[data-envoyer-fichier]').onclick = async () => {
+      let f = choix.files[0];
+      if (!f) { etat.textContent = t('Choisissez d’abord un fichier.', 'Choose a file first.'); return; }
+      if (!OK.includes(f.type)) { etat.textContent = t('Format non accepté : PDF, JPEG ou PNG.', 'Format not accepted: PDF, JPEG or PNG.'); return; }
+      if (f.size > MAX) {
+        etat.textContent = t('Photo trop lourde, réduction en cours…', 'Photo too large, reducing…');
+        const r = await reduire(f);
+        if (!r) { etat.textContent = t('Fichier de plus de 2 Mo : réduisez-le (PDF) ou reprenez une photo moins lourde.', 'File larger than 2 MB: shrink it (PDF) or take a lighter photo.'); return; }
+        f = r;
+      }
+      etat.textContent = t('Envoi…', 'Sending…');
+      let rep;
+      try { rep = await api(`/api/devoirs/${d.id}/copie`, { method: 'POST', headers: { 'Content-Type': f.type }, body: f }); }
+      catch { etat.textContent = t('Pas de connexion : le dépôt d’une copie demande du réseau. Réessayez avant ', 'No connection: uploading a paper needs a network. Try again before ') + quand(d.limite) + '.'; return; }
+      const j = await rep.json().catch(() => ({}));
+      etat.textContent = rep.ok
+        ? t(`Copie enregistrée le ${quand(j.recu)} (${taille(j.taille)}, heure du serveur)${j.retard ? ' — marquée en retard' : ''}.`, `Paper recorded on ${quand(j.recu)} (${taille(j.taille)}, server time)${j.retard ? ' — marked late' : ''}.`)
+        : t('Dépôt refusé : ', 'Upload refused: ') + (j.error || rep.status);
     };
   }
 
