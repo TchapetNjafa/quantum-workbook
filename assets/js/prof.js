@@ -36,7 +36,12 @@
     return new Blob([...parts, ...centr, new Uint8Array(fin.buffer)], { type: 'application/zip' });
   }
   const telecharger = (blob, nom) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000); };
-  const noteTxt = x => (x.note === null ? '—' : `${x.note} / ${x.total}` + (x.total_manuel > 0 ? ` + ${x.note_manuelle === null ? t('? (à corriger)', '? (to mark)') : x.note_manuelle} / ${x.total_manuel}` : ''));
+  const noteTxt = x => {
+    if (x.note === null) return '—';
+    const auto = x.total > 0 ? `${x.note} / ${x.total}` : '';
+    const manuel = x.total_manuel > 0 ? `${x.note_manuelle === null ? t('? (à noter)', '? (to mark)') : x.note_manuelle} / ${x.total_manuel}` : '';
+    return [auto, manuel].filter(Boolean).join(' + ') || '—';
+  };
 
   if (/\.github\.io$/.test(location.hostname) || location.protocol === 'file:') {
     montrer(`<p class="muted">${t('Cette page n’existe que sur le site hébergé sur Vercel.', 'This page only exists on the Vercel-hosted site.')}</p>`);
@@ -84,12 +89,53 @@
       </tbody></table></div>` : `<p class="muted">${t('Aucun devoir.', 'No assignment.')}</p>`}
       <div data-detail></div>
       <h2>${t('Nouveau devoir', 'New assignment')}</h2>
-      <p class="muted">${t('Collez le devoir au format JSON. Types corrigés automatiquement : qcm, vrai_faux, numerical (tolérance absolue) ; interpretation : correction manuelle. Les réponses ne sont jamais envoyées aux étudiants.',
-        'Paste the assignment as JSON. Automatically marked types: qcm, vrai_faux, numerical (absolute tolerance); interpretation: manual marking. Answers are never sent to students.')}</p>
-      <textarea data-json rows="14" spellcheck="false"></textarea>
-      <div class="btn-row"><button class="btn accent" type="button" data-creer>${t('Créer le devoir', 'Create assignment')}</button>
-      <button class="btn ghost" type="button" data-exemple>${t('Insérer un exemple', 'Insert an example')}</button></div>
-      <div data-msg role="status" aria-live="polite"></div>`);
+      <form data-nouveau>
+        <p class="muted">${t('Devoir à copie déposée : les étudiants téléchargent le sujet (PDF), composent, puis déposent leur copie (PDF ou photo). Vous attribuez ensuite la note à la main.',
+          'Paper assignment: students download the PDF assignment, work it out, then upload their paper (PDF or photo). You then enter the mark by hand.')}</p>
+        <div class="prof-ligne"><label>${t('Titre', 'Title')} <input type="text" name="titre" required maxlength="200" size="40"></label></div>
+        <div class="prof-ligne"><label>${t('Ouvre', 'Opens')} <input type="datetime-local" name="o" required></label>
+          <label>${t('Ferme', 'Closes')} <input type="datetime-local" name="f" required></label></div>
+        <div class="prof-ligne"><label>${t('Sujet PDF (2 Mo maximum, facultatif)', 'PDF assignment (2 MB maximum, optional)')} <input type="file" name="sujet" accept="application/pdf"></label></div>
+        <div class="prof-ligne"><label>${t('Barème (points)', 'Total mark (points)')} <input type="number" name="bareme" min="1" max="100" step="1" value="20"></label></div>
+        <div class="prof-ligne"><label><input type="checkbox" name="publie"> ${t('Publier tout de suite', 'Publish now')}</label>
+          <label><input type="checkbox" name="visible"> ${t('Montrer les notes après la fin du délai', 'Show marks after the deadline')}</label></div>
+        <div class="btn-row"><button class="btn accent" type="submit">${t('Créer le devoir', 'Create assignment')}</button></div>
+      </form>
+      <div data-msg-nouveau role="status" aria-live="polite"></div>
+      <details><summary>${t('Avancé : devoir avec questions (JSON)', 'Advanced: assignment with questions (JSON)')}</summary>
+        <p class="muted">${t('Collez le devoir au format JSON. Types corrigés automatiquement : qcm, vrai_faux, numerical (tolérance absolue) ; interpretation : correction manuelle. Ajoutez "copie": true pour permettre aussi le dépôt d’une copie. Les réponses ne sont jamais envoyées aux étudiants.',
+          'Paste the assignment as JSON. Automatically marked types: qcm, vrai_faux, numerical (absolute tolerance); interpretation: manual marking. Add "copie": true to also allow a paper upload. Answers are never sent to students.')}</p>
+        <textarea data-json rows="14" spellcheck="false"></textarea>
+        <div class="btn-row"><button class="btn accent" type="button" data-creer>${t('Créer le devoir', 'Create assignment')}</button>
+        <button class="btn ghost" type="button" data-exemple>${t('Insérer un exemple', 'Insert an example')}</button></div>
+        <div data-msg role="status" aria-live="polite"></div>
+      </details>`);
+
+    // ----- formulaire « devoir à copie déposée » -----
+    const fm = root.querySelector('[data-nouveau]'), mn = root.querySelector('[data-msg-nouveau]');
+    fm.o.value = local(new Date()); fm.f.value = local(new Date(Date.now() + 7 * 864e5));
+    fm.onsubmit = async e => {
+      e.preventDefault();
+      const ouvre = new Date(fm.o.value), ferme = new Date(fm.f.value);
+      if (!(ferme > ouvre)) { mn.innerHTML = `<p class="prof-erreurs">${t('La fermeture doit suivre l’ouverture.', 'The closing time must follow the opening time.')}</p>`; return; }
+      const fichier = fm.sujet.files[0];
+      if (fichier && fichier.size > 2 * 1024 * 1024) { mn.innerHTML = `<p class="prof-erreurs">${t('Le sujet dépasse 2 Mo.', 'The PDF is larger than 2 MB.')}</p>`; return; }
+      mn.textContent = t('Création…', 'Creating…');
+      // créé non publié : le sujet est envoyé AVANT la publication, pour que les étudiants le trouvent dès l'ouverture
+      const rep = await post('/api/prof/devoirs', { titre: fm.titre.value.trim(), ouvre: ouvre.toISOString(), ferme: ferme.toISOString(), copie: true, questions: [],
+        bareme: Number(fm.bareme.value) || 20, publie: false, resultat_visible: fm.visible.checked });
+      const j = await rep.json().catch(() => ({}));
+      if (rep.status === 401) return verrou();
+      if (!rep.ok) { mn.innerHTML = `<p class="prof-erreurs">${esc(j.error || rep.status)}</p>${(j.erreurs || []).length ? `<ul>${j.erreurs.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`; return; }
+      let avertissement = '';
+      if (fichier) {
+        const up = await api(`/api/prof/devoirs/${j.id}/sujet`, { method: 'POST', headers: { 'Content-Type': 'application/pdf' }, body: fichier });
+        if (!up.ok) avertissement = t('Le devoir est créé mais le sujet n’a pas pu être envoyé : ', 'The assignment is created but the PDF could not be uploaded: ') + ((await up.json().catch(() => ({}))).error || up.status);
+      }
+      if (fm.publie.checked && !avertissement) await post(`/api/prof/devoirs/${j.id}`, { publie: true });
+      await tableau();
+      if (avertissement) root.querySelector('[data-msg-nouveau]').innerHTML = `<p class="prof-erreurs">${esc(avertissement)}</p>`;
+    };
 
     // ----- test de la configuration réelle du serveur (variables, base, stockage privé) -----
     const diag = document.createElement('div');
@@ -216,7 +262,7 @@
         const r = await api(`/api/prof/devoirs/${id}/remises/${encodeURIComponent(email)}`);
         if (r.status === 401) return verrou();
         const j = await r.json();
-        zone.innerHTML = `<h3>${t('Correction manuelle', 'Manual marking')} — ${esc(email)}</h3>` + j.questions.map(q => `<div class="diag-q"><p><b>${esc(q.question)}</b> <span class="muted">(${q.points} pt)</span></p><pre>${esc(q.reponse || t('(pas de réponse)', '(no answer)'))}</pre></div>`).join('')
+        zone.innerHTML = `<h3>${t('Correction manuelle', 'Manual marking')} — ${esc(email)}</h3>` + (j.questions.length ? '' : `<p class="muted">${t('Devoir à copie déposée : téléchargez la copie dans la colonne « Copie », puis saisissez la note.', 'Paper assignment: download the paper from the “Paper” column, then enter the mark.')}</p>`) + j.questions.map(q => `<div class="diag-q"><p><b>${esc(q.question)}</b> <span class="muted">(${q.points} pt)</span></p><pre>${esc(q.reponse || t('(pas de réponse)', '(no answer)'))}</pre></div>`).join('')
           + `<div class="prof-ligne"><label>${t('Points (0 à ', 'Points (0 to ')}${j.total_manuel}) <input type="number" min="0" max="${j.total_manuel}" step="0.25" name="pts" value="${j.note_manuelle ?? ''}"></label>
           <button class="btn small accent" type="button" data-noter>${t('Enregistrer', 'Save')}</button></div><div data-msg3 role="status" aria-live="polite"></div>`;
         zone.querySelector('[data-noter]').onclick = async () => {

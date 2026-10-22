@@ -20,7 +20,10 @@ export function valider(d) {
   if (!texte(d?.titre, 200)) erreurs.push('titre manquant ou trop long');
   if (isNaN(ouvre) || isNaN(ferme)) erreurs.push('dates ouvre/ferme invalides');
   else if (ferme <= ouvre) erreurs.push('ferme doit suivre ouvre');
-  if (!Array.isArray(d?.questions) || d.questions.length < 1 || d.questions.length > 60) erreurs.push('1 à 60 questions attendues');
+  // Un devoir « copie seule » (sujet PDF, l'étudiant dépose sa copie) n'a pas de question ; sinon 1 à 60 questions.
+  const sansQuestion = d?.copie === true && (d.questions === undefined || (Array.isArray(d.questions) && d.questions.length === 0));
+  if (!sansQuestion && (!Array.isArray(d?.questions) || d.questions.length < 1 || d.questions.length > 60)) erreurs.push('1 à 60 questions attendues (ou aucune pour un devoir à copie déposée)');
+  if (d?.bareme !== undefined && !(Number(d.bareme) > 0 && Number(d.bareme) <= 100)) erreurs.push('barème entre 0 et 100');
   const questions = [];
   (Array.isArray(d?.questions) ? d.questions : []).forEach((q, i) => {
     const n = `question ${i + 1}`;

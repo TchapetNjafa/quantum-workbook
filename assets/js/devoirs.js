@@ -45,7 +45,7 @@
     const corps = devoirs.length ? devoirs.map(d => {
       const peut = d.etat === 'ouvert' || d.etat === 'retard';
       const rendu = d.rendu ? `<p>${t('Remise enregistrée le ', 'Submission recorded on ')}<b>${esc(quand(d.recu))}</b> ${t('(heure du serveur)', '(server time)')}${d.retard ? t(' — en retard', ' — late') : ''}.
-        ${d.note !== undefined ? t(`Note automatique : <b>${d.note} / ${d.total}</b>.`, `Automatic mark: <b>${d.note} / ${d.total}</b>.`) : ''}
+        ${d.note !== undefined && d.total > 0 ? t(`Note automatique : <b>${d.note} / ${d.total}</b>.`, `Automatic mark: <b>${d.note} / ${d.total}</b>.`) : ''}
         ${d.manuel && d.note !== undefined ? (d.note_manuelle === null ? t('Correction manuelle en cours.', 'Manual marking in progress.') : t(`Correction manuelle : <b>${d.note_manuelle} / ${d.total_manuel}</b>.`, `Manual marking: <b>${d.note_manuelle} / ${d.total_manuel}</b>.`)) : ''}</p>` : '';
       return `<article class="devoir-card" data-etat="${esc(d.etat)}">
         <h3>${esc(d.titre)}</h3>
@@ -111,6 +111,10 @@
         <input type="file" id="dev-fichier" accept="application/pdf,image/jpeg,image/png" aria-label="${t('Choisir un fichier', 'Choose a file')}">
         <p class="muted" id="dev-fichier-etat" role="status" aria-live="polite"></p>
         <button class="btn small accent" type="button" data-envoyer-fichier>${t('Envoyer la copie', 'Send the paper')}</button></fieldset>` : ''}`);
+    if (!d.questions.length) { // devoir « copie seule » : pas de questions, le dépôt de la copie est la remise
+      const f0 = root.querySelector('#dev-form'); f0.hidden = true; root.querySelector('[data-envoyer]').hidden = true;
+      f0.insertAdjacentHTML('beforebegin', `<p>${d.sujet ? t('Téléchargez le sujet, composez sur papier ou dans le PDF, puis déposez votre copie ci-dessous (PDF ou photo).', 'Download the assignment, work it out on paper or in the PDF, then upload your paper below (PDF or photo).') : t('Composez sur papier ou en PDF, puis déposez votre copie ci-dessous (PDF ou photo).', 'Work it out on paper or in a PDF, then upload your paper below (PDF or photo).')}</p>`);
+    }
     if (d.copie) copie(d, horsLigne);
     const form = root.querySelector('#dev-form');
     for (const q of d.questions) {

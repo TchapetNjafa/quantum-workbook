@@ -51,8 +51,9 @@ export async function creerDevoir({ body }) {
   const v = valider(body);
   if (!v.ok) return [400, { error: 'devoir invalide', erreurs: v.erreurs }];
   const [d] = await q(
-    'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions, copie) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
-    [v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, body.publie === true, body.resultat_visible === true, JSON.stringify(v.devoir.questions), body.copie === true]);
+    'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions, copie, bareme) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
+    [v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, body.publie === true, body.resultat_visible === true, JSON.stringify(v.devoir.questions), body.copie === true,
+      v.devoir.questions.length === 0 ? Number(body.bareme ?? 20) : null]); // sans question : note saisie à la main sur ce barème (20 par défaut)
   return [201, { id: d.id }];
 }
 

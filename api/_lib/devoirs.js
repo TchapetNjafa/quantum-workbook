@@ -57,6 +57,7 @@ export async function remettre({ session, params, body }) {
   const now = maintenant(), e = etat(d, now);
   if (e === 'a_venir') return [403, { error: 'devoir pas encore ouvert' }];
   if (e === 'clos') return [403, { error: 'remise refusée : délai dépassé', limite: iso(limite(d)) }];
+  if (!d.questions.length) return [400, { error: 'ce devoir n’a pas de questions : il se rend en déposant une copie' }];
   const reponses = body && typeof body.reponses === 'object' && body.reponses !== null && !Array.isArray(body.reponses) ? body.reponses : null;
   if (!reponses) return [400, { error: 'réponses manquantes' }];
 

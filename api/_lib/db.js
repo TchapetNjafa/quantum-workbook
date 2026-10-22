@@ -27,6 +27,7 @@ const SCHEMA = [
   `UPDATE remises r SET total_manuel = COALESCE((SELECT SUM((q->>'points')::numeric) FROM devoirs d, jsonb_array_elements(d.questions) q
       WHERE d.id = r.devoir_id AND q->>'type' = 'interpretation'), 0) WHERE r.manuel AND r.total_manuel = 0`,
   `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS copie BOOLEAN NOT NULL DEFAULT FALSE`,
+  `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS bareme NUMERIC`,  // devoir sans question : total des points de la note saisie à la main
   `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS sujet BOOLEAN NOT NULL DEFAULT FALSE`,
   `CREATE TABLE IF NOT EXISTS fichiers (
      devoir_id INT NOT NULL REFERENCES devoirs(id) ON DELETE CASCADE, email TEXT NOT NULL, chemin TEXT NOT NULL,

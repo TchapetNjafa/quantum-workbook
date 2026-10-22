@@ -155,6 +155,11 @@ passent que par l'API : le serveur contrôle la taille, le type réel (octets de
 est réduite en JPEG par le navigateur avant l'envoi. Chaque dépôt a un chemin unique ; l'ancien fichier est supprimé quand le nouveau est enregistré.
 Un fichier ne s'envoie pas hors connexion (il faut du réseau avant l'heure limite).
 
+Créer un devoir sans JSON : dans `/prof/`, le formulaire « Nouveau devoir » (titre, dates, sujet PDF facultatif, barème, publication) crée un
+**devoir à copie déposée** : pas de question, l'étudiant télécharge le sujet, compose, puis dépose sa copie (PDF ou photo). Le dépôt vaut remise
+(il disparaît des devoirs « à rendre ») et l'enseignant attribue la note à la main sur le barème (20 par défaut). Le JSON, dans « Avancé », sert
+aux devoirs avec questions (QCM, vrai/faux, numérique, question libre), avec ou sans `"copie": true`.
+
 Espace enseignant (`/prof/`) : liste et dates des devoirs, publication, résultats visibles, remises (heure serveur, retard, hors connexion, copie),
 export CSV (`;`, UTF-8 avec BOM, formules neutralisées), ZIP de toutes les copies construit dans le navigateur, correction manuelle des questions
 `interpretation` (la note est liée à la version lue : si l'étudiant remet de nouveau, elle est refusée en 409), « Supprimer les copies du serveur »
@@ -166,7 +171,7 @@ Blob privé (écrire, relire, supprimer un petit fichier). Authentification du B
 Limite connue : si la base échoue après la suppression des fichiers d'un devoir, des références peuvent pointer vers des fichiers absents
 (l'API répond alors 404 proprement) ; un dépôt simultané à une suppression peut laisser un fichier non référencé.
 
-Tests : `node tests/test-devoirs-api.mjs` (47, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
+Tests : `node tests/test-devoirs-api.mjs` (48, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
 `node tests/serveur-local.mjs 8767` pour servir le site assemblé avec son API (puis `test-carnet.mjs http://localhost:8767/`).
 
 ## Signalements d'erreurs
