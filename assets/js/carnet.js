@@ -20,16 +20,31 @@
   }
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Lien « Connexion » : seulement sur l'hébergement Vercel (les fonctions serveur n'existent pas sur GitHub Pages)
+  // Liens « Connexion », « Devoirs » (et « Enseignant ») : seulement sur l'hébergement Vercel, où les fonctions serveur existent.
+  // Le lien Devoirs prend la couleur d'accent (avec le nombre) quand un devoir ouvert n'est pas encore rendu.
   if (!/\.github\.io$/.test(location.hostname) && location.protocol !== 'file:') {
-    addEventListener('DOMContentLoaded', () => {
+    const majNav = () => {
       const nav = document.querySelector('.topbar nav');
-      const href = LANG === 'en' ? '/en/login.html' : '/connexion.html';
-      if (!nav || nav.querySelector('a[href$="connexion.html"], a[href$="login.html"]')) return;
-      const a = document.createElement('a');
-      a.href = href; a.textContent = t('Connexion', 'Sign in');
-      nav.appendChild(a);
-    });
+      if (!nav) return;
+      const ajouter = (href, texte, motif) => {
+        let a = nav.querySelector(motif);
+        if (!a) { a = document.createElement('a'); a.href = href; a.textContent = texte; nav.appendChild(a); }
+        return a;
+      };
+      const en = LANG === 'en';
+      ajouter(en ? '/en/login.html' : '/connexion.html', t('Connexion', 'Sign in'), 'a[href$="connexion.html"], a[href$="login.html"]');
+      const lienDevoirs = ajouter(en ? '/en/assignments.html' : '/devoirs.html', t('Devoirs', 'Assignments'), 'a[href$="devoirs.html"], a[href$="assignments.html"]');
+      lienDevoirs.dataset.base = lienDevoirs.dataset.base || lienDevoirs.textContent;
+      fetch('/api/statut', { credentials: 'same-origin' }).then(r => (r.ok ? r.json() : null)).then(s => {
+        if (!s || !s.connecte) return;
+        if (s.teacher) ajouter(en ? '/en/prof/' : '/prof/', t('Enseignant', 'Teacher'), 'a[href$="/prof/"], a[href$="/prof/index.html"], a[href="index.html"][aria-current]');
+        lienDevoirs.classList.toggle('devoir-actif', !!s.a_faire);
+        lienDevoirs.textContent = s.a_faire ? `${lienDevoirs.dataset.base} (${s.a_faire})` : lienDevoirs.dataset.base;
+        lienDevoirs.title = s.a_faire ? t('Un devoir est à rendre', 'An assignment is due') : '';
+      }).catch(() => { /* hors connexion : on laisse les liens tels quels */ });
+    };
+    window.phy321MajNav = majNav; // rappelée par compte.js après une connexion, sans changer de page
+    addEventListener('DOMContentLoaded', majNav);
   }
 
   /* ---------- stockage local (peut être indisponible : navigation privée) ---------- */

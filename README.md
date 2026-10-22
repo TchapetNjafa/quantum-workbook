@@ -118,7 +118,7 @@ puis remplacement des adresses absolues GitHub Pages par des adresses du même s
 
 ### API et connexion Google (Vercel seulement)
 
-`api/[...route].js` reçoit toutes les adresses `/api/*` (une seule fonction : le plan gratuit limite leur nombre) ;
+`api/index.js` reçoit toutes les adresses `/api/*` par une réécriture de `vercel.json` (le chemin arrive dans le paramètre `path` ; une seule fonction : le plan gratuit limite leur nombre) ;
 le code est dans `api/_lib/`. Sur GitHub Pages il n'existe pas : `assets/js/compte.js` le détecte et l'explique.
 Variables d'environnement Vercel (Settings > Environment Variables, jamais dans le dépôt) :
 
@@ -132,6 +132,20 @@ Variables d'environnement Vercel (Settings > Environment Variables, jamais dans 
 | `ALIAS_DEBUG` | `1` pendant le test d'alias : la page de connexion montre `email` et `hd` renvoyés par Google ; à retirer ensuite |
 
 Tests : `node tests/test-api.mjs` (jetons Google simulés, 18 contrôles) et `node tests/test-connexion.mjs` (page, 360 et 1366 px).
+
+### Devoirs (Vercel seulement)
+
+Pages : `devoirs.html` / `en/assignments.html` (étudiants), `prof/index.html` / `en/prof/index.html` (enseignant).
+Stockage : Postgres Neon (`DATABASE_URL`, créée par l'intégration Marketplace) ; tables créées automatiquement (`api/_lib/db.js`).
+Les questions des devoirs notés sont dans la base (jamais dans le dépôt public) : on les crée en collant du JSON dans l'espace
+enseignant (type `qcm`, `vrai_faux`, `numerical` à tolérance absolue, `interpretation` à corriger à la main).
+Règles : l'heure de remise est celle du serveur ; une remise reçue jusqu'à 24 h après la fermeture est acceptée et marquée en retard,
+au-delà elle est refusée ; l'espace enseignant demande le compte Google `TEACHER_EMAIL` puis `TEACHER_PASSWORD` (5 essais par 15 min).
+Le lien « Devoirs » de la barre du haut prend la couleur d'accent, avec le nombre, tant qu'un devoir ouvert n'est pas rendu (`/api/statut`).
+Variable à ajouter : `TEACHER_PASSWORD`.
+
+Tests : `node tests/test-devoirs-api.mjs` (24, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
+`node tests/serveur-local.mjs 8767` pour servir le site assemblé avec son API (puis `test-carnet.mjs http://localhost:8767/`).
 
 ## Signalements d'erreurs
 

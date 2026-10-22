@@ -1,0 +1,40 @@
+// Accès Postgres (Neon). Une seule fonction publique : q(texte, paramètres) -> lignes.
+// Les tests injectent une base en mémoire avec setDb() ; l'horloge est injectable pour tester les délais.
+import { neon } from '@neondatabase/serverless';
+
+let db = null, pret = null, horloge = () => new Date();
+export const setDb = d => { db = d; pret = null; };
+export const setHorloge = f => { horloge = f; };
+export const maintenant = () => horloge();
+
+const SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS devoirs (
+     id SERIAL PRIMARY KEY, titre TEXT NOT NULL, ouvre TIMESTAMPTZ NOT NULL, ferme TIMESTAMPTZ NOT NULL,
+     publie BOOLEAN NOT NULL DEFAULT FALSE, resultat_visible BOOLEAN NOT NULL DEFAULT FALSE,
+     questions JSONB NOT NULL, cree TIMESTAMPTZ NOT NULL DEFAULT now())`,
+  `CREATE TABLE IF NOT EXISTS debuts (
+     devoir_id INT NOT NULL REFERENCES devoirs(id) ON DELETE CASCADE, email TEXT NOT NULL,
+     debut TIMESTAMPTZ NOT NULL, PRIMARY KEY (devoir_id, email))`,
+  `CREATE TABLE IF NOT EXISTS remises (
+     devoir_id INT NOT NULL REFERENCES devoirs(id) ON DELETE CASCADE, email TEXT NOT NULL, nom TEXT NOT NULL DEFAULT '',
+     reponses JSONB NOT NULL, note NUMERIC NOT NULL, total NUMERIC NOT NULL, manuel BOOLEAN NOT NULL DEFAULT FALSE,
+     details JSONB NOT NULL, declare TIMESTAMPTZ, recu TIMESTAMPTZ NOT NULL, retard BOOLEAN NOT NULL DEFAULT FALSE,
+     PRIMARY KEY (devoir_id, email))`,
+  `CREATE TABLE IF NOT EXISTS prof_essais (id SERIAL PRIMARY KEY, at TIMESTAMPTZ NOT NULL, ok BOOLEAN NOT NULL)`
+];
+
+function connexion() {
+  if (db) return db;
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  if (!url) throw Object.assign(new Error('DATABASE_URL absent'), { code: 'config' });
+  const sql = neon(url);
+  db = { query: (texte, params) => sql.query(texte, params) };
+  return db;
+}
+
+export async function q(texte, params = []) {
+  const d = connexion();
+  if (!pret) pret = (async () => { for (const s of SCHEMA) await d.query(s, []); })().catch(e => { pret = null; throw e; });
+  await pret;
+  return d.query(texte, params);
+}

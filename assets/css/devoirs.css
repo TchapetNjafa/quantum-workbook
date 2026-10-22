@@ -1,0 +1,13 @@
+/* Devoirs et page enseignant : cartes, tableau, formulaires. Utilise les variables du système « carnet ». */
+.devoir-card { border: 1px solid var(--rule); border-radius: var(--r-sm); padding: 1rem 1.2rem; margin: 1rem 0; max-width: calc(var(--measure) + 4rem); background: var(--paper); }
+.devoir-card h3 { margin-top: 0; }
+.devoir-card[data-etat="ouvert"] { border-color: var(--accent); }
+.devoir-card[data-etat="clos"], .devoir-card[data-etat="a_venir"] { opacity: .8; }
+#dev-form .diag-q legend { font-weight: 500; }
+#dev-form input[type="text"], #prof input[type="password"], #prof input[type="datetime-local"], #prof textarea {
+  font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-sm); padding: .45rem .6rem; max-width: 100%;
+}
+#prof textarea { width: 100%; font-family: var(--mono); font-size: .85rem; }
+#prof .prof-ligne { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: .5rem 0; }
+#prof .prof-erreurs { color: var(--accent-ink); }
+#prof .tableau { overflow-x: auto; }

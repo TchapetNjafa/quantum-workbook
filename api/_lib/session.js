@@ -11,8 +11,8 @@ function secret() {
 }
 const mac = data => createHmac('sha256', secret()).update(data).digest('base64url');
 
-export function creer(payload, now = Date.now() / 1000) {
-  const body = Buffer.from(JSON.stringify({ ...payload, exp: Math.floor(now) + DUREE })).toString('base64url');
+export function creer(payload, now = Date.now() / 1000, duree = DUREE) {
+  const body = Buffer.from(JSON.stringify({ ...payload, exp: Math.floor(now) + duree })).toString('base64url');
   return body + '.' + mac(body);
 }
 
@@ -27,11 +27,11 @@ export function lire(valeur, now = Date.now() / 1000) {
   } catch { return null; }
 }
 
-export function depuisRequete(req) {
-  const m = new RegExp('(?:^|; )' + COOKIE + '=([^;]+)').exec(req.headers.cookie || '');
+export function depuisRequete(req, nom = COOKIE) {
+  const m = new RegExp('(?:^|; )' + nom + '=([^;]+)').exec(req.headers.cookie || '');
   return m ? lire(m[1]) : null;
 }
 
-export function cookie(valeur, { secure = true, maxAge = DUREE } = {}) {
-  return `${COOKIE}=${valeur}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure ? '; Secure' : ''}`;
+export function cookie(valeur, { secure = true, maxAge = DUREE, nom = COOKIE } = {}) {
+  return `${nom}=${valeur}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure ? '; Secure' : ''}`;
 }
