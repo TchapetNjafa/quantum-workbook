@@ -37,12 +37,19 @@
       ajouter(en ? '/en/leaderboard.html' : '/classement.html', t('Classement', 'Leaderboard'), 'a[href$="classement.html"], a[href$="leaderboard.html"]');
       lienDevoirs.dataset.base = lienDevoirs.dataset.base || lienDevoirs.textContent;
       fetch('/api/statut', { credentials: 'same-origin' }).then(r => (r.ok ? r.json() : null)).then(s => {
-        if (!s || !s.connecte) return;
-        ajouter(en ? '/en/profile.html' : '/profil.html', t('Profil', 'Profile'), 'a[href$="profil.html"], a[href$="profile.html"]');
-        if (s.teacher) ajouter(en ? '/en/prof/' : '/prof/', t('Enseignant', 'Teacher'), 'a[href$="/prof/"], a[href$="/prof/index.html"], a[href="index.html"][aria-current]');
-        lienDevoirs.classList.toggle('devoir-actif', !!s.a_faire);
-        lienDevoirs.textContent = s.a_faire ? `${lienDevoirs.dataset.base} (${s.a_faire})` : lienDevoirs.dataset.base;
-        lienDevoirs.title = s.a_faire ? t('Un devoir est à rendre', 'An assignment is due') : '';
+        if (!s) return;
+        if (s.connecte) {
+          ajouter(en ? '/en/profile.html' : '/profil.html', t('Profil', 'Profile'), 'a[href$="profil.html"], a[href$="profile.html"]');
+          if (s.teacher) ajouter(en ? '/en/prof/' : '/prof/', t('Enseignant', 'Teacher'), 'a[href$="/prof/"], a[href$="/prof/index.html"], a[href="index.html"][aria-current]');
+        }
+        // Connecté : nombre de devoirs ouverts encore à rendre. Non connecté : nombre de devoirs ouverts (information publique).
+        const n = s.connecte ? s.a_faire : s.ouverts;
+        const quand = iso => new Date(iso).toLocaleString(en ? 'en-GB' : 'fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
+        lienDevoirs.classList.toggle('devoir-actif', !!n);
+        lienDevoirs.classList.toggle('devoir-prochain', !n && !!s.prochain);
+        lienDevoirs.textContent = n ? `${lienDevoirs.dataset.base} (${n})` : lienDevoirs.dataset.base;
+        lienDevoirs.title = n ? (s.connecte ? t('Un devoir est à rendre', 'An assignment is due') : t('Un devoir est ouvert : connectez-vous pour le faire', 'An assignment is open: sign in to do it'))
+          : s.prochain ? `${t('Prochain devoir : ouverture le ', 'Next assignment: opens on ')}${quand(s.prochain.ouvre)}` : '';
       }).catch(() => { /* hors connexion : on laisse les liens tels quels */ });
     };
     window.phy321MajNav = majNav; // rappelée par compte.js après une connexion, sans changer de page

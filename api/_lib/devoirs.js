@@ -13,6 +13,18 @@ function etat(d, now) {
   return now < ouvre ? 'a_venir' : now <= ferme ? 'ouvert' : now <= limite(d) ? 'retard' : 'clos';
 }
 
+/** Annonce PUBLIQUE (visiteur non connecté compris) : y a-t-il un devoir ouvert, ou un prochain devoir ? Titre et dates seulement, jamais de question ni de réponse. */
+export async function annonce() {
+  const now = maintenant();
+  const l = (await q('SELECT titre, ouvre, ferme FROM devoirs WHERE publie ORDER BY ouvre')).map(d => ({ ...d, e: etat(d, now) }));
+  const ouverts = l.filter(d => d.e === 'ouvert'), prochain = l.find(d => d.e === 'a_venir');
+  return {
+    ouverts: ouverts.length,
+    ouvert: ouverts[0] ? { titre: ouverts[0].titre, ferme: iso(ouverts[0].ferme) } : null,
+    prochain: prochain ? { titre: prochain.titre, ouvre: iso(prochain.ouvre) } : null
+  };
+}
+
 export { etat as etatDevoir, limite as limiteDevoir }; // utilisés aussi par fichiers.js (mêmes règles de temps)
 
 export async function liste({ session }) {

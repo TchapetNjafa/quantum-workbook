@@ -174,6 +174,10 @@ Limite connue : si la base échoue après la suppression des fichiers d'un devoi
 Tests : `node tests/test-devoirs-api.mjs` (59, base PGlite en mémoire), `node tests/test-devoirs-ui.mjs` (13, navigateur),
 `node tests/serveur-local.mjs 8767` pour servir le site assemblé avec son API (puis `test-carnet.mjs http://localhost:8767/`).
 
+**Annonce publique d'un devoir.** `GET /api/statut` renvoie à tout le monde, connecté ou non, `ouverts`, `ouvert` (titre, fermeture) et `prochain` (titre, ouverture) : titre et dates seulement, jamais de question ni de réponse, et rien pour un devoir non publié.
+Le bouton « Devoirs » de la barre du haut devient vermillon avec le nombre de devoirs ouverts (pour un étudiant connecté : ceux qu'il n'a pas encore remis) et prend un contour vermillon quand un devoir va ouvrir. La page Devoirs d'un visiteur non connecté affiche l'annonce avant l'invitation à se connecter.
+L'enseignant n'a pas de matricule à saisir pour consulter la liste des devoirs.
+
 ### Profil, classement et défis (Vercel seulement)
 
 Pages : `profil.html` / `en/profile.html`, `classement.html` / `en/leaderboard.html`. Le **matricule** est obligatoire (4 à 15 lettres ou chiffres, unique, saisi une fois ;
