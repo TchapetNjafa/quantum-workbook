@@ -61,11 +61,14 @@ const directes = {
   // Toujours 200 (pas d'erreur rouge dans la console pour les visiteurs non connectés) : sert à la barre du haut de chaque page.
   'GET /api/statut': async (req, res) => {
     const s = depuisRequete(req);
-    if (!s) return json(res, 200, { connecte: false });
+    // Annonce publique : tout le monde, connecté ou non, voit qu'un devoir est ouvert ou va l'être (titre et dates seulement).
+    let annonce = { ouverts: 0, ouvert: null, prochain: null };
+    try { annonce = await devoirs.annonce(); } catch (e) { console.error('annonce', e.code || '', e.message); }
+    if (!s) return json(res, 200, { connecte: false, ...annonce });
     let a_faire = 0;
     try { a_faire = (await devoirs.liste({ session: s }))[1].a_faire; } catch (e) { console.error('statut', e.code || '', e.message); }
     try { await profil.purgerAnciennes(); } catch (e) { console.error('purge 5 mois', e.code || '', e.message); } // données de plus de 5 mois : supprimées (au plus toutes les 6 h)
-    return json(res, 200, { connecte: true, teacher: s.role === 'prof', a_faire });
+    return json(res, 200, { connecte: true, teacher: s.role === 'prof', a_faire, ...annonce });
   },
 
   // Tâche planifiée Vercel (vercel.json > crons) : applique la conservation de 5 mois même si personne n'ouvre le site.

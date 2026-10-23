@@ -66,14 +66,17 @@
     catch { const c = memo.lire('phy321.devoirs.cache.v1'); return c ? afficherListe(c.devoirs, true) : erreur(); }
     if (r.status === 401) {
       vue = 'connexion';
-      return montrer(`<p>${t('Connectez-vous avec votre compte universitaire pour voir les devoirs.', 'Sign in with your university account to see the assignments.')}</p>
+      const st = await api('/api/statut').then(x => (x.ok ? x.json() : {})).catch(() => ({}));
+      const annonce = st.ouvert ? `<p class="devoir-annonce"><b>${t('Un devoir est ouvert : ', 'An assignment is open: ')}${esc(st.ouvert.titre)}</b> — ${t('jusqu’au ', 'until ')}${esc(quand(st.ouvert.ferme))}.</p>`
+        : st.prochain ? `<p class="devoir-annonce"><b>${t('Prochain devoir : ', 'Next assignment: ')}${esc(st.prochain.titre)}</b> — ${t('ouverture le ', 'opens on ')}${esc(quand(st.prochain.ouvre))}.</p>` : '';
+      return montrer(`${annonce}<p>${t('Connectez-vous avec votre compte universitaire pour voir les devoirs.', 'Sign in with your university account to see the assignments.')}</p>
         <p><a class="btn accent" href="${EN ? '/en/login.html' : '/connexion.html'}">${t('Se connecter', 'Sign in')}</a></p>`);
     }
     if (!r.ok) throw new Error('liste');
     // Matricule obligatoire : tant qu'il manque, on le demande avant tout (les remises et dépôts seraient refusés par le serveur).
     if (window.phy321Profil) {
       const pr = await window.phy321Profil.lire();
-      if (pr && pr.matricule === null) { vue = 'profil'; montrer('<div id="zone-mat"></div>'); return window.phy321Profil.formulaire(root.querySelector('#zone-mat'), () => liste().catch(erreur)); }
+      if (pr && pr.matricule === null && !pr.enseignant) { vue = 'profil'; montrer('<div id="zone-mat"></div>'); return window.phy321Profil.formulaire(root.querySelector('#zone-mat'), () => liste().catch(erreur)); }
     }
     const { devoirs } = await r.json();
     memo.ecrire('phy321.devoirs.cache.v1', { devoirs: devoirs.map(({ note, total, manuel, ...d }) => d) });

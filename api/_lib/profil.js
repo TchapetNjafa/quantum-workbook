@@ -17,6 +17,7 @@ export const toucher = email => q('UPDATE profils SET activite = $2 WHERE email 
 export async function lire({ session }) {
   const p = await profilDe(session.email);
   if (p) return [200, { matricule: p.matricule, visible: p.visible, nom: p.nom, conservation_jours: RETENTION_JOURS }];
+  if (session.role === 'prof') return [200, { matricule: null, enseignant: true, conservation_jours: RETENTION_JOURS }]; // l'enseignant ne remet pas de devoir : pas de matricule à demander
   const [l] = await q('SELECT matricule FROM liste_classe WHERE email = $1', [session.email]);
   return [200, { matricule: null, matricule_propose: l ? l.matricule : null, conservation_jours: RETENTION_JOURS }];
 }
