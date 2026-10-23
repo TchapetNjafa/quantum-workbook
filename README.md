@@ -127,7 +127,7 @@ Variables d'environnement Vercel (Settings > Environment Variables, jamais dans 
 | `GOOGLE_CLIENT_ID` | ID client OAuth Google (type Web) |
 | `SESSION_SECRET` | chaîne aléatoire d'au moins 32 caractères (signature des sessions) |
 | `TEACHER_EMAIL` | adresse de l'enseignant (rôle « prof ») |
-| `ALLOWED_DOMAIN` | optionnel, défaut `facsciences-uy1.cm` |
+| `ALLOWED_DOMAIN` | optionnel, défaut `facsciences-uy1.cm` ; plusieurs domaines séparés par des virgules (ex. `facsciences-uy1.cm,ens-uy1.cm`) |
 | `DOMAIN_RULE` | optionnel : `both` (défaut : adresse ET revendication `hd`), `email` ou `hd` |
 | `ALIAS_DEBUG` | `1` pendant le test d'alias : la page de connexion montre `email` et `hd` renvoyés par Google ; à retirer ensuite |
 

@@ -20,8 +20,9 @@ const decode = s => Buffer.from(s, 'base64url');
 
 /** Domaine accepté : 'both' (adresse ET revendication hd), 'email' ou 'hd'. */
 export function domaineOk(claims, domain, rule = 'both') {
-  const parEmail = typeof claims.email === 'string' && claims.email.toLowerCase().endsWith('@' + domain);
-  const parHd = claims.hd === domain;
+  const domaines = String(domain).split(',').map(d => d.trim().toLowerCase()).filter(Boolean); // plusieurs domaines possibles : « a.cm,b.cm »
+  const parEmail = typeof claims.email === 'string' && domaines.some(d => claims.email.toLowerCase().endsWith('@' + d));
+  const parHd = typeof claims.hd === 'string' && domaines.includes(claims.hd.toLowerCase());
   return rule === 'email' ? parEmail : rule === 'hd' ? parHd : parEmail && parHd;
 }
 
