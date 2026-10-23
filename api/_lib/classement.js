@@ -7,7 +7,7 @@ const MIN_QUESTIONS = 5, MIN_SERIES = 3, TOP = 20;
 const MATRICULE_REQUIS = [400, { error: 'enregistrez d’abord votre matricule (page Profil)', matricule_requis: true }];
 
 export async function enregistrerScore({ session, body }) {
-  if (!(await profilDe(session.email))) return MATRICULE_REQUIS;
+  if (!(await profilDe(session.email))) return session.role === 'prof' ? [200, { ok: true, ignore: 'enseignant' }] : MATRICULE_REQUIS; // l'enseignant n'a pas de profil : son score n'est pas enregistré
   const n = Number(body?.n), ok = Number(body?.ok), duree = Math.round(Number(body?.duree ?? 0));
   const chapitre = body?.chapitre === null || body?.chapitre === undefined ? null : Number(body.chapitre);
   if (!(Number.isInteger(n) && n >= 1 && n <= 60 && Number.isInteger(ok) && ok >= 0 && ok <= n && duree >= 0 && duree <= 4 * 3600)) return [400, { error: 'score invalide' }];
@@ -24,7 +24,7 @@ export async function enregistrerScore({ session, body }) {
 
 export async function classement({ session, req }) {
   const moi = await profilDe(session.email);
-  if (!moi) return MATRICULE_REQUIS;
+  if (!moi && session.role !== 'prof') return MATRICULE_REQUIS; // l'enseignant consulte le classement sans matricule
   const ch = new URL(req.url, 'http://x').searchParams.get('chapitre');
   const chapitre = ch && /^[1-6]$/.test(ch) ? Number(ch) : null;
   const lignes = await q(

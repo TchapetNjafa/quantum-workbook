@@ -46,7 +46,8 @@ function memeOrigine(req) {
 }
 
 const estLocal = req => /^(localhost|127\.)/.test(req.headers.host || '');
-const estProf = email => !!process.env.TEACHER_EMAIL && email.toLowerCase() === process.env.TEACHER_EMAIL.toLowerCase();
+// TEACHER_EMAIL : une ou plusieurs adresses séparées par des virgules, des points-virgules ou des espaces.
+const estProf = email => String(process.env.TEACHER_EMAIL || '').toLowerCase().split(/[\s,;]+/).filter(Boolean).includes(email.toLowerCase());
 
 // Routes directes (elles écrivent elles-mêmes la réponse).
 const directes = {
@@ -136,6 +137,7 @@ const TABLE = [
   ['GET', '/api/defis/:code', 'session', 0, defis.lire],
   ['POST', '/api/defis/:code/score', 'session', 1_000, defis.envoyerScore],
   ['GET', '/api/prof/profils', 'prof', 0, prof.listeProfils],
+  ['GET', '/api/prof/defis', 'prof', 0, prof.listeDefis],
   ['GET', '/api/prof/liste-classe', 'prof', 0, prof.lireListe],
   ['POST', '/api/prof/liste-classe', 'prof', 600_000, prof.importerListe],
   ['POST', '/api/prof/liste-classe/vider', 'prof', 1_000, prof.viderListe],

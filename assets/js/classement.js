@@ -42,7 +42,7 @@
     const me = await api('/api/me');
     if (me.status === 401) return montrer(`<p>${t('Connectez-vous avec votre compte universitaire.', 'Sign in with your university account.')}</p><p><a class="btn accent" href="${EN ? '/en/login.html' : '/connexion.html'}">${t('Se connecter', 'Sign in')}</a></p>`);
     const p = window.phy321Profil ? await window.phy321Profil.lire() : null;
-    if (p && p.matricule === null) { montrer('<div id="zone-mat"></div>'); return window.phy321Profil.formulaire(root.querySelector('#zone-mat'), afficher); }
+    if (p && p.matricule === null && !p.enseignant) { montrer('<div id="zone-mat"></div>'); return window.phy321Profil.formulaire(root.querySelector('#zone-mat'), afficher); }
 
     montrer(`<h2>${t('Classement d’entraînement', 'Practice leaderboard')}</h2>
       <p class="muted">${t('Calculé sur vos séries de quiz (5 questions ou plus), à partir de 3 séries. Il sert à s’entraîner et ne compte pas dans les notes. Les étudiants qui ont masqué leur matricule n’y figurent pas.', 'Computed from quiz sets of 5 questions or more, from 3 sets onward. It is for practice and does not count towards marks. Students who hid their student number do not appear.')}</p>
@@ -50,7 +50,8 @@
       <div data-classement></div>
       <h2>${t('Défis entre camarades', 'Challenges')}</h2>
       <p class="muted">${t('Lancez une série de questions identique pour tous ; chacun la joue quand il veut, le premier essai compte.', 'Set the same series of questions for everyone; each plays when they like, the first attempt counts.')}</p>
-      <form class="prof-ligne" data-creer-defi>
+      ${p && p.enseignant ? `<p class="muted">${t('Compte enseignant : vous consultez les défis (saisissez un code, ou voyez la liste dans l’espace enseignant) ; seuls les étudiants en créent et les jouent.', 'Teacher account: you can view challenges (enter a code, or see the list in the teacher area); only students create and play them.')}</p>` : ''}
+      <form class="prof-ligne" data-creer-defi${p && p.enseignant ? ' hidden' : ''}>
         <label>${t('Chapitre', 'Chapter')} <select name="c">${[1, 2, 3, 4, 5, 6].map(c => `<option>${c}</option>`).join('')}</select></label>
         <label>${t('Questions', 'Questions')} <select name="n"><option>5</option><option selected>10</option><option>15</option></select></label>
         <button class="btn accent" type="submit">${t('Créer un défi', 'Create a challenge')}</button></form>

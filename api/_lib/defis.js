@@ -7,11 +7,12 @@ import { profilDe, toucher } from './profil.js';
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sans I, O, 0, 1 : pas de confusion à la saisie
 const VALIDITE_JOURS = 30;
 const MATRICULE_REQUIS = [400, { error: 'enregistrez d’abord votre matricule (page Profil)', matricule_requis: true }];
+const RESERVE_ETUDIANTS = [403, { error: 'réservé aux étudiants : l’enseignant consulte les défis (liste dans l’espace enseignant)' }];
 const code = () => Array.from({ length: 6 }, () => ALPHABET[randomInt(ALPHABET.length)]).join('');
 const iso = d => new Date(d).toISOString();
 
 export async function creer({ session, body }) {
-  if (!(await profilDe(session.email))) return MATRICULE_REQUIS;
+  if (!(await profilDe(session.email))) return session.role === 'prof' ? RESERVE_ETUDIANTS : MATRICULE_REQUIS;
   const ids = body?.ids;
   const chapitre = body?.chapitre === null || body?.chapitre === undefined ? null : Number(body.chapitre);
   if (!Array.isArray(ids) || ids.length < 3 || ids.length > 20 || new Set(ids).size !== ids.length || !ids.every(i => /^ch[1-6]-q\d{3}$/.test(i))) return [400, { error: 'un défi comporte de 3 à 20 questions de la banque' }];
@@ -38,7 +39,8 @@ async function charger(codeBrut) {
 }
 
 export async function lire({ session, params }) {
-  if (!(await profilDe(session.email))) return MATRICULE_REQUIS;
+  const prof = session.role === 'prof'; // l'enseignant lit tous les résultats (matricules masqués compris), sans matricule
+  if (!prof && !(await profilDe(session.email))) return MATRICULE_REQUIS;
   const d = await charger(params.code);
   if (!d) return [404, { error: 'défi introuvable ou expiré' }];
   const lignes = await q(
@@ -47,14 +49,14 @@ export async function lire({ session, params }) {
   const createur = await profilDe(d.createur);
   return [200, {
     code: d.code, chapitre: d.chapitre, ids: d.ids, n: d.ids.length, cree: iso(d.cree), mien: d.createur === session.email,
-    createur: createur && (createur.visible || d.createur === session.email) ? createur.matricule : null,
-    resultats: lignes.map((l, i) => ({ rang: i + 1, matricule: l.visible || l.email === session.email ? l.matricule : null, ok: l.ok, duree: l.duree, moi: l.email === session.email })),
+    createur: createur && (prof || createur.visible || d.createur === session.email) ? createur.matricule : null,
+    resultats: lignes.map((l, i) => ({ rang: i + 1, matricule: prof || l.visible || l.email === session.email ? l.matricule : null, ok: l.ok, duree: l.duree, moi: l.email === session.email })),
     deja_joue: lignes.some(l => l.email === session.email)
   }];
 }
 
 export async function envoyerScore({ session, params, body }) {
-  if (!(await profilDe(session.email))) return MATRICULE_REQUIS;
+  if (!(await profilDe(session.email))) return session.role === 'prof' ? RESERVE_ETUDIANTS : MATRICULE_REQUIS;
   const d = await charger(params.code);
   if (!d) return [404, { error: 'défi introuvable ou expiré' }];
   const ok = Number(body?.ok), duree = Math.round(Number(body?.duree ?? 0));

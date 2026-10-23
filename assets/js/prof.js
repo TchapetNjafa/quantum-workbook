@@ -199,6 +199,20 @@
       lres.innerHTML = rep.ok ? `<p>${t(`${j.supprimees} lignes supprimées.`, `${j.supprimees} rows deleted.`)}</p>` : `<p class="prof-erreurs">${esc(j.error || rep.status)}</p>`;
     };
 
+    // ----- défis en cours (tous les étudiants) -----
+    const dfi = document.createElement('div');
+    dfi.innerHTML = `<h2>${t('Défis en cours', 'Challenges in progress')}</h2>
+      <p class="muted">${t('Défis valables 30 jours. Ouvrez le détail depuis la page Classement avec le code.', 'Challenges stay valid for 30 days. Open the details from the Leaderboard page with the code.')}</p>
+      <div class="btn-row"><button class="btn small ghost" type="button" data-defis>${t('Afficher les défis', 'Show challenges')}</button></div><div data-defis-res></div>`;
+    root.appendChild(dfi);
+    dfi.querySelector('[data-defis]').onclick = async () => {
+      const sortie = dfi.querySelector('[data-defis-res]'); const r = await api('/api/prof/defis');
+      if (r.status === 401) return verrou(); if (!r.ok) { sortie.textContent = r.status; return; }
+      const { defis } = await r.json();
+      sortie.innerHTML = defis.length ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Code', 'Code')}</th><th>${t('Chapitre', 'Chapter')}</th><th>${t('Questions', 'Questions')}</th><th>${t('Créateur', 'Creator')}</th><th>${t('Joueurs', 'Players')}</th><th>${t('Créé le', 'Created')}</th></tr></thead><tbody>
+        ${defis.map(d => `<tr><td><b>${esc(d.code)}</b></td><td>${d.chapitre ?? t('Tous', 'All')}</td><td>${d.n}</td><td>${esc(d.createur ?? '—')}</td><td>${d.joueurs}</td><td>${esc(quand(d.cree))}</td></tr>`).join('')}</tbody></table></div>` : `<p class="muted">${t('Aucun défi en cours.', 'No challenge in progress.')}</p>`;
+    };
+
     // ----- test de la configuration réelle du serveur (variables, base, stockage privé) -----
     const diag = document.createElement('div');
     diag.innerHTML = `<h2>${t('Configuration', 'Configuration')}</h2><div class="btn-row"><button class="btn small ghost" type="button" data-diag>${t('Tester la configuration (base, stockage)', 'Test the configuration (database, storage)')}</button></div><div data-diag-res role="status" aria-live="polite"></div>`;

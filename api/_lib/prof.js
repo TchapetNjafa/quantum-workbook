@@ -265,3 +265,13 @@ export async function viderListe({ body }) {
   const r = await q('DELETE FROM liste_classe RETURNING matricule');
   return [200, { supprimees: r.length }];
 }
+
+/** Défis encore valables (30 jours), tous créateurs confondus : code, chapitre, nombre de questions, créateur, nombre de joueurs. */
+export async function listeDefis() {
+  const l = await q(
+    `SELECT d.code, d.chapitre, d.cree, jsonb_array_length(d.ids) AS n, p.matricule AS createur,
+            (SELECT count(*)::int FROM defis_scores s WHERE s.code = d.code) AS joueurs
+       FROM defis d LEFT JOIN profils p ON p.email = d.createur
+      WHERE d.cree > $1 ORDER BY d.cree DESC LIMIT 100`, [new Date(maintenant().getTime() - 30 * 24 * 3600e3).toISOString()]);
+  return [200, { defis: l.map(d => ({ ...d, cree: iso(d.cree) })) }];
+}
