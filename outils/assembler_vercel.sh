@@ -18,8 +18,14 @@ tar --exclude=./.git --exclude=./.github --exclude=./dist --exclude=./outils --e
 if [ -n "${QUIZ_DIR:-}" ]; then
   tar --exclude=.git --exclude=.github --exclude=scripts --exclude=outils -C "$QUIZ_DIR" -cf - . | tar -xf - -C "$OUT/quiz"
 else
-  curl -fsSL "https://codeload.github.com/$QUIZ_REPO/tar.gz/refs/heads/${QUIZ_REF:-main}" \
-    | tar -xz -C "$OUT/quiz" --strip-components=1 --exclude='*/.git*' --exclude='*/scripts' --exclude='*/outils'
+  # Téléchargement vérifié, avec nouvelles tentatives : une coupure réseau passagère (archive tronquée) ne doit pas faire échouer le déploiement.
+  ARCHIVE="$(mktemp)"; trap 'rm -f "$ARCHIVE"' EXIT; ok=""
+  for essai in 1 2 3 4 5; do
+    if curl -fsSL --connect-timeout 15 --max-time 120 -o "$ARCHIVE" "https://codeload.github.com/$QUIZ_REPO/tar.gz/refs/heads/${QUIZ_REF:-main}" && tar -tzf "$ARCHIVE" >/dev/null 2>&1; then ok=1; break; fi
+    echo "Téléchargement du quiz : essai $essai échoué, nouvelle tentative…" >&2; sleep $((essai * 3))
+  done
+  [ -n "$ok" ] || { echo "Quiz : téléchargement impossible après 5 essais" >&2; exit 1; }
+  tar -xzf "$ARCHIVE" -C "$OUT/quiz" --strip-components=1 --exclude='*/.git*' --exclude='*/scripts' --exclude='*/outils'
 fi
 [ -f "$OUT/quiz/data/questions.json" ] || { echo "Quiz absent ou incomplet" >&2; exit 1; }
 
