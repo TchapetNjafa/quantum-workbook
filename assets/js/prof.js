@@ -79,7 +79,7 @@
     montrer(`<h2>${t('Devoirs', 'Assignments')}</h2>
       ${devoirs.length ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Titre', 'Title')}</th><th>${t('Ouvre', 'Opens')}</th><th>${t('Ferme', 'Closes')}</th><th>${t('Publié', 'Published')}</th><th>${t('Résultats visibles', 'Results visible')}</th><th>${t('Remises', 'Submissions')}</th><th></th></tr></thead><tbody>
       ${devoirs.map(d => `<tr data-id="${d.id}"><td>${esc(d.titre)} <span class="muted">(${d.nb_questions} q.)</span></td><td>${esc(quand(d.ouvre))}</td><td>${esc(quand(d.ferme))}</td>
-        <td>${d.publie ? t('oui', 'yes') : t('non', 'no')}</td><td>${d.resultat_visible ? t('oui', 'yes') : t('non', 'no')}</td><td>${d.nb_remises}</td>
+        <td>${d.publie ? t('oui', 'yes') : t('non', 'no')}</td><td>${d.resultat_visible ? t('oui', 'yes') : t('non', 'no')}</td><td>${d.nb_remises}<br><span class="muted">${d.purge ? t('données supprimées le ', 'data deleted on ') + esc(quand(d.purge)) : t('suppression des remises et copies le ', 'submissions and papers deleted on ') + esc(quand(d.donnees_supprimees_le))}</span></td>
         <td><div class="prof-ligne"><button class="btn small ${d.publie ? 'ghost' : 'accent'}" type="button" data-act="publie">${d.publie ? t('Dépublier', 'Unpublish') : t('Publier', 'Publish')}</button>
         <button class="btn small ghost" type="button" data-act="visible">${d.resultat_visible ? t('Masquer les résultats', 'Hide results') : t('Montrer les résultats', 'Show results')}</button>
         <button class="btn small ghost" type="button" data-act="copie">${d.copie ? t('Copie déposée : oui', 'Paper upload: on') : t('Copie déposée : non', 'Paper upload: off')}</button>
@@ -159,6 +159,44 @@
           if (rep.ok) prf.querySelector('[data-profils]').click();
         };
       });
+    };
+
+    // ----- liste de classe : matricule ↔ nom ↔ adresse (fichier CSV exporté du tableur) -----
+    const cls = document.createElement('div');
+    cls.innerHTML = `<h2>${t('Liste de classe', 'Class list')}</h2>
+      <p class="muted">${t('Importez un fichier CSV : colonnes <b>matricule ; nom ; adresse</b> (l’adresse peut manquer). Une fois la liste importée, chaque étudiant ne peut enregistrer que le matricule qui lui correspond : celui de son adresse, ou, sans adresse dans la liste, un matricule de la liste encore libre. Un nouvel import remplace le précédent. La liste reste sur le serveur jusqu’à ce que vous la vidiez.',
+        'Import a CSV file: columns <b>student number ; name ; address</b> (the address may be missing). Once a list is imported, each student can only register the number that belongs to them: the one tied to their address or, when the list has no address, a free number from the list. A new import replaces the previous one. The list stays on the server until you empty it.')}</p>
+      <div class="btn-row"><input type="file" accept=".csv,.txt,text/csv" data-liste-fichier>
+        <button class="btn small ghost" type="button" data-liste-voir>${t('Voir la liste', 'Show the list')}</button>
+        <button class="btn small ghost" type="button" data-liste-vider>${t('Vider la liste', 'Empty the list')}</button></div><div data-liste-res role="status" aria-live="polite"></div>`;
+    root.appendChild(cls);
+    const lres = cls.querySelector('[data-liste-res]');
+    const lignesCsv = texte => texte.replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim()).map(l => {
+      const sep = [';', '\t', ','].find(c => l.includes(c)) || ';', cases = []; let cur = '', guill = false;
+      for (const ch of l) { if (ch === '"') guill = !guill; else if (ch === sep && !guill) { cases.push(cur); cur = ''; } else cur += ch; }
+      cases.push(cur); return { matricule: cases[0].trim(), nom: (cases[1] || '').trim(), email: (cases[2] || '').trim() };
+    }).filter((l, i) => !(i === 0 && /matricule|student/i.test(l.matricule)));
+    cls.querySelector('[data-liste-fichier]').onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      const lignes = lignesCsv(await f.text());
+      if (!confirm(t(`Importer ${lignes.length} lignes ? Elles remplacent la liste actuelle.`, `Import ${lignes.length} rows? They replace the current list.`))) { e.target.value = ''; return; }
+      const rep = await post('/api/prof/liste-classe', { lignes }); const j = await rep.json().catch(() => ({}));
+      e.target.value = '';
+      if (rep.status === 401) return verrou();
+      lres.innerHTML = rep.ok
+        ? `<p>${t(`${j.importees} lignes importées (${j.sans_adresse} sans adresse).`, `${j.importees} rows imported (${j.sans_adresse} without address).`)}</p>${j.ignorees.length ? `<p class="prof-erreurs">${t('Lignes ignorées', 'Rows ignored')} (${j.ignorees.length}) :</p><ul>${j.ignorees.map(x => `<li>${esc(x.matricule)} ${esc(x.nom)} — ${esc(x.raison)}</li>`).join('')}</ul>` : ''}`
+        : `<p class="prof-erreurs">${esc(j.error || rep.status)}</p>`;
+    };
+    cls.querySelector('[data-liste-voir]').onclick = async () => {
+      const rep = await api('/api/prof/liste-classe'); if (rep.status === 401) return verrou();
+      const j = await rep.json();
+      lres.innerHTML = `<p>${t(`${j.total} étudiants dans la liste, ${j.inscrits} ont déjà enregistré leur profil.`, `${j.total} students in the list, ${j.inscrits} have already registered.`)}</p>` + (j.total ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Matricule', 'Student number')}</th><th>${t('Nom', 'Name')}</th><th>${t('Adresse', 'Address')}</th><th>${t('Profil', 'Profile')}</th></tr></thead><tbody>
+        ${j.lignes.map(l => `<tr><td><b>${esc(l.matricule)}</b></td><td>${esc(l.nom)}</td><td>${esc(l.email || '—')}</td><td>${l.inscrit ? t('oui', 'yes') : t('non', 'no')}</td></tr>`).join('')}</tbody></table></div>` : '');
+    };
+    cls.querySelector('[data-liste-vider]').onclick = async () => {
+      const c = prompt(t('Supprime la liste de classe ; les profils déjà créés restent. Tapez SUPPRIMER pour confirmer.', 'Deletes the class list; profiles already created stay. Type SUPPRIMER to confirm.')); if (c === null) return;
+      const rep = await post('/api/prof/liste-classe/vider', { confirmation: c }); const j = await rep.json().catch(() => ({}));
+      lres.innerHTML = rep.ok ? `<p>${t(`${j.supprimees} lignes supprimées.`, `${j.supprimees} rows deleted.`)}</p>` : `<p class="prof-erreurs">${esc(j.error || rep.status)}</p>`;
     };
 
     // ----- test de la configuration réelle du serveur (variables, base, stockage privé) -----

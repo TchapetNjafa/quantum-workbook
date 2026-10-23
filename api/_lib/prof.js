@@ -4,6 +4,7 @@ import { q, maintenant } from './db.js';
 import { valider, decoderEmail } from './grade.js';
 import { creer, depuisRequete } from './session.js';
 import { supprimer, essai, modeAuth } from './stockage.js';
+import { RETENTION_JOURS, FORMAT_MATRICULE, normaliser } from './profil.js';
 
 export const COOKIE_PROF = 'phy321_prof';
 export const DUREE_PROF = 3600; // secondes : il faut ressaisir le mot de passe après une heure
@@ -42,9 +43,11 @@ export async function login({ session, body }) {
 export async function listeDevoirs() {
   const l = await q(
     `SELECT d.id, d.titre, d.ouvre, d.ferme, d.publie, d.resultat_visible, d.copie, d.sujet, jsonb_array_length(d.questions) AS nb_questions,
-            (SELECT count(*)::int FROM remises r WHERE r.devoir_id = d.id) AS nb_remises
+            (SELECT count(*)::int FROM remises r WHERE r.devoir_id = d.id) AS nb_remises, d.purge
        FROM devoirs d ORDER BY d.ferme DESC`);
-  return [200, { devoirs: l.map(d => ({ ...d, ouvre: iso(d.ouvre), ferme: iso(d.ferme) })) }];
+  // remises, ouvertures et copies sont supprimées 5 mois après la fermeture (voir profil.purgerAnciennes)
+  const efface = d => iso(new Date(new Date(d.ferme).getTime() + RETENTION_JOURS * 24 * 3600 * 1000));
+  return [200, { devoirs: l.map(d => ({ ...d, ouvre: iso(d.ouvre), ferme: iso(d.ferme), purge: iso(d.purge), donnees_supprimees_le: efface(d) })) }];
 }
 
 export async function creerDevoir({ body }) {
@@ -214,4 +217,51 @@ export async function remisesDevoir({ params }) {
       ORDER BY u.email`, [Number(params.id)]);
   const num = v => (v === null || v === undefined ? null : Number(v));
   return [200, { remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), note_manuelle: num(r.note_manuelle), total_manuel: num(r.total_manuel), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), copie_recu: iso(r.copie_recu) })) }];
+}
+
+// ---------- liste de classe (matricule ↔ nom ↔ adresse) ----------
+const cleNom = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().split(/[^a-z]+/).filter(Boolean).sort().join(' ');
+
+/** Remplace la liste de classe. Lignes { matricule, nom, email } ; l'adresse peut manquer (l'étudiant saisira alors son matricule).
+ *  Sont ignorées et signalées : matricule invalide, matricule en double entre deux personnes différentes, adresse en double. */
+export async function importerListe({ body }) {
+  if (!Array.isArray(body?.lignes) || !body.lignes.length || body.lignes.length > 2000) return [400, { error: 'liste vide ou trop longue (2000 lignes maximum)' }];
+  const ignorees = [], parMatricule = new Map(), emails = new Set();
+  for (const l of body.lignes) {
+    const matricule = normaliser(l?.matricule), nom = String(l?.nom ?? '').trim().slice(0, 200), email = String(l?.email ?? '').trim().toLowerCase();
+    if (!FORMAT_MATRICULE.test(matricule)) { ignorees.push({ matricule: String(l?.matricule ?? ''), nom, raison: 'matricule invalide' }); continue; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { ignorees.push({ matricule, nom, raison: 'adresse invalide' }); continue; }
+    const deja = parMatricule.get(matricule);
+    if (deja) {
+      if (deja.conflit || cleNom(deja.nom) !== cleNom(nom)) { // deux personnes pour un même matricule : aucune des deux n'est retenue
+        if (!deja.conflit) { deja.conflit = true; if (deja.email) emails.delete(deja.email); ignorees.push({ matricule, nom: deja.nom, raison: 'matricule en double (personnes différentes)' }); }
+        ignorees.push({ matricule, nom, raison: 'matricule en double (personnes différentes)' });
+      } else if (!deja.email && email && !emails.has(email)) { deja.email = email; emails.add(email); } // même personne listée deux fois
+      continue;
+    }
+    if (email && emails.has(email)) { ignorees.push({ matricule, nom, raison: 'adresse en double' }); continue; }
+    if (email) emails.add(email);
+    parMatricule.set(matricule, { matricule, nom, email: email || null });
+  }
+  const retenues = [...parMatricule.values()].filter(l => !l.conflit);
+  if (!retenues.length) return [400, { error: 'aucune ligne valide', ignorees }];
+  // une seule instruction : la liste n'est jamais vide, même un instant, entre l'ancienne et la nouvelle (sinon un matricule serait libre pendant l'import)
+  await q(`WITH vide AS (DELETE FROM liste_classe) INSERT INTO liste_classe (matricule, nom, email)
+           SELECT m, n, NULLIF(e, '') FROM unnest($1::text[], $2::text[], $3::text[]) AS t(m, n, e)`,
+    [retenues.map(l => l.matricule), retenues.map(l => l.nom), retenues.map(l => l.email || '')]);
+  return [200, { importees: retenues.length, sans_adresse: retenues.filter(l => !l.email).length, ignorees }];
+}
+
+/** La liste et son état : qui a déjà créé son profil. */
+export async function lireListe() {
+  const l = await q(
+    `SELECT c.matricule, c.nom, c.email, (p.email IS NOT NULL) AS inscrit FROM liste_classe c
+       LEFT JOIN profils p ON p.matricule = c.matricule ORDER BY c.nom, c.matricule`);
+  return [200, { total: l.length, inscrits: l.filter(x => x.inscrit).length, lignes: l }];
+}
+
+export async function viderListe({ body }) {
+  if (body?.confirmation !== 'SUPPRIMER') return [400, { error: 'confirmation requise : tapez SUPPRIMER' }];
+  const r = await q('DELETE FROM liste_classe RETURNING matricule');
+  return [200, { supprimees: r.length }];
 }
