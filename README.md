@@ -126,7 +126,7 @@ Variables d'environnement Vercel (Settings > Environment Variables, jamais dans 
 |---|---|
 | `GOOGLE_CLIENT_ID` | ID client OAuth Google (type Web) |
 | `SESSION_SECRET` | chaîne aléatoire d'au moins 32 caractères (signature des sessions) |
-| `TEACHER_EMAIL` | adresse de l'enseignant (rôle « prof ») |
+| `TEACHER_EMAIL` | adresse(s) des enseignants (rôle « prof ») : une ou plusieurs, séparées par des virgules, points-virgules ou espaces (ex. `a@facsciences-uy1.cm, b@ens-uy1.cm`). Après modification : *Redeploy* sur Vercel. Chaque enseignant doit aussi connaître `TEACHER_PASSWORD`. |
 | `ALLOWED_DOMAIN` | optionnel, défaut `facsciences-uy1.cm` ; plusieurs domaines séparés par des virgules (ex. `facsciences-uy1.cm,ens-uy1.cm`) |
 | `DOMAIN_RULE` | optionnel : `both` (défaut : adresse ET revendication `hd`), `email` ou `hd` |
 | `ALIAS_DEBUG` | `1` pendant le test d'alias : la page de connexion montre `email` et `hd` renvoyés par Google ; à retirer ensuite |
@@ -176,7 +176,8 @@ Tests : `node tests/test-devoirs-api.mjs` (59, base PGlite en mémoire), `node t
 
 **Annonce publique d'un devoir.** `GET /api/statut` renvoie à tout le monde, connecté ou non, `ouverts`, `ouvert` (titre, fermeture) et `prochain` (titre, ouverture) : titre et dates seulement, jamais de question ni de réponse, et rien pour un devoir non publié.
 Le bouton « Devoirs » de la barre du haut devient vermillon avec le nombre de devoirs ouverts (pour un étudiant connecté : ceux qu'il n'a pas encore remis) et prend un contour vermillon quand un devoir va ouvrir. La page Devoirs d'un visiteur non connecté affiche l'annonce avant l'invitation à se connecter.
-L'enseignant n'a pas de matricule à saisir pour consulter la liste des devoirs.
+L'enseignant n'a aucun matricule à saisir : il consulte la liste des devoirs, le classement et les défis (matricules masqués compris) ; il ne crée ni ne joue de défi (403 explicite) et son score de quiz n'est pas enregistré.
+`/prof/` > « Défis en cours » liste les défis valables (code, chapitre, créateur, joueurs).
 
 ### Profil, classement et défis (Vercel seulement)
 

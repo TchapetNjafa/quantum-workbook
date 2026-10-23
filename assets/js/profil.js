@@ -50,6 +50,9 @@
     const compte = await me.json();
     const p = await Profil.lire();
     if (!p) return montrer(`<p class="muted">${t('Impossible de joindre le serveur.', 'Cannot reach the server.')}</p>`);
+    if (p.enseignant) return montrer(`<p>${t('Compte', 'Account')} : <b>${esc(compte.name)}</b> <span class="muted">${esc(compte.email)}</span></p>
+      <p>${t('Compte enseignant : aucun matricule à enregistrer. Vous consultez le classement et les défis sans y figurer.', 'Teacher account: no student number to register. You can view the leaderboard and challenges without appearing in them.')}</p>
+      <p><a class="btn accent" href="${EN ? '/en/prof/' : '/prof/'}">${t('Espace enseignant', 'Teacher area')}</a> <a class="btn ghost" href="${EN ? '/en/leaderboard.html' : '/classement.html'}">${t('Classement et défis', 'Leaderboard and challenges')}</a></p>`);
     if (p.matricule === null) {
       montrer(`<p>${t('Compte', 'Account')} : <b>${esc(compte.name)}</b> <span class="muted">${esc(compte.email)}</span></p><div id="zone-mat"></div>`);
       return Profil.formulaire(root.querySelector('#zone-mat'), afficher);
