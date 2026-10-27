@@ -178,6 +178,20 @@
       <div class="eq">$$\ket{\psi(t)} = \cos\tfrac\theta2\ket0 + e^{i(\varphi_0+\omega t)}\sin\tfrac\theta2\ket1 .$$</div>
       <p>θ ne change pas, φ croît à vitesse ω : le vecteur de Bloch tourne autour de z. On en déduit \(\langle\sigma_x\rangle(t) = \sin\theta\cos(\varphi_0+\omega t)\), \(\langle\sigma_y\rangle(t) = \sin\theta\sin(\varphi_0+\omega t)\) et \(\langle\sigma_z\rangle = \cos\theta\), constant puisque \([\hat\sigma_z,\hat H] = 0\).</p>
 
+      <aside class="predire rise" data-id="3.2" data-ok="b" aria-label="Votre prédiction">
+        <span class="box-title">Votre prédiction · 3.2</span>
+        <p class="predire-q">Un spin 1/2 est préparé selon \(+x\) dans un champ magnétique uniforme selon \(z\). Comment évolue la valeur moyenne \(\langle S_x\rangle\) ?</p>
+        <div class="predire-choix">
+          <button class="predire-opt" type="button" data-v="a"><span class="predire-lettre">A</span><span>Elle reste constante</span></button>
+          <button class="predire-opt" type="button" data-v="b"><span class="predire-lettre">B</span><span>Elle oscille de façon sinusoïdale à la fréquence de Larmor</span></button>
+          <button class="predire-opt" type="button" data-v="c"><span class="predire-lettre">C</span><span>Elle décroît progressivement vers zéro</span></button>
+        </div>
+        <div class="predire-bilan" hidden>
+          <p class="predire-verdict" role="status"></p>
+          <p class="predire-why">Le spin précesse autour de \(z\) à la pulsation de Larmor : \(\langle S_x\rangle\) et \(\langle S_y\rangle\) oscillent en quadrature, tandis que \(\langle S_z\rangle\) reste nul. Sans relaxation, il n’y a aucune décroissance : l’évolution est unitaire. Lancez ensuite le labo ci-dessous pour le constater vous-même.</p>
+        </div>
+      </aside>
+
       <figure class="lab rise" data-lab="larmor" aria-labelledby="lab-lm-t">
         <div class="lab-head"><h3 id="lab-lm-t">Précession de Larmor</h3><span class="tag">LABO 3.2</span></div>
         <div class="lab-body split">
@@ -281,6 +295,20 @@
         <div class="eq">$$P_{1\leftarrow0}(t) = \frac{\Omega^2}{\Omega^2+\Delta^2}\,\sin^2\!\Big(\frac{\sqrt{\Omega^2+\Delta^2}}{2}\,t\Big).$$</div>
         <p>À résonance (\(\Delta = 0\)), le transfert est complet. Une <strong>impulsion π</strong> (\(t = \pi/\Omega\)) envoie \(\ket0\) sur \(-i\ket1\) : c’est une porte X à une phase globale près. Une <strong>impulsion π/2</strong> (\(t = \pi/2\Omega\)) donne \(\tfrac{1}{\sqrt2}(\ket0 - i\ket1) = \ket{-i}\).</p>
       </div>
+
+      <aside class="predire rise" data-id="3.3" data-ok="c" aria-label="Votre prédiction">
+        <span class="box-title">Votre prédiction · 3.3</span>
+        <p class="predire-q">Un atome à deux niveaux, initialement dans l’état fondamental, reçoit à résonance une impulsion \(\pi\). Quelle est ensuite la probabilité de le trouver dans l’état excité ?</p>
+        <div class="predire-choix">
+          <button class="predire-opt" type="button" data-v="a"><span class="predire-lettre">A</span><span>0 %</span></button>
+          <button class="predire-opt" type="button" data-v="b"><span class="predire-lettre">B</span><span>50 %</span></button>
+          <button class="predire-opt" type="button" data-v="c"><span class="predire-lettre">C</span><span>100 %</span></button>
+        </div>
+        <div class="predire-bilan" hidden>
+          <p class="predire-verdict" role="status"></p>
+          <p class="predire-why">À résonance, la population oscille entre les deux niveaux comme \(\sin^2(\Omega t/2)\) : une impulsion \(\pi\) retourne complètement le qubit (probabilité 1), une impulsion \(\pi/2\) le place en superposition à poids égaux. Un désaccord réduit cette amplitude : c’est ce que montre le labo. Lancez ensuite le labo ci-dessous pour le constater vous-même.</p>
+        </div>
+      </aside>
 
       <figure class="lab rise" data-lab="rabi" aria-labelledby="lab-rb-t">
         <div class="lab-head"><h3 id="lab-rb-t">Oscillations de Rabi avec désaccord</h3><span class="tag">LABO 3.3</span></div>

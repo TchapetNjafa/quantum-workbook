@@ -111,6 +111,20 @@
         <p>Avant de lancer le labo : écrivez votre prédiction, lancez, comparez, puis expliquez l’écart en une phrase. Si le deuxième analyseur est orienté selon \(x\), quelle proportion de résultats \(+\hbar/2\) attendez-vous à la sortie du troisième ?</p>
       </div>
 
+      <aside class="predire rise" data-id="2.1" data-ok="b" aria-label="Votre prédiction">
+        <span class="box-title">Votre prédiction · 2.1</span>
+        <p class="predire-q">On filtre des atomes de spin 1/2 : premier appareil selon \(z\), on garde \(+\hbar/2\) ; deuxième selon \(x\), on garde \(+\hbar/2\) ; troisième selon \(z\). Quelle proportion donne \(+\hbar/2\) à la sortie du troisième ?</p>
+        <div class="predire-choix">
+          <button class="predire-opt" type="button" data-v="a"><span class="predire-lettre">A</span><span>100 %, puisque ces atomes avaient déjà été triés selon \(z\)</span></button>
+          <button class="predire-opt" type="button" data-v="b"><span class="predire-lettre">B</span><span>50 %</span></button>
+          <button class="predire-opt" type="button" data-v="c"><span class="predire-lettre">C</span><span>0 %</span></button>
+        </div>
+        <div class="predire-bilan" hidden>
+          <p class="predire-verdict" role="status"></p>
+          <p class="predire-why">La mesure selon \(x\) a effacé l’information sur \(z\) : un état propre de \(\sigma_x\) est une superposition à poids égaux de \(\ket{+z}\) et \(\ket{-z}\), donc le troisième appareil donne \(+\hbar/2\) une fois sur deux. Mesurer ne se contente pas de lire : cela prépare un nouvel état. Lancez ensuite le labo ci-dessous pour le constater vous-même.</p>
+        </div>
+      </aside>
+
       <figure class="lab rise" data-lab="sg" aria-labelledby="lab-sg-t">
         <div class="lab-head"><h3 id="lab-sg-t">Stern-Gerlach en cascade</h3><span class="tag">LABO 2.1</span></div>
         <div class="lab-body">
