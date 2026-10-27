@@ -10,6 +10,10 @@ export const COOKIE_PROF = 'phy321_prof';
 export const DUREE_PROF = 3600; // secondes : il faut ressaisir le mot de passe après une heure
 const ESSAIS_MAX = 5, FENETRE_MS = 15 * 60 * 1000;
 
+import { notifierTous } from './push.js';
+
+// Le devoir est déjà enregistré : une panne de notification ne doit jamais faire échouer la publication.
+const signaler = () => notifierTous().catch(e => { console.error('push', e.code || '', e.message); return { configure: true, abonnes: 0, envoyes: 0, expires: 0, echecs: -1 }; });
 const empreinte = s => createHash('sha256').update(String(s)).digest();
 const iso = d => (d ? new Date(d).toISOString() : null);
 
@@ -57,7 +61,7 @@ export async function creerDevoir({ body }) {
     'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions, copie, bareme) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
     [v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, body.publie === true, body.resultat_visible === true, JSON.stringify(v.devoir.questions), body.copie === true,
       v.devoir.questions.length === 0 ? Number(body.bareme ?? 20) : null]); // sans question : note saisie à la main sur ce barème (20 par défaut)
-  return [201, { id: d.id }];
+  return [201, { id: d.id, ...(body.publie === true ? { notifies: await signaler() } : {}) }];
 }
 
 export async function lireDevoir({ params }) {
@@ -80,7 +84,7 @@ export async function modifierDevoir({ params, body }) {
   const copie = typeof body.copie === 'boolean' ? body.copie : d.copie;
   await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, publie=$5, resultat_visible=$6, copie=$7 WHERE id=$1',
     [d.id, titre, ouvre.toISOString(), ferme.toISOString(), publie, visible, copie]);
-  return [200, { ok: true }];
+  return [200, { ok: true, ...(publie && !d.publie ? { notifies: await signaler() } : {}) }]; // publication : notification push aux abonnés
 }
 
 /** Vérifie la configuration réelle du serveur. Ne renvoie jamais de valeur secrète : seulement présent/absent et le message d'erreur du service. */

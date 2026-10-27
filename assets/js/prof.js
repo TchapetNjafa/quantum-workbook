@@ -88,6 +88,8 @@
         <button class="btn small ghost" type="button" data-act="dates">${t('Dates', 'Dates')}</button></div></td></tr>`).join('')}
       </tbody></table></div>` : `<p class="muted">${t('Aucun devoir.', 'No assignment.')}</p>`}
       <div data-detail></div>
+      <div class="prof-ligne"><button class="btn small ghost" type="button" data-notifier>${t('Renvoyer la notification aux étudiants', 'Send the notification to students again')}</button>
+        <span class="muted" data-msg-notif role="status" aria-live="polite">${t('Les étudiants abonnés sont prévenus automatiquement à la publication d’un devoir.', 'Subscribed students are notified automatically when an assignment is published.')}</span></div>
       <h2>${t('Nouveau devoir', 'New assignment')}</h2>
       <form data-nouveau>
         <p class="muted">${t('Devoir à copie déposée : les étudiants téléchargent le sujet (PDF), composent, puis déposent leur copie (PDF ou photo). Vous attribuez ensuite la note à la main.',
@@ -171,7 +173,7 @@
         <button class="btn small ghost" type="button" data-liste-vider>${t('Vider la liste', 'Empty the list')}</button></div><div data-liste-res role="status" aria-live="polite"></div>`;
     root.appendChild(cls);
     const lres = cls.querySelector('[data-liste-res]');
-    const lignesCsv = texte => texte.replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim()).map(l => {
+    const lignesCsv = texte => texte.replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim()).map(l => {
       const sep = [';', '\t', ','].find(c => l.includes(c)) || ';', cases = []; let cur = '', guill = false;
       for (const ch of l) { if (ch === '"') guill = !guill; else if (ch === sep && !guill) { cases.push(cur); cur = ''; } else cur += ch; }
       cases.push(cur); return { matricule: cases[0].trim(), nom: (cases[1] || '').trim(), email: (cases[2] || '').trim() };
@@ -240,6 +242,14 @@
       if (rep.status === 401) return verrou();
       if (rep.ok) return tableau().catch(erreur);
       msg.innerHTML = `<p class="prof-erreurs">${esc(j.error || rep.status)}</p>${(j.erreurs || []).length ? `<ul>${j.erreurs.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`;
+    };
+    root.querySelector('[data-notifier]').onclick = async () => {
+      const m = root.querySelector('[data-msg-notif]'), rep = await post('/api/prof/notifier', {});
+      if (rep.status === 401) return verrou();
+      const j = await rep.json().catch(() => ({}));
+      m.textContent = !rep.ok ? (j.error || rep.status) : !j.configure ? t('Notifications non configurées sur le serveur (clés VAPID absentes).', 'Notifications are not set up on the server (VAPID keys missing).')
+        : t(`${j.envoyes} notification(s) envoyée(s) sur ${j.abonnes} appareil(s) abonné(s)${j.expires ? `, ${j.expires} abonnement(s) expiré(s) retiré(s)` : ''}${j.echecs ? `, ${j.echecs} échec(s)` : ''}.`,
+          `${j.envoyes} notification(s) sent to ${j.abonnes} subscribed device(s)${j.expires ? `, ${j.expires} expired subscription(s) removed` : ''}${j.echecs ? `, ${j.echecs} failure(s)` : ''}.`);
     };
     root.querySelectorAll('[data-act]').forEach(b => { b.onclick = () => agir(b.closest('tr').dataset.id, b.dataset.act, devoirs.find(d => String(d.id) === b.closest('tr').dataset.id)).catch(erreur); });
   }
