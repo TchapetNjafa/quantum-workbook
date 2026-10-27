@@ -419,6 +419,11 @@
     <!-- ===================================================== 3.4 -->
     <section class="section" id="s4">
       <h2><span class="n">3.4</span>Review exercises</h2>
+      <aside class="enigme rise">
+        <span class="box-title">Riddle · A full turn, a minus sign</span>
+        <p class="enigme-q">A spin-1/2 is rotated by 360° about the \(z\) axis. Does it come back to exactly the same state?</p>
+        <details class="enigme-rep"><summary>Show the answer</summary><p>Up to a sign: the rotation operator \(e^{-i\theta\sigma_z/2}\) equals \(-1\) for \(\theta = 2\pi\), so the state becomes \(-\ket{\psi}\). This global sign cannot be observed alone, but it becomes observable by interference with a spin that did not rotate; neutron-interferometry experiments showed it in the 1970s. It takes 720° to recover exactly the initial state.</p></details>
+      </aside>
 
       <article class="exo" data-id="3.10" data-num="250" data-tol="0.01" data-ok="Correct: \(\hat U(t) = e^{i\omega_0 t\hat\sigma_z/2}\), and for \(\omega_0 t = \pi\), \(\hat U = i\hat Z\). We need \(\omega_0 t = \pi\), that is \(t = 1/(2\times 2\ \text{MHz}) = 250\) ns. The factor \(i\) is a global phase, invisible to measurement." data-ko="Precession turns the relative phase by \(\omega_0 t\). A Z gate is a half turn: \(\omega_0 t = \pi\), with \(\omega_0 = 2\pi\times 2\) MHz.">
         <div class="exo-head"><span class="num">Exercise 3.10</span><h3>A Z gate by Larmor precession</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>

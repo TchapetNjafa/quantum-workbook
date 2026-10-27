@@ -419,6 +419,11 @@
     <!-- ===================================================== 3.4 -->
     <section class="section" id="s4">
       <h2><span class="n">3.4</span>Exercices de synthèse</h2>
+      <aside class="enigme rise">
+        <span class="box-title">Énigme · Un tour complet, un signe moins</span>
+        <p class="enigme-q">On fait tourner un spin 1/2 de 360° autour de l’axe \(z\). Revient-il exactement dans le même état ?</p>
+        <details class="enigme-rep"><summary>Voir la réponse</summary><p>Au signe près : l’opérateur de rotation \(e^{-i\theta\sigma_z/2}\) vaut \(-1\) pour \(\theta = 2\pi\), donc l’état devient \(-\ket{\psi}\). Ce signe global n’est pas observable seul, mais il le devient par interférence avec un spin qui n’a pas tourné ; des expériences d’interférométrie de neutrons l’ont montré dans les années 1970. Il faut 720° pour retrouver exactement l’état de départ.</p></details>
+      </aside>
 
       <article class="exo" data-id="3.10" data-num="250" data-tol="0.01" data-ok="Exact : \(\hat U(t) = e^{i\omega_0 t\hat\sigma_z/2}\), et pour \(\omega_0 t = \pi\), \(\hat U = i\hat Z\). Il faut \(\omega_0 t = \pi\), soit \(t = 1/(2\times 2\ \text{MHz}) = 250\) ns. Le facteur \(i\) est une phase globale, invisible à la mesure." data-ko="La précession tourne la phase relative de \(\omega_0 t\). Une porte Z correspond à un demi-tour : \(\omega_0 t = \pi\), avec \(\omega_0 = 2\pi\times 2\) MHz.">
         <div class="exo-head"><span class="num">Exercice 3.10</span><h3>Une porte Z par précession de Larmor</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
