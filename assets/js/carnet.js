@@ -178,7 +178,25 @@
   /* ---------- progression ---------- */
   const chapterId = document.body.dataset.chapter || null;
 
+  /* ---------- série d'étude : jours où l'on a réussi un exercice ou fait une prédiction (stockés dans l'appareil, jamais envoyés) ---------- */
+  const jourLocal = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  function noterJour() {
+    const j = jourLocal();
+    if ((store.read()._jours || []).includes(j)) return;
+    store.update(s => { s._jours = [...(s._jours || []), j].slice(-400); return s; });
+  }
+  /** Jours consécutifs jusqu'à aujourd'hui (ou hier : la série tient encore jusqu'à la fin de la journée), et meilleure série. */
+  function serie() {
+    const jours = [...new Set(store.read()._jours || [])].sort();
+    const num = j => Date.UTC(+j.slice(0, 4), +j.slice(5, 7) - 1, +j.slice(8, 10)) / 864e5;
+    let record = 0, run = 0, prev = null;
+    for (const j of jours) { run = prev !== null && num(j) - prev === 1 ? run + 1 : 1; record = Math.max(record, run); prev = num(j); }
+    const age = prev === null ? Infinity : num(jourLocal()) - prev;
+    return { courante: age <= 1 ? run : 0, record, jours: jours.length };
+  }
+
   function markExercise(id, ok) {
+    if (ok) noterJour();
     if (!chapterId || !id || !ok) return;
     store.update(s => {
       s[chapterId] = s[chapterId] || { exos: {} };
@@ -407,8 +425,64 @@
   };
 
   window.Lab = { canvas, loop, bind, seg, drag, draw, rand, palette, reduceMotion, parseNumber, t, LANG, LOCALE };
-  window.Carnet = { store, markExercise };
+  /* ---------- « Prédire avant de voir » : on choisit avant de lancer le labo ; la première réponse compte ---------- */
+  function initPredire() {
+    document.querySelectorAll('.predire').forEach(box => {
+      const id = box.dataset.id, bonne = box.dataset.ok;
+      const bilan = box.querySelector('.predire-bilan'), verdict = box.querySelector('.predire-verdict');
+      const boutons = [...box.querySelectorAll('[data-v]')];
+      const montrer = v => {
+        boutons.forEach(b => { b.disabled = true; b.classList.toggle('is-right', b.dataset.v === bonne); b.classList.toggle('is-wrong', b.dataset.v === v && v !== bonne); });
+        verdict.textContent = v === bonne
+          ? t('Bien vu : votre prédiction était juste.', 'Well spotted: your prediction was right.')
+          : t('Pas tout à fait : la bonne réponse est en vert.', 'Not quite: the right answer is in green.');
+        bilan.hidden = false;
+      };
+      const avant = (store.read()._predictions || {})[id];
+      if (avant) montrer(avant.v);
+      boutons.forEach(b => b.addEventListener('click', () => {
+        store.update(s => { s._predictions = { ...(s._predictions || {}), [id]: { v: b.dataset.v, ok: b.dataset.v === bonne } }; return s; });
+        noterJour();
+        montrer(b.dataset.v);
+      }));
+    });
+  }
 
-  const ready = () => { initLangSwitch(); initReading(); initRise(); initExercises(); initDone(); initReport(); };
+  /* ---------- Profil : série d'étude et jalons (calculés dans le navigateur) ---------- */
+  function initSerie() {
+    const zone = document.getElementById('serie-jalons');
+    if (!zone) return;
+    const data = store.read(), s = serie();
+    const chapitres = Object.keys(data).filter(k => !k.startsWith('_'));
+    const exos = chapitres.reduce((n, k) => n + Object.keys(data[k].exos || {}).length, 0);
+    const finis = chapitres.filter(k => data[k].done).length;
+    const justes = Object.values(data._predictions || {}).filter(p => p.ok).length;
+    const jalons = [
+      [exos, 1, t('Premier exercice réussi', 'First exercise solved')],
+      [exos, 10, t('10 exercices réussis', '10 exercises solved')],
+      [exos, 25, t('25 exercices réussis', '25 exercises solved')],
+      [finis, 1, t('Un chapitre terminé', 'One chapter finished')],
+      [finis, 6, t('Les six chapitres terminés', 'All six chapters finished')],
+      [justes, 3, t('3 prédictions justes avant un labo', '3 correct predictions before a lab')],
+      [justes, 5, t('5 prédictions justes avant un labo', '5 correct predictions before a lab')],
+      [s.record, 3, t('Série de 3 jours d’étude', '3-day study streak')],
+      [s.record, 7, t('Série de 7 jours d’étude', '7-day study streak')]
+    ];
+    const li = jalons.map(([val, cible, nom]) => val >= cible
+      ? `<li class="fait"><span aria-hidden="true">✓</span> ${nom}</li>`
+      : `<li><span aria-hidden="true">·</span> ${nom} <span class="muted">(${val} / ${cible})</span></li>`).join('');
+    zone.innerHTML = `
+      <h2>${t('Votre progression', 'Your progress')}</h2>
+      <p class="serie-ligne">${s.jours
+        ? t(`<b>${s.courante}</b> jour${s.courante > 1 ? 's' : ''} d’affilée · meilleure série : ${s.record} · ${s.jours} jour${s.jours > 1 ? 's' : ''} d’étude en tout`,
+            `<b>${s.courante}</b> day${s.courante === 1 ? '' : 's'} in a row · best streak: ${s.record} · ${s.jours} study day${s.jours > 1 ? 's' : ''} in total`)
+        : t('Réussissez un exercice ou faites une prédiction avant un labo pour démarrer votre série.', 'Solve an exercise or make a prediction before a lab to start your streak.')}</p>
+      <ul class="jalons">${li}</ul>
+      <p class="muted">${t('Ces repères restent dans votre navigateur : ils ne sont pas envoyés au serveur.', 'These milestones stay in your browser: they are not sent to the server.')}</p>`;
+  }
+
+  window.Carnet = { store, markExercise, serie };
+
+  const ready = () => { initLangSwitch(); initReading(); initRise(); initExercises(); initPredire(); initSerie(); initDone(); initReport(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready); else ready();
 })();

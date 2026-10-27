@@ -98,6 +98,20 @@
         <p>Before running the lab: write down your prediction, run it, compare, then explain the gap in one sentence. Where will the first ten hits land: at random or in fringes? What will we see after several thousand?</p>
       </div>
 
+      <aside class="predire rise" data-id="1.1" data-ok="b" aria-label="Your prediction">
+        <span class="box-title">Your prediction · 1.1</span>
+        <p class="predire-q">Before running the lab: where will the first photons land, sent one at a time?</p>
+        <div class="predire-choix">
+          <button class="predire-opt" type="button" data-v="a"><span class="predire-lettre">A</span><span>In fringes, from the very first hits</span></button>
+          <button class="predire-opt" type="button" data-v="b"><span class="predire-lettre">B</span><span>Seemingly at random; the fringes only emerge after thousands of hits</span></button>
+          <button class="predire-opt" type="button" data-v="c"><span class="predire-lettre">C</span><span>In two spots, one behind each slit</span></button>
+        </div>
+        <div class="predire-bilan" hidden>
+          <p class="predire-verdict" role="status"></p>
+          <p class="predire-why">Each photon is detected at a single point, at random. Only the probability law \(|\psi(x)|^2\) shows fringes: they build up from the accumulation of hits. Two spots would only appear if we knew which slit each photon went through. Then run the lab below to see it for yourself.</p>
+        </div>
+      </aside>
+
       <figure class="lab rise" data-lab="young" aria-labelledby="lab-young-t">
         <div class="lab-head"><h3 id="lab-young-t">Young’s double slit, photon by photon</h3><span class="tag">LAB 1.1</span></div>
         <div class="lab-body split">
@@ -134,6 +148,20 @@
         <li><strong>MZ3</strong> (balanced interferometer, \(\varphi = 0\)): every photon leaves through the same detector.</li>
         <li><strong>MZ4</strong> (unbalanced interferometer): \(P(D_x) = \cos^2(\varphi/2)\) and \(P(D_y) = \sin^2(\varphi/2)\).</li>
       </ul>
+
+      <aside class="predire rise" data-id="1.2" data-ok="b" aria-label="Your prediction">
+        <span class="box-title">Your prediction · 1.2</span>
+        <p class="predire-q">Balanced Mach-Zehnder interferometer (\(\varphi = 0\)), photons sent one at a time: where are they detected?</p>
+        <div class="predire-choix">
+          <button class="predire-opt" type="button" data-v="a"><span class="predire-lettre">A</span><span>50 % on each detector</span></button>
+          <button class="predire-opt" type="button" data-v="b"><span class="predire-lettre">B</span><span>All on the same detector</span></button>
+          <button class="predire-opt" type="button" data-v="c"><span class="predire-lettre">C</span><span>Alternately on one then the other</span></button>
+        </div>
+        <div class="predire-bilan" hidden>
+          <p class="predire-verdict" role="status"></p>
+          <p class="predire-why">The amplitudes of the two paths add in phase towards one detector and cancel towards the other: \(P(D_x) = \cos^2(\varphi/2) = 1\) for \(\varphi = 0\). A detector that knew which arm the photon took would destroy this interference. Then run the lab below to see it for yourself.</p>
+        </div>
+      </aside>
 
       <figure class="lab rise" data-lab="mz" aria-labelledby="lab-mz-t">
         <div class="lab-head"><h3 id="lab-mz-t">Mach-Zehnder: one photon, two arms</h3><span class="tag">LAB 1.2</span></div>

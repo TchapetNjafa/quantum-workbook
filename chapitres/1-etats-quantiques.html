@@ -98,6 +98,20 @@
         <p>Avant de lancer le labo : écrivez votre prédiction, lancez, comparez, puis expliquez l’écart en une phrase. Où tomberont les dix premiers impacts : au hasard ou en franges ? Que verra-t-on après plusieurs milliers ?</p>
       </div>
 
+      <aside class="predire rise" data-id="1.1" data-ok="b" aria-label="Votre prédiction">
+        <span class="box-title">Votre prédiction · 1.1</span>
+        <p class="predire-q">Avant de lancer le labo : où tomberont les premiers photons, envoyés un par un ?</p>
+        <div class="predire-choix">
+          <button class="predire-opt" type="button" data-v="a"><span class="predire-lettre">A</span><span>En franges, dès les premiers impacts</span></button>
+          <button class="predire-opt" type="button" data-v="b"><span class="predire-lettre">B</span><span>Apparemment au hasard ; les franges n’émergent qu’après des milliers d’impacts</span></button>
+          <button class="predire-opt" type="button" data-v="c"><span class="predire-lettre">C</span><span>En deux taches, une derrière chaque fente</span></button>
+        </div>
+        <div class="predire-bilan" hidden>
+          <p class="predire-verdict" role="status"></p>
+          <p class="predire-why">Chaque photon est détecté en un seul point, de façon aléatoire. Seule la loi de probabilité \(|\psi(x)|^2\) présente des franges : elles naissent de l’accumulation des impacts. Deux taches ne s’observeraient que si l’on savait par quelle fente chaque photon passe. Lancez ensuite le labo ci-dessous pour le constater vous-même.</p>
+        </div>
+      </aside>
+
       <figure class="lab rise" data-lab="young" aria-labelledby="lab-young-t">
         <div class="lab-head"><h3 id="lab-young-t">Fentes d’Young, photon par photon</h3><span class="tag">LABO 1.1</span></div>
         <div class="lab-body split">
@@ -134,6 +148,20 @@
         <li><strong>MZ3</strong> (interféromètre équilibré, \(\varphi = 0\)) : tous les photons sortent par le même détecteur.</li>
         <li><strong>MZ4</strong> (interféromètre déséquilibré) : \(P(D_x) = \cos^2(\varphi/2)\) et \(P(D_y) = \sin^2(\varphi/2)\).</li>
       </ul>
+
+      <aside class="predire rise" data-id="1.2" data-ok="b" aria-label="Votre prédiction">
+        <span class="box-title">Votre prédiction · 1.2</span>
+        <p class="predire-q">Interféromètre de Mach-Zehnder équilibré (\(\varphi = 0\)), photons envoyés un par un : où sont-ils détectés ?</p>
+        <div class="predire-choix">
+          <button class="predire-opt" type="button" data-v="a"><span class="predire-lettre">A</span><span>50 % sur chaque détecteur</span></button>
+          <button class="predire-opt" type="button" data-v="b"><span class="predire-lettre">B</span><span>Tous sur le même détecteur</span></button>
+          <button class="predire-opt" type="button" data-v="c"><span class="predire-lettre">C</span><span>Alternativement sur l’un puis sur l’autre</span></button>
+        </div>
+        <div class="predire-bilan" hidden>
+          <p class="predire-verdict" role="status"></p>
+          <p class="predire-why">Les amplitudes des deux chemins s’ajoutent en phase vers un détecteur et s’annulent vers l’autre : \(P(D_x) = \cos^2(\varphi/2) = 1\) pour \(\varphi = 0\). Un détecteur qui saurait par quel bras le photon est passé détruirait cette interférence. Lancez ensuite le labo ci-dessous pour le constater vous-même.</p>
+        </div>
+      </aside>
 
       <figure class="lab rise" data-lab="mz" aria-labelledby="lab-mz-t">
         <div class="lab-head"><h3 id="lab-mz-t">Mach-Zehnder : un photon, deux bras</h3><span class="tag">LABO 1.2</span></div>

@@ -408,3 +408,25 @@ details.reveal > div { padding: 0 0 1rem 1.5rem; animation: unfold .3s var(--eas
 
 /* Petits écrans : un tableau trop large défile dans sa propre boîte au lieu d'élargir toute la page. */
 @media (max-width: 640px) { table:not(.plain-table) { display: block; max-width: 100%; overflow-x: auto; } }
+
+/* « Prédire avant de voir » : trois réponses, la première compte */
+.predire { margin: 1.75rem 0; padding: 1rem 1.25rem 1.1rem; max-width: var(--measure); background: var(--paper-2); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.predire-q { margin: 0 0 .8rem; font-weight: 500; }
+.predire-choix { display: grid; gap: .5rem; }
+.predire-opt { display: flex; gap: .7rem; align-items: baseline; text-align: left; width: 100%; font: inherit; font-size: .95rem; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-md, 6px); padding: .6rem .8rem; cursor: pointer; min-height: 2.75rem; }
+.predire-opt:hover:not(:disabled) { border-color: var(--ink-2); }
+.predire-opt:disabled { cursor: default; }
+.predire-lettre { font-family: var(--mono); font-size: .78rem; color: var(--muted); flex: none; }
+.predire-opt.is-right { border-color: var(--ok); background: var(--ok-wash); }
+.predire-opt.is-wrong { border-color: var(--bad); background: var(--bad-wash); }
+.predire-verdict { font-family: var(--sans); font-weight: 600; margin: 1rem 0 .3rem; }
+.predire-why { margin: 0; color: var(--ink-2); font-size: .95rem; }
+
+/* Profil : série d'étude et jalons */
+#serie-jalons { margin-bottom: 2.5rem; }
+.serie-ligne { font-family: var(--sans); color: var(--ink-2); }
+.serie-ligne b { font-family: var(--serif); font-size: 1.8rem; color: var(--accent-ink); font-weight: 500; margin-right: .2rem; }
+.jalons { list-style: none; padding: 0; display: grid; gap: .35rem; font-family: var(--sans); font-size: .95rem; color: var(--ink-2); }
+.jalons .fait { color: var(--ink); }
+.jalons .fait span:first-child { color: var(--ok); }
+@media print { .predire { display: none; } }

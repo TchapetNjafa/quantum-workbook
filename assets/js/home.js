@@ -68,4 +68,10 @@
     line.hidden = false;
     line.textContent = t('Votre progression est enregistrée dans ce navigateur uniquement.', 'Your progress is saved in this browser only.');
   }
+  const sr = window.Carnet.serie();
+  if (sr.courante >= 2) {
+    const line = document.getElementById('progress-line');
+    line.hidden = false;
+    line.textContent = (line.textContent ? line.textContent + ' ' : '') + t(`Série en cours : ${sr.courante} jours d’affilée.`, `Current streak: ${sr.courante} days in a row.`);
+  }
 })();
