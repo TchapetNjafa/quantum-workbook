@@ -23,12 +23,24 @@
   // Liens « Connexion », « Devoirs » (et « Enseignant ») : seulement sur l'hébergement Vercel, où les fonctions serveur existent.
   // Le lien Devoirs prend la couleur d'accent (avec le nombre) quand un devoir ouvert n'est pas encore rendu.
   if (!/\.github\.io$/.test(location.hostname) && location.protocol !== 'file:') {
+    // Sur téléphone et tablette, les liens du compte (Devoirs, Classement, Connexion, Profil, Enseignant) sont aussi dans une barre fixe en bas
+    // de l'écran (toujours visibles, de taille tactile) ; le CSS masque alors leur copie de la barre du haut. Sur ordinateur, c'est l'inverse.
+    const jumeler = a => {
+      a.classList.add('nav-compte');
+      let bas = document.querySelector('nav.nav-bas');
+      if (!bas) { bas = document.createElement('nav'); bas.className = 'nav-bas'; bas.setAttribute('aria-label', t('Compte et devoirs', 'Account and assignments')); document.body.appendChild(bas); }
+      let j = [...bas.children].find(x => x.getAttribute('href') === a.getAttribute('href'));
+      if (!j) { j = document.createElement('a'); j.setAttribute('href', a.getAttribute('href')); bas.appendChild(j); }
+      j.textContent = a.textContent; j.title = a.title; j.className = a.className.replace('nav-compte', '').trim();
+      if (a.hasAttribute('aria-current')) j.setAttribute('aria-current', a.getAttribute('aria-current')); else j.removeAttribute('aria-current');
+    };
     const majNav = () => {
       const nav = document.querySelector('.topbar nav');
       if (!nav) return;
       const ajouter = (href, texte, motif) => {
         let a = nav.querySelector(motif);
         if (!a) { a = document.createElement('a'); a.href = href; a.textContent = texte; nav.appendChild(a); }
+        jumeler(a);
         return a;
       };
       const en = LANG === 'en';
@@ -50,6 +62,7 @@
         lienDevoirs.textContent = n ? `${lienDevoirs.dataset.base} (${n})` : lienDevoirs.dataset.base;
         lienDevoirs.title = n ? (s.connecte ? t('Un devoir est à rendre', 'An assignment is due') : t('Un devoir est ouvert : connectez-vous pour le faire', 'An assignment is open: sign in to do it'))
           : s.prochain ? `${t('Prochain devoir : ouverture le ', 'Next assignment: opens on ')}${quand(s.prochain.ouvre)}` : '';
+        jumeler(lienDevoirs);
       }).catch(() => { /* hors connexion : on laisse les liens tels quels */ });
     };
     window.phy321MajNav = majNav; // rappelée par compte.js après une connexion, sans changer de page
