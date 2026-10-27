@@ -4,7 +4,7 @@
    (outils/generer_versions.mjs). La nouvelle version RECOPIE localement les fichiers dont l'empreinte n'a pas changé et ne
    télécharge que les fichiers nouveaux ou modifiés. Sans `versions.json` (GitHub Pages) : le noyau est retéléchargé, comme avant. */
 const PREFIX = 'carnet-';
-const VERSION = 'carnet-2026-10-27-avant-propos'; // remplacé à la construction Vercel par « carnet-<empreinte du contenu> »
+const VERSION = 'carnet-2026-10-27-ludique'; // remplacé à la construction Vercel par « carnet-<empreinte du contenu> »
 const CORE = [
   './', './index.html', './en/index.html', './manifest.json', './manifest.en.json',
   './assets/css/carnet.css', './assets/js/carnet.js', './assets/js/mathjax-config.js',
@@ -71,13 +71,15 @@ self.addEventListener('activate', e => {
 self.addEventListener('push', e => e.waitUntil((async () => {
   const fr = (self.navigator.language || 'fr').toLowerCase().startsWith('fr');
   const loc = fr ? 'fr-FR' : 'en-GB', quand = iso => new Date(iso).toLocaleString(loc, { dateStyle: 'medium', timeStyle: 'short' });
-  let corps = fr ? 'Un devoir est disponible sur le Carnet.' : 'An assignment is available on the Carnet.';
+  let corps = fr ? 'Un devoir est disponible sur le Carnet.' : 'An assignment is available on the Carnet.', rappel = false;
   try {
     const s = await (await fetch('/api/statut', { cache: 'no-store' })).json();
+    // devoir qui ferme dans moins de 26 h : c'est le rappel de la veille (ou un devoir très court)
+    rappel = !!s.ouvert && new Date(s.ouvert.ferme) - Date.now() < 26 * 3600e3;
     if (s.ouvert) corps = fr ? `${s.ouvert.titre} — à rendre avant le ${quand(s.ouvert.ferme)}.` : `${s.ouvert.titre} — due ${quand(s.ouvert.ferme)}.`;
     else if (s.prochain) corps = fr ? `${s.prochain.titre} — ouverture le ${quand(s.prochain.ouvre)}.` : `${s.prochain.titre} — opens ${quand(s.prochain.ouvre)}.`;
   } catch { /* hors connexion : texte générique */ }
-  await self.registration.showNotification(fr ? 'Nouveau devoir PHY321' : 'New PHY321 assignment', {
+  await self.registration.showNotification(rappel ? (fr ? 'Rappel PHY321 : devoir bientôt fermé' : 'PHY321 reminder: assignment closing soon') : (fr ? 'Nouveau devoir PHY321' : 'New PHY321 assignment'), {
     body: corps, icon: './assets/img/icon-192.png', badge: './assets/img/icon-192.png', tag: 'devoir', renotify: true,
     requireInteraction: true, vibrate: [200, 100, 200], data: { url: fr ? '/devoirs.html' : '/en/assignments.html' }
   });

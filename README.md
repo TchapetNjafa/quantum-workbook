@@ -217,3 +217,10 @@ avec l'étiquette `erreur signalée`. Les étudiants ont besoin d'un compte GitH
 
 S. G. Nana Engo, J.-P. Tchapet Njafa, C. Tchodimou — Université de Yaoundé I.
 Contenu sous licence CC BY-NC-SA 4.0.
+
+## Motivation : prédictions, séries, rappel
+
+- **Prédire avant de voir** : blocs `<aside class="predire" data-id="1.1" data-ok="b">` placés juste avant un labo (FR et EN, mêmes `data-id`). Trois réponses, la première compte ; le choix est gardé dans `phy321.workbook.v2` (`_predictions`). Logique : `initPredire` dans `assets/js/carnet.js`. Cinq prédictions : 1.1 (Young), 1.2 (Mach-Zehnder), 4.2 (CHSH), 5.4 (tunnel), 6.2 (oscillateur).
+- **Série d'étude et jalons** : un « jour d'étude » = un exercice réussi ou une prédiction (clé `_jours`, dates locales). Affichés dans Profil (`#serie-jalons`) et en une ligne sur l'accueil à partir de 2 jours. Tout reste dans le navigateur.
+- **Rappel de fermeture** : tâche planifiée `GET /api/cron/rappel` (`vercel.json`, 15 h UTC chaque jour). Elle envoie le signal push aux seuls abonnés qui n'ont rien remis pour un devoir qui ferme dans les 24 h ; le service worker affiche alors « Rappel PHY321 : devoir bientôt fermé » (devoir fermant dans moins de 26 h).
+- Test : `node tests/test-ludique.mjs <adresse>` (après `node tests/serveur-local.mjs`).

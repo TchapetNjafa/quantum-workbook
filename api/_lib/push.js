@@ -50,11 +50,8 @@ export async function desabonner({ session, body }) {
   return [200, { ok: true }];
 }
 
-/** Envoie un signal à tous les abonnés ; les abonnements expirés (404/410) sont supprimés. Renvoie { envoyes, expires, echecs, abonnes }. */
-export async function notifierTous() {
-  const k = cles();
-  if (!k) return { configure: false, abonnes: 0, envoyes: 0, expires: 0, echecs: 0 };
-  const abos = await q('SELECT endpoint FROM push_abos');
+/** Envoie le signal aux abonnements donnés ; les abonnements expirés (404/410) sont retirés. Renvoie { envoyes, expires, echecs, abonnes }. */
+async function diffuser(k, abos) {
   const bilan = { configure: true, abonnes: abos.length, envoyes: 0, expires: 0, echecs: 0 };
   for (let i = 0; i < abos.length; i += 40) { // lots de 40 envois simultanés
     await Promise.all(abos.slice(i, i + 40).map(async ({ endpoint }) => {
@@ -66,6 +63,26 @@ export async function notifierTous() {
     }));
   }
   return bilan;
+}
+
+const NON_CONFIGURE = { configure: false, abonnes: 0, envoyes: 0, expires: 0, echecs: 0 };
+
+export async function notifierTous() {
+  const k = cles();
+  return k ? diffuser(k, await q('SELECT endpoint FROM push_abos')) : NON_CONFIGURE;
+}
+
+/** Rappel (tâche planifiée) : seuls les abonnés qui n'ont encore rien remis pour un devoir qui ferme dans les `heures` prochaines. */
+export async function rappelerFermeture(heures = 24) {
+  const k = cles();
+  if (!k) return NON_CONFIGURE;
+  const now = maintenant();
+  const abos = await q(`SELECT p.endpoint FROM push_abos p WHERE EXISTS (
+      SELECT 1 FROM devoirs d WHERE d.publie AND d.ouvre <= $1 AND d.ferme > $1 AND d.ferme <= $2
+        AND NOT EXISTS (SELECT 1 FROM remises r WHERE r.devoir_id = d.id AND r.email = p.email)
+        AND NOT EXISTS (SELECT 1 FROM fichiers f WHERE f.devoir_id = d.id AND f.email = p.email))`,
+    [now.toISOString(), new Date(now.getTime() + heures * 3600e3).toISOString()]);
+  return diffuser(k, abos);
 }
 
 /** Enseignant : renvoyer la notification (ex. devoir publié à l'avance qui vient de s'ouvrir). */

@@ -81,6 +81,13 @@ const directes = {
     return json(res, 200, { ok: true, supprime: await profil.purgerAnciennes(true) });
   },
 
+  // Rappel de fermeture : une fois par jour, signal aux abonnés qui n'ont rien remis pour un devoir qui ferme dans les 24 h (voir vercel.json > crons).
+  'GET /api/cron/rappel': async (req, res) => {
+    const secret = process.env.CRON_SECRET;
+    if (secret && req.headers.authorization !== `Bearer ${secret}`) return json(res, 401, { error: 'non autorisé' });
+    return json(res, 200, await push.rappelerFermeture());
+  },
+
   'POST /api/session': async (req, res) => {
     if (!memeOrigine(req) || !/application\/json/.test(req.headers['content-type'] || '')) return json(res, 403, { error: 'origine refusée' });
     const clientId = process.env.GOOGLE_CLIENT_ID;
