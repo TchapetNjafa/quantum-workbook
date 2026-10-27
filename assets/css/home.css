@@ -60,3 +60,18 @@
 .ap-etapes { display: grid; gap: .8rem; max-width: 66ch; padding-left: 1.4rem; color: var(--ink-2); }
 .ap-etapes li::marker { color: var(--accent); font-weight: 600; }
 .ap-fin { margin-top: 2rem; font-family: var(--serif, inherit); font-size: 1.15rem; border-left: 3px solid var(--accent); padding-left: 1rem; max-width: 56ch; }
+
+/* Parcours choisi : carte, panneau « pour vous », marque dans le sommaire */
+.ap-cartes article { display: flex; flex-direction: column; }
+.ap-cartes article p { flex: 1; }
+.parcours-btn { margin-top: .9rem; align-self: flex-start; }
+.ap-cartes article.choisi { border-color: var(--accent); background: var(--paper); box-shadow: 0 0 0 1px var(--accent); }
+.ap-parcours { margin: 1.2rem 0 0; padding: 1rem 1.25rem 1.1rem; border-left: 3px solid var(--accent); background: var(--paper-2); max-width: 66ch; font-family: var(--sans); }
+.ap-parcours h4 { margin: 0 0 .6rem; font: 500 1.15rem/1.3 var(--serif); text-transform: none; letter-spacing: 0; color: var(--ink); }
+.ap-parcours ul { list-style: none; padding: 0; margin: 0 0 .9rem; display: grid; gap: .6rem; }
+.ap-parcours li { display: grid; gap: .1rem; }
+.ap-parcours li span { color: var(--ink-2); font-size: .9rem; }
+.ap-parcours li b { font-family: var(--mono); font-weight: 500; color: var(--accent-ink); margin-right: .3rem; }
+.ap-parcours .muted { margin: .8rem 0 0; }
+.ch-reco { display: inline-block; justify-self: start; font-family: var(--sans); font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-ink); border: 1px solid var(--accent); border-radius: 999px; padding: .05rem .55rem; }
+.chapters li.pour-vous .ch-num { color: var(--accent); }

@@ -224,3 +224,8 @@ Contenu sous licence CC BY-NC-SA 4.0.
 - **Série d'étude et jalons** : un « jour d'étude » = un exercice réussi ou une prédiction (clé `_jours`, dates locales). Affichés dans Profil (`#serie-jalons`) et en une ligne sur l'accueil à partir de 2 jours. Tout reste dans le navigateur.
 - **Rappel de fermeture** : tâche planifiée `GET /api/cron/rappel` (`vercel.json`, 15 h UTC chaque jour). Elle envoie le signal push aux seuls abonnés qui n'ont rien remis pour un devoir qui ferme dans les 24 h ; le service worker affiche alors « Rappel PHY321 : devoir bientôt fermé » (devoir fermant dans moins de 26 h).
 - Test : `node tests/test-ludique.mjs <adresse>` (après `node tests/serveur-local.mjs`).
+
+## Énigmes et parcours
+
+- **Énigmes** : un bloc `<aside class="enigme">` par chapitre, juste sous le titre de la section « Exercices de synthèse » (FR et EN). La question est visible, la réponse est dans un `<details>` replié. Aucune donnée enregistrée.
+- **Parcours** (Fonda, MSC, EEA) : les trois cartes de l'avant-propos (`index.html`, `en/index.html`) reçoivent un bouton « Choisir ce parcours » (`assets/js/home.js`). Le choix est gardé dans `phy321.workbook.v2` (`_parcours`) ; il marque trois chapitres dans le sommaire et propose trois labos avec un lien direct (`#lab-…-t`). La table `PARCOURS` de `home.js` est le seul endroit à modifier pour changer ces recommandations.

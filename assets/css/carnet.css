@@ -430,3 +430,11 @@ details.reveal > div { padding: 0 0 1rem 1.5rem; animation: unfold .3s var(--eas
 .jalons .fait { color: var(--ink); }
 .jalons .fait span:first-child { color: var(--ok); }
 @media print { .predire { display: none; } }
+
+/* Énigmes : question visible, réponse à la demande */
+.enigme { margin: 1.5rem 0; padding: 1rem 1.25rem; max-width: var(--measure); background: var(--paper-2); border: 1px solid var(--rule); border-left: 3px solid var(--blue); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.enigme .box-title { color: var(--blue); }
+.enigme-q { margin: 0 0 .7rem; font-weight: 500; }
+.enigme-rep summary { cursor: pointer; font-family: var(--sans); font-size: .9rem; color: var(--accent-ink); min-height: 2.5rem; display: flex; align-items: center; }
+.enigme-rep p { margin: .4rem 0 0; color: var(--ink-2); }
+@media print { .enigme-rep { display: block; } }
