@@ -22,6 +22,7 @@ const SCHEMA = [
      PRIMARY KEY (devoir_id, email))`,
   `ALTER TABLE remises ADD COLUMN IF NOT EXISTS hors_ligne BOOLEAN NOT NULL DEFAULT FALSE`,
   `ALTER TABLE remises ADD COLUMN IF NOT EXISTS note_manuelle NUMERIC`,
+  `ALTER TABLE remises ADD COLUMN IF NOT EXISTS notes_questions JSONB`, // points par question à correction manuelle : { q4: 2.5, … }
   `ALTER TABLE remises ADD COLUMN IF NOT EXISTS total_manuel NUMERIC NOT NULL DEFAULT 0`,
   // remises enregistrées avant l'existence de total_manuel : on le recalcule depuis les questions « interpretation » du devoir
   `UPDATE remises r SET total_manuel = COALESCE((SELECT SUM((q->>'points')::numeric) FROM devoirs d, jsonb_array_elements(d.questions) q

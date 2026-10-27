@@ -30,7 +30,7 @@ export { etat as etatDevoir, limite as limiteDevoir }; // utilisés aussi par fi
 export async function liste({ session }) {
   const now = maintenant();
   const lignes = await q(
-    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, r.recu, r.retard, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel
+    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, r.recu, r.retard, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, d.questions
        FROM devoirs d LEFT JOIN remises r ON r.devoir_id = d.id AND r.email = $1
       WHERE d.publie ORDER BY d.ferme DESC`, [session.email]);
   const devoirs = lignes.map(d => ({
@@ -39,7 +39,10 @@ export async function liste({ session }) {
     // La note n'est montrée qu'après la fin du délai de remise : sinon, des remises répétées permettraient de deviner les réponses.
     ...(d.resultat_visible && d.recu && now > limite(d) ? {
       note: Number(d.note), total: Number(d.total), manuel: d.manuel,
-      ...(d.manuel ? { note_manuelle: d.note_manuelle === null ? null : Number(d.note_manuelle), total_manuel: Number(d.total_manuel) } : {})
+      ...(d.manuel ? { note_manuelle: d.note_manuelle === null ? null : Number(d.note_manuelle), total_manuel: Number(d.total_manuel) } : {}),
+      // détail par question (seulement quand la correction est terminée)
+      ...(d.manuel && d.note_manuelle !== null && d.notes_questions ? { notes_questions: d.questions.filter(x => x.type === 'interpretation' && d.notes_questions[x.id] !== undefined)
+        .map(x => ({ n: Number(x.id.slice(1)), note: Number(d.notes_questions[x.id]), points: x.points })) } : {})
     } : {})
   }));
   return [200, { maintenant: now.toISOString(), devoirs, a_faire: devoirs.filter(d => d.etat === 'ouvert' && !d.rendu).length }];
@@ -95,7 +98,7 @@ export async function remettre({ session, params, body }) {
     `INSERT INTO remises (devoir_id, email, nom, reponses, note, total, manuel, details, declare, recu, retard, hors_ligne, total_manuel)
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
      ON CONFLICT (devoir_id, email) DO UPDATE SET nom=$3, reponses=$4, note=$5, total=$6, manuel=$7, details=$8, declare=$9, recu=$10, retard=$11, hors_ligne=$12,
-       total_manuel=$13, note_manuelle=NULL  -- de nouvelles réponses annulent une correction manuelle déjà saisie
+       total_manuel=$13, note_manuelle=NULL, notes_questions=NULL  -- de nouvelles réponses annulent une correction manuelle déjà saisie
        WHERE remises.recu <= $10 RETURNING devoir_id`,
     [d.id, session.email, session.name || '', JSON.stringify(reponses), c.note, c.total, c.manuel, JSON.stringify(c.details),
       declare && declare.toISOString(), now.toISOString(), retard, horsLigne, c.totalManuel]);
