@@ -46,7 +46,8 @@
       const peut = d.etat === 'ouvert' || d.etat === 'retard';
       const rendu = d.rendu ? `<p>${t('Remise enregistrée le ', 'Submission recorded on ')}<b>${esc(quand(d.recu))}</b> ${t('(heure du serveur)', '(server time)')}${d.retard ? t(' — en retard', ' — late') : ''}.
         ${d.note !== undefined && d.total > 0 ? t(`Note automatique : <b>${d.note} / ${d.total}</b>.`, `Automatic mark: <b>${d.note} / ${d.total}</b>.`) : ''}
-        ${d.manuel && d.note !== undefined ? (d.note_manuelle === null ? t('Correction manuelle en cours.', 'Manual marking in progress.') : t(`Correction manuelle : <b>${d.note_manuelle} / ${d.total_manuel}</b>.`, `Manual marking: <b>${d.note_manuelle} / ${d.total_manuel}</b>.`)) : ''}</p>` : '';
+        ${d.manuel && d.note !== undefined ? (d.note_manuelle === null ? t('Correction manuelle en cours.', 'Manual marking in progress.') : t(`Correction manuelle : <b>${d.note_manuelle} / ${d.total_manuel}</b>.`, `Manual marking: <b>${d.note_manuelle} / ${d.total_manuel}</b>.`)) : ''}
+        ${d.notes_questions && d.notes_questions.length ? `<br><span class="muted">${d.notes_questions.map(x => t(`Question ${x.n} : ${x.note} / ${x.points}`, `Question ${x.n}: ${x.note} / ${x.points}`)).join(' · ')}</span>` : ''}</p>` : '';
       return `<article class="devoir-card" data-etat="${esc(d.etat)}">
         <h3>${esc(d.titre)}</h3>
         <p class="muted">${esc(ETAT[d.etat])} · ${t('ouvre le ', 'opens ')}${esc(quand(d.ouvre))} · ${t('ferme le ', 'closes ')}${esc(quand(d.ferme))}${peut ? t(' · dernier délai ', ' · final deadline ') + esc(quand(d.limite)) : ''}</p>

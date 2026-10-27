@@ -105,16 +105,17 @@ const cellule = v => { // CSV : séparateur « ; » (Excel français) ; une cell
 
 export async function exportCsv({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
-  const [d] = await q('SELECT titre FROM devoirs WHERE id = $1', [Number(params.id)]);
+  const [d] = await q('SELECT titre, questions FROM devoirs WHERE id = $1', [Number(params.id)]);
   if (!d) return [404, { error: 'introuvable' }];
+  const manuelles = d.questions.filter(x => x.type === 'interpretation'); // une colonne de points par question notée à la main
   const [, { remises }] = await remisesDevoir({ params });
   const entete = ['email', 'matricule', 'nom', 'note_auto', 'total_auto', 'note_manuelle', 'total_manuel', 'note_totale', 'recu_serveur', 'en_retard', 'hors_connexion',
-    'declare_appareil_non_verifiable', 'ouverture_serveur', 'copie', 'copie_octets', 'copie_recu_serveur', 'copie_en_retard'];
+    'declare_appareil_non_verifiable', 'ouverture_serveur', 'copie', 'copie_octets', 'copie_recu_serveur', 'copie_en_retard', ...manuelles.map(x => `points_${x.id}_sur_${x.points}`)];
   const lignes = remises.map(r => {
     const complet = r.note !== null && (!r.manuel || r.note_manuelle !== null);
     return [r.email, r.matricule, r.nom, r.note, r.total, r.note_manuelle, r.manuel ? r.total_manuel : '', complet ? r.note + (r.note_manuelle || 0) : '',
       r.recu, r.recu ? (r.retard ? 'oui' : 'non') : '', r.recu ? (r.hors_ligne ? 'oui' : 'non') : '', r.declare, r.debut,
-      r.copie_taille ? 'oui' : 'non', r.copie_taille, r.copie_recu, r.copie_taille ? (r.copie_retard ? 'oui' : 'non') : ''];
+      r.copie_taille ? 'oui' : 'non', r.copie_taille, r.copie_recu, r.copie_taille ? (r.copie_retard ? 'oui' : 'non') : '', ...manuelles.map(x => r.notes_questions?.[x.id] ?? '')];
   });
   const texte = '\ufeff' + [entete, ...lignes].map(l => l.map(cellule).join(';')).join('\r\n') + '\r\n';
   return [200, { texte, mime: 'text/csv; charset=utf-8', nom: `devoir-${params.id}-notes.csv` }];
@@ -124,27 +125,43 @@ export async function exportCsv({ params }) {
 export async function lireRemise({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
   const [r] = await q(
-    `SELECT r.reponses, r.note_manuelle, r.total_manuel, r.recu, d.questions FROM remises r JOIN devoirs d ON d.id = r.devoir_id
+    `SELECT r.reponses, r.note_manuelle, r.total_manuel, r.notes_questions, r.recu, d.questions FROM remises r JOIN devoirs d ON d.id = r.devoir_id
       WHERE r.devoir_id = $1 AND r.email = $2`, [Number(params.id), decoderEmail(params.email)]);
   if (!r) return [404, { error: 'remise introuvable' }];
-  const questions = r.questions.filter(x => x.type === 'interpretation').map(x => ({ id: x.id, question: x.question, points: x.points, reponse: r.reponses[x.id] ?? '' }));
+  const questions = r.questions.filter(x => x.type === 'interpretation').map(x => ({ id: x.id, question: x.question, points: x.points, reponse: r.reponses[x.id] ?? '', note: r.notes_questions?.[x.id] ?? null }));
   // `recu` identifie la version lue : la note ne s'applique que si l'étudiant n'a pas remis autre chose entre-temps
   return [200, { questions, recu: iso(r.recu), note_manuelle: r.note_manuelle === null ? null : Number(r.note_manuelle), total_manuel: Number(r.total_manuel) }];
 }
 
+/** Note une remise. `notes` : { q4: 2.5, q7: null, … } points par question à correction manuelle (null = pas encore notée) ;
+ *  la note manuelle n'existe qu'une fois toutes les questions notées. `points` : note globale, pour un devoir sans question (copie déposée). */
 export async function noterManuel({ params, body }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
   const email = decoderEmail(params.email);
   if (!email) return [400, { error: 'adresse invalide' }];
-  const [r] = await q('SELECT total_manuel FROM remises WHERE devoir_id = $1 AND email = $2', [Number(params.id), email]);
+  const [r] = await q('SELECT r.total_manuel, d.questions FROM remises r JOIN devoirs d ON d.id = r.devoir_id WHERE r.devoir_id = $1 AND r.email = $2', [Number(params.id), email]);
   if (!r) return [404, { error: 'remise introuvable' }];
   const total = Number(r.total_manuel);
   if (!(total > 0)) return [400, { error: 'aucune question à correction manuelle' }];
-  const points = body.points === null ? null : Number(body.points);
-  if (points !== null && !(Number.isFinite(points) && points >= 0 && points <= total)) return [400, { error: `points entre 0 et ${total}` }];
   if (typeof body.recu !== 'string' || isNaN(new Date(body.recu))) return [400, { error: 'version de la remise manquante (recu)' }];
-  const ecrit = await q('UPDATE remises SET note_manuelle = $3 WHERE devoir_id = $1 AND email = $2 AND recu = $4 RETURNING devoir_id',
-    [Number(params.id), email, points, new Date(body.recu).toISOString()]);
+  const manuelles = r.questions.filter(x => x.type === 'interpretation');
+  let points, detail = null;
+  if (body.notes !== undefined) {
+    if (!manuelles.length || typeof body.notes !== 'object' || body.notes === null) return [400, { error: 'notes par question invalides' }];
+    detail = {};
+    for (const x of manuelles) {
+      const v = body.notes[x.id];
+      if (v === null || v === undefined || v === '') continue;
+      if (!(Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= x.points)) return [400, { error: `${x.id} : points entre 0 et ${x.points}` }];
+      detail[x.id] = Number(v);
+    }
+    points = manuelles.every(x => detail[x.id] !== undefined) ? manuelles.reduce((s, x) => s + detail[x.id], 0) : null;
+  } else {
+    points = body.points === null ? null : Number(body.points);
+    if (points !== null && !(Number.isFinite(points) && points >= 0 && points <= total)) return [400, { error: `points entre 0 et ${total}` }];
+  }
+  const ecrit = await q('UPDATE remises SET note_manuelle = $3, notes_questions = $5 WHERE devoir_id = $1 AND email = $2 AND recu = $4 RETURNING devoir_id',
+    [Number(params.id), email, points, new Date(body.recu).toISOString(), detail && JSON.stringify(detail)]);
   if (!ecrit.length) return [409, { error: 'l’étudiant a remis de nouvelles réponses : relisez avant de noter' }];
   return [200, { ok: true, note_manuelle: points, total_manuel: total }];
 }
@@ -207,7 +224,7 @@ export async function remisesDevoir({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
   const l = await q(
     // un étudiant apparaît s'il a remis les réponses OU déposé une copie (l'un des deux peut manquer)
-    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.declare, r.recu, r.retard, r.hors_ligne, b.debut,
+    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, r.declare, r.recu, r.retard, r.hors_ligne, b.debut,
             f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard, pr.matricule
        FROM (SELECT email FROM remises WHERE devoir_id = $1 UNION SELECT email FROM fichiers WHERE devoir_id = $1) u
        LEFT JOIN remises r ON r.devoir_id = $1 AND r.email = u.email
