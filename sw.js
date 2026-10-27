@@ -4,7 +4,7 @@
    (outils/generer_versions.mjs). La nouvelle version RECOPIE localement les fichiers dont l'empreinte n'a pas changé et ne
    télécharge que les fichiers nouveaux ou modifiés. Sans `versions.json` (GitHub Pages) : le noyau est retéléchargé, comme avant. */
 const PREFIX = 'carnet-';
-const VERSION = 'carnet-2026-10-27-notifications'; // remplacé à la construction Vercel par « carnet-<empreinte du contenu> »
+const VERSION = 'carnet-2026-10-27-adaptatif'; // remplacé à la construction Vercel par « carnet-<empreinte du contenu> »
 const CORE = [
   './', './index.html', './en/index.html', './manifest.json', './manifest.en.json',
   './assets/css/carnet.css', './assets/js/carnet.js', './assets/js/mathjax-config.js',
