@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Appendix · Quantum algorithms — PHY321 Notebook</title>
-<meta name="description" content="Deutsch, Grover and Shor with the tools of chapters 1 and 4: amplitudes, interference, Hadamard.">
+<meta name="description" content="Deutsch and Grover with the tools of chapters 1 and 4: amplitudes, interference, Hadamard.">
 <meta property="og:title" content="Appendix · Quantum algorithms">
 <meta property="og:type" content="article">
 <meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
@@ -42,8 +42,8 @@
 <main id="contenu" class="wrap annex">
   <header class="chapter-head">
     <p class="eyebrow">Appendix · beyond the lecture notes</p>
-    <h1>Appendix · Horizons: three quantum algorithms</h1>
-    <p class="lede">With the amplitudes, interference and Hadamard gate of chapter 1, we can grasp the principle of three famous algorithms, with no extra formalism.</p>
+    <h1>Appendix · Horizons: two quantum algorithms</h1>
+    <p class="lede">With the amplitudes, interference and Hadamard gate of chapter 1, we can grasp the principle of two famous algorithms, with no extra formalism.</p>
   </header>
 
   <section class="section" id="idee">
@@ -83,23 +83,6 @@
       <div class="num-answer"><label for="ea2">k =</label><input id="ea2" type="text" inputmode="decimal" autocomplete="off" placeholder="6"><button class="btn small" data-check type="button">Check</button></div>
       <div class="feedback"></div>
       <details class="reveal"><summary>Solution</summary><div>\(\theta = \arcsin(1/8) \approx 0.1253\). The maximum occurs when \((2k+1)\theta \approx \pi/2\), i.e. \(k \approx \pi/(4\theta) - 1/2 \approx 5.8\), so \(k = 6\): \(\sin^2(13\theta) \approx 0.9966\). With \(k=5\) only \(0.9635\); with \(k=7\) the probability drops back to \(0.9074\). The number of iterations grows like \(\sqrt N\), not \(N\).</div></details>
-    </article>
-
-  <section class="section" id="shor">
-    <h2><span class="n">A.3</span>Shor</h2>
-    <p>Factoring \(N\) reduces to finding the <em>period</em> \(r\) of \(x\mapsto a^x \bmod N\). Example: \(N=15\), \(a=7\): \(7, 4, 13, 1,\dots\) so \(r=4\), then \(\gcd(7^2-1,15)=3\) and \(\gcd(7^2+1,15)=5\). Finding the period is the only quantum step: the quantum Fourier transform makes amplitudes interfere; the measurement yields an approximation of a ratio \(s/r\), from which a classical computation (continued fractions, with possible repetitions) extracts the period \(r\).</p>
-    <div class="box note rise">
-      <span class="box-title">Why it matters, and what it does not say</span>
-      <p>No efficient classical factoring algorithm is known, whereas Shor’s is efficient in theory: this is the threat to RSA mentioned in chapter 4 (exercise 1.10). But it requires a large error-corrected quantum computer, which does not exist today. The gains of Deutsch, Grover and Shor concern <em>specific problems</em>; a quantum computer does not speed everything up.</p>
-    </div>
-  </section>
-
-    <article class="exo" data-id="A.3" data-num="6" data-tol="0.01" data-ok="Correct: \(2^6 = 64 = 3\times21+1\)." data-ko="Compute the powers of 2 modulo 21: 2, 4, 8, 16, 11, …">
-      <div class="exo-head"><span class="num">Exercise A.3</span><h3>Shor: the period of 2 modulo 21</h3><span class="stars" aria-label="difficulty 2 out of 3">★★☆</span></div>
-      <p>To factor \(N=21\) with \(a=2\), we need the period \(r\): the smallest \(r>0\) with \(2^r \equiv 1 \pmod{21}\). What is \(r\)?</p>
-      <div class="num-answer"><label for="ea3">r =</label><input id="ea3" type="text" inputmode="decimal" autocomplete="off" placeholder="6"><button class="btn small" data-check type="button">Check</button></div>
-      <div class="feedback"></div>
-      <details class="reveal"><summary>Solution</summary><div>Powers of 2 modulo 21: 2, 4, 8, 16, 11, 1. So \(r=6\), which is even. Then \(2^{3}=8\) and \(\gcd(8-1,21)=7\), \(\gcd(8+1,21)=3\): we recover \(21=3\times7\). The quantum part of the algorithm only serves to find \(r\) when \(N\) is very large.</div></details>
     </article>
 
 </main>

@@ -80,7 +80,7 @@ Un bouton **FR / EN** dans la barre du haut bascule vers la page équivalente (m
 | Français | Anglais | Contenu |
 |---|---|---|
 | `prolonger.html` | `en/further.html` | notebooks, ressources vérifiées, lecture prudente des textes quantique et spiritualité (exercice P.1) |
-| `annexe-algorithmes.html` | `en/appendix-algorithms.html` | Deutsch, Grover, Shor (exercices A.1 à A.3) |
+| `annexe-algorithmes.html` | `en/appendix-algorithms.html` | Deutsch, Grover (exercices A.1 et A.2) |
 | `diagnostic.html` | `en/diagnostic.html` | 10 questions avant / après (`assets/js/diagnostic.js`, réponses dans `localStorage`) |
 
 Suivi d'une promotion pilote : `docs/protocole-pilote.fr.md` / `.en.md` et `python3 outils/analyser_diagnostic.py resultats.txt`

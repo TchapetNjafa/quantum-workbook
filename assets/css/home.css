@@ -39,3 +39,24 @@
 .method .plain { list-style: none; padding: 0; display: grid; gap: 1rem; max-width: 62ch; }
 .method .plain li { color: var(--ink-2); }
 .method cite { display: block; font-family: var(--sans); font-size: .78rem; font-style: normal; color: var(--muted); }
+
+/* Avant-propos (avant le sommaire) */
+.avant-propos { padding: 3rem 0 3.5rem; border-top: 1px solid var(--rule); }
+.avant-propos h2 { font-size: clamp(1.9rem, 2.4vw + 1rem, 3rem); margin-bottom: 1.2rem; }
+.avant-propos h3 { font-size: 1.25rem; margin: 2.4rem 0 .9rem; }
+.ap-lede { font-size: clamp(1.08rem, .5vw + 1rem, 1.25rem); color: var(--ink-2); max-width: 62ch; }
+.ap-cartes { display: grid; gap: 1rem; }
+@media (min-width: 800px) { .ap-cartes { grid-template-columns: repeat(3, 1fr); } }
+.ap-cartes article { background: var(--paper-2); border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: var(--r-md, 6px); padding: 1rem 1.1rem 1.2rem; }
+.ap-cartes .mono { color: var(--accent-ink); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; }
+.ap-cartes h4 { font: 500 1.2rem/1.25 var(--serif); text-transform: none; letter-spacing: 0; color: var(--ink); margin: .3rem 0 .5rem; }
+.ap-cartes p { color: var(--ink-2); font-size: .95rem; margin: 0; }
+.ap-liste { display: grid; gap: .9rem; max-width: 66ch; padding-left: 1.2rem; color: var(--ink-2); }
+.ap-niveaux { display: grid; gap: .6rem; margin-bottom: 1.4rem; }
+@media (min-width: 800px) { .ap-niveaux { grid-template-columns: repeat(3, 1fr); } }
+.ap-niveaux > div { display: grid; grid-template-columns: auto 1fr; gap: .1rem .7rem; align-items: baseline; border-left: 3px solid var(--rule); padding: .2rem 0 .2rem .8rem; font-family: var(--sans); font-size: .9rem; color: var(--ink-2); }
+.ap-niveaux .stars { margin-left: 0; font-size: 1rem; grid-row: 1 / 3; color: var(--accent); letter-spacing: .1em; }
+.ap-niveaux b { color: var(--ink); }
+.ap-etapes { display: grid; gap: .8rem; max-width: 66ch; padding-left: 1.4rem; color: var(--ink-2); }
+.ap-etapes li::marker { color: var(--accent); font-weight: 600; }
+.ap-fin { margin-top: 2rem; font-family: var(--serif, inherit); font-size: 1.15rem; border-left: 3px solid var(--accent); padding-left: 1rem; max-width: 56ch; }
