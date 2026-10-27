@@ -111,6 +111,20 @@
         <p>Before running the lab: write down your prediction, run it, compare, then explain the gap in one sentence. If the second analyser is oriented along \(x\), what fraction of \(+\hbar/2\) results do you expect at the output of the third?</p>
       </div>
 
+      <aside class="predire rise" data-id="2.1" data-ok="b" aria-label="Your prediction">
+        <span class="box-title">Your prediction · 2.1</span>
+        <p class="predire-q">Spin-1/2 atoms are filtered: first device along \(z\), keep \(+\hbar/2\); second along \(x\), keep \(+\hbar/2\); third along \(z\). What fraction gives \(+\hbar/2\) at the output of the third?</p>
+        <div class="predire-choix">
+          <button class="predire-opt" type="button" data-v="a"><span class="predire-lettre">A</span><span>100 %, since these atoms had already been sorted along \(z\)</span></button>
+          <button class="predire-opt" type="button" data-v="b"><span class="predire-lettre">B</span><span>50 %</span></button>
+          <button class="predire-opt" type="button" data-v="c"><span class="predire-lettre">C</span><span>0 %</span></button>
+        </div>
+        <div class="predire-bilan" hidden>
+          <p class="predire-verdict" role="status"></p>
+          <p class="predire-why">The measurement along \(x\) erased the information about \(z\): an eigenstate of \(\sigma_x\) is an equal-weight superposition of \(\ket{+z}\) and \(\ket{-z}\), so the third device gives \(+\hbar/2\) half of the time. Measuring does not merely read: it prepares a new state. Then run the lab below to see it for yourself.</p>
+        </div>
+      </aside>
+
       <figure class="lab rise" data-lab="sg" aria-labelledby="lab-sg-t">
         <div class="lab-head"><h3 id="lab-sg-t">Cascaded Stern–Gerlach devices</h3><span class="tag">LAB 2.1</span></div>
         <div class="lab-body">
