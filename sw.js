@@ -66,6 +66,32 @@ self.addEventListener('activate', e => {
   );
 });
 
+/* Notifications push (barre de notification, écran verrouillé) : le serveur envoie un signal sans contenu quand un devoir est publié ;
+   on lit alors /api/statut (public) pour composer le texte. Toujours afficher une notification (obligation du navigateur). */
+self.addEventListener('push', e => e.waitUntil((async () => {
+  const fr = (self.navigator.language || 'fr').toLowerCase().startsWith('fr');
+  const loc = fr ? 'fr-FR' : 'en-GB', quand = iso => new Date(iso).toLocaleString(loc, { dateStyle: 'medium', timeStyle: 'short' });
+  let corps = fr ? 'Un devoir est disponible sur le Carnet.' : 'An assignment is available on the Carnet.';
+  try {
+    const s = await (await fetch('/api/statut', { cache: 'no-store' })).json();
+    if (s.ouvert) corps = fr ? `${s.ouvert.titre} — à rendre avant le ${quand(s.ouvert.ferme)}.` : `${s.ouvert.titre} — due ${quand(s.ouvert.ferme)}.`;
+    else if (s.prochain) corps = fr ? `${s.prochain.titre} — ouverture le ${quand(s.prochain.ouvre)}.` : `${s.prochain.titre} — opens ${quand(s.prochain.ouvre)}.`;
+  } catch { /* hors connexion : texte générique */ }
+  await self.registration.showNotification(fr ? 'Nouveau devoir PHY321' : 'New PHY321 assignment', {
+    body: corps, icon: './assets/img/icon-192.png', badge: './assets/img/icon-192.png', tag: 'devoir', renotify: true,
+    requireInteraction: true, vibrate: [200, 100, 200], data: { url: fr ? '/devoirs.html' : '/en/assignments.html' }
+  });
+})()));
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = new URL(e.notification.data?.url || '/devoirs.html', self.location.origin).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(l => {
+    const ouverte = l.find(c => c.url === url);
+    return ouverte ? ouverte.focus() : self.clients.openWindow(url);
+  }));
+});
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;

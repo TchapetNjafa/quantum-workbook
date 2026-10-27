@@ -40,13 +40,50 @@
     ).join('') + `<p><button class="btn small accent" type="button" data-envoyer-file>${t('Envoyer maintenant', 'Send now')}</button></p></div>`;
   }
 
+  // Notifications push : l'étudiant les active sur CET appareil ; le serveur lui envoie un signal quand un devoir est publié
+  // (bruit et vibration selon les réglages du téléphone). Sur iPhone, il faut d'abord ajouter le site à l'écran d'accueil.
+  const cleVersOctets = b64 => Uint8Array.from(atob(b64.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+  async function notifications(zone) {
+    if (!zone) return;
+    const r = await api('/api/push/cle'); if (!r.ok) return;
+    const { cle } = await r.json(); if (!cle) return; // serveur sans notifications : rien à proposer
+    if (!('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window)) {
+      zone.innerHTML = `<p class="muted">${t('Les notifications ne sont pas disponibles sur ce navigateur (sur iPhone : ajoutez d’abord le site à l’écran d’accueil).', 'Notifications are not available in this browser (on iPhone: add the site to the home screen first).')}</p>`;
+      return;
+    }
+    const reg = await navigator.serviceWorker.ready;
+    const dessiner = async msg => {
+      const sub = await reg.pushManager.getSubscription();
+      const actif = !!sub && Notification.permission === 'granted';
+      if (actif) post('/api/push/abonner', { endpoint: sub.endpoint }).catch(() => {}); // rattache l'appareil au compte connecté
+      zone.innerHTML = `<div class="devoir-card"><p>${actif ? t('Notifications activées sur cet appareil : vous serez prévenu quand un devoir est publié.', 'Notifications are on for this device: you will be told when an assignment is published.')
+        : Notification.permission === 'denied' ? t('Notifications bloquées dans les réglages du navigateur : autorisez-les pour ce site si vous voulez être prévenu.', 'Notifications are blocked in the browser settings: allow them for this site if you want to be told.')
+        : t('Être prévenu sur ce téléphone ou cet ordinateur quand un devoir est publié.', 'Get a notification on this phone or computer when an assignment is published.')}</p>
+        ${Notification.permission === 'denied' ? '' : `<button class="btn small ${actif ? 'ghost' : 'accent'}" type="button" data-notif>${actif ? t('Désactiver', 'Turn off') : t('Activer les notifications', 'Turn on notifications')}</button>`}
+        <span class="muted" role="status" aria-live="polite">${msg || ''}</span></div>`;
+      const b = zone.querySelector('[data-notif]'); if (!b) return;
+      b.onclick = async () => {
+        try {
+          if (actif) { await post('/api/push/desabonner', { endpoint: sub.endpoint }); await sub.unsubscribe(); return dessiner(); }
+          if ((await Notification.requestPermission()) !== 'granted') return dessiner();
+          const s = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: cleVersOctets(cle) });
+          const rep = await post('/api/push/abonner', { endpoint: s.endpoint });
+          if (!rep.ok) { await s.unsubscribe(); const j = await rep.json().catch(() => ({})); return dessiner(esc(j.error || rep.status)); }
+          dessiner();
+        } catch (e) { dessiner(esc(e.message || t('échec', 'failed'))); }
+      };
+    };
+    return dessiner();
+  }
+
   function afficherListe(devoirs, horsLigne) {
     vue = 'liste';
     const corps = devoirs.length ? devoirs.map(d => {
       const peut = d.etat === 'ouvert' || d.etat === 'retard';
       const rendu = d.rendu ? `<p>${t('Remise enregistrée le ', 'Submission recorded on ')}<b>${esc(quand(d.recu))}</b> ${t('(heure du serveur)', '(server time)')}${d.retard ? t(' — en retard', ' — late') : ''}.
         ${d.note !== undefined && d.total > 0 ? t(`Note automatique : <b>${d.note} / ${d.total}</b>.`, `Automatic mark: <b>${d.note} / ${d.total}</b>.`) : ''}
-        ${d.manuel && d.note !== undefined ? (d.note_manuelle === null ? t('Correction manuelle en cours.', 'Manual marking in progress.') : t(`Correction manuelle : <b>${d.note_manuelle} / ${d.total_manuel}</b>.`, `Manual marking: <b>${d.note_manuelle} / ${d.total_manuel}</b>.`)) : ''}</p>` : '';
+        ${d.manuel && d.note !== undefined ? (d.note_manuelle === null ? t('Correction manuelle en cours.', 'Manual marking in progress.') : t(`Correction manuelle : <b>${d.note_manuelle} / ${d.total_manuel}</b>.`, `Manual marking: <b>${d.note_manuelle} / ${d.total_manuel}</b>.`)) : ''}
+        ${d.notes_questions && d.notes_questions.length ? `<br><span class="muted">${d.notes_questions.map(x => t(`Question ${x.n} : ${x.note} / ${x.points}`, `Question ${x.n}: ${x.note} / ${x.points}`)).join(' · ')}</span>` : ''}</p>` : '';
       return `<article class="devoir-card" data-etat="${esc(d.etat)}">
         <h3>${esc(d.titre)}</h3>
         <p class="muted">${esc(ETAT[d.etat])} · ${t('ouvre le ', 'opens ')}${esc(quand(d.ouvre))} · ${t('ferme le ', 'closes ')}${esc(quand(d.ferme))}${peut ? t(' · dernier délai ', ' · final deadline ') + esc(quand(d.limite)) : ''}</p>
@@ -54,7 +91,8 @@
         ${peut ? `<button class="btn ${d.rendu ? 'ghost' : 'accent'}" type="button" data-ouvrir="${d.id}">${d.rendu ? t('Modifier ma remise', 'Edit my submission') : t('Commencer', 'Start')}</button>` : ''}
       </article>`;
     }).join('') : `<p class="muted">${t('Aucun devoir publié pour le moment.', 'No assignment published yet.')}</p>`;
-    montrer((horsLigne ? `<p class="muted" role="status">${reseau}</p>` : '') + enAttente() + corps);
+    montrer((horsLigne ? `<p class="muted" role="status">${reseau}</p>` : '') + (horsLigne ? '' : '<div id="notif-zone"></div>') + enAttente() + corps);
+    if (!horsLigne) notifications(root.querySelector('#notif-zone')).catch(() => {});
     root.querySelectorAll('[data-ouvrir]').forEach(b => { b.onclick = () => ouvrir(b.dataset.ouvrir).catch(erreur); });
     root.querySelectorAll('[data-retirer]').forEach(b => { b.onclick = () => File().retirer(b.dataset.retirer); });
     const e = root.querySelector('[data-envoyer-file]'); if (e) e.onclick = () => File().flush();

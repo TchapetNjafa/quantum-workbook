@@ -9,6 +9,7 @@ import * as fichiers from './_lib/fichiers.js';
 import * as profil from './_lib/profil.js';
 import * as classement from './_lib/classement.js';
 import * as defis from './_lib/defis.js';
+import * as push from './_lib/push.js';
 import { Readable, pipeline } from 'node:stream';
 
 const DOMAIN = () => process.env.ALLOWED_DOMAIN || 'facsciences-uy1.cm,ens-uy1.cm'; // liste séparée par des virgules
@@ -136,6 +137,11 @@ const TABLE = [
   ['GET', '/api/defis', 'session', 0, defis.mesDefis],
   ['GET', '/api/defis/:code', 'session', 0, defis.lire],
   ['POST', '/api/defis/:code/score', 'session', 1_000, defis.envoyerScore],
+  // notifications push (écran verrouillé) : clé publique, abonnement, désabonnement ; l'enseignant peut renvoyer le signal
+  ['GET', '/api/push/cle', 'session', 0, push.cle],
+  ['POST', '/api/push/abonner', 'session', 2_000, push.abonner],
+  ['POST', '/api/push/desabonner', 'session', 2_000, push.desabonner],
+  ['POST', '/api/prof/notifier', 'prof', 1_000, push.notifierManuel],
   ['GET', '/api/prof/profils', 'prof', 0, prof.listeProfils],
   ['GET', '/api/prof/defis', 'prof', 0, prof.listeDefis],
   ['GET', '/api/prof/liste-classe', 'prof', 0, prof.lireListe],

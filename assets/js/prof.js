@@ -88,6 +88,8 @@
         <button class="btn small ghost" type="button" data-act="dates">${t('Dates', 'Dates')}</button></div></td></tr>`).join('')}
       </tbody></table></div>` : `<p class="muted">${t('Aucun devoir.', 'No assignment.')}</p>`}
       <div data-detail></div>
+      <div class="prof-ligne"><button class="btn small ghost" type="button" data-notifier>${t('Renvoyer la notification aux étudiants', 'Send the notification to students again')}</button>
+        <span class="muted" data-msg-notif role="status" aria-live="polite">${t('Les étudiants abonnés sont prévenus automatiquement à la publication d’un devoir.', 'Subscribed students are notified automatically when an assignment is published.')}</span></div>
       <h2>${t('Nouveau devoir', 'New assignment')}</h2>
       <form data-nouveau>
         <p class="muted">${t('Devoir à copie déposée : les étudiants téléchargent le sujet (PDF), composent, puis déposent leur copie (PDF ou photo). Vous attribuez ensuite la note à la main.',
@@ -171,7 +173,7 @@
         <button class="btn small ghost" type="button" data-liste-vider>${t('Vider la liste', 'Empty the list')}</button></div><div data-liste-res role="status" aria-live="polite"></div>`;
     root.appendChild(cls);
     const lres = cls.querySelector('[data-liste-res]');
-    const lignesCsv = texte => texte.replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim()).map(l => {
+    const lignesCsv = texte => texte.replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim()).map(l => {
       const sep = [';', '\t', ','].find(c => l.includes(c)) || ';', cases = []; let cur = '', guill = false;
       for (const ch of l) { if (ch === '"') guill = !guill; else if (ch === sep && !guill) { cases.push(cur); cur = ''; } else cur += ch; }
       cases.push(cur); return { matricule: cases[0].trim(), nom: (cases[1] || '').trim(), email: (cases[2] || '').trim() };
@@ -241,6 +243,14 @@
       if (rep.ok) return tableau().catch(erreur);
       msg.innerHTML = `<p class="prof-erreurs">${esc(j.error || rep.status)}</p>${(j.erreurs || []).length ? `<ul>${j.erreurs.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`;
     };
+    root.querySelector('[data-notifier]').onclick = async () => {
+      const m = root.querySelector('[data-msg-notif]'), rep = await post('/api/prof/notifier', {});
+      if (rep.status === 401) return verrou();
+      const j = await rep.json().catch(() => ({}));
+      m.textContent = !rep.ok ? (j.error || rep.status) : !j.configure ? t('Notifications non configurées sur le serveur (clés VAPID absentes).', 'Notifications are not set up on the server (VAPID keys missing).')
+        : t(`${j.envoyes} notification(s) envoyée(s) sur ${j.abonnes} appareil(s) abonné(s)${j.expires ? `, ${j.expires} abonnement(s) expiré(s) retiré(s)` : ''}${j.echecs ? `, ${j.echecs} échec(s)` : ''}.`,
+          `${j.envoyes} notification(s) sent to ${j.abonnes} subscribed device(s)${j.expires ? `, ${j.expires} expired subscription(s) removed` : ''}${j.echecs ? `, ${j.echecs} failure(s)` : ''}.`);
+    };
     root.querySelectorAll('[data-act]').forEach(b => { b.onclick = () => agir(b.closest('tr').dataset.id, b.dataset.act, devoirs.find(d => String(d.id) === b.closest('tr').dataset.id)).catch(erreur); });
   }
 
@@ -293,7 +303,6 @@
       <button class="btn small ghost" type="button" data-supprimer>${t('Supprimer le devoir', 'Delete the assignment')}</button>`;
     detail.appendChild(bar);
     const info = document.createElement('div'); info.setAttribute('role', 'status'); info.setAttribute('aria-live', 'polite'); detail.appendChild(info);
-    const zone = document.createElement('div'); detail.appendChild(zone);
     const purger = bar.querySelector('[data-purger]');
     let manifeste = null;
 
@@ -332,21 +341,50 @@
       if (rep.ok) return tableau();
       info.textContent = (await rep.json().catch(() => ({}))).error || rep.status;
     };
+    // Correction : une fenêtre (dialog) avec les réponses de l'étudiant et les points de chaque question ; elle se referme à la validation.
     detail.querySelectorAll('[data-corriger]').forEach(b => {
       b.onclick = async () => {
-        const email = b.dataset.corriger;
+        const email = b.dataset.corriger, x = remises.find(r => r.email === email) || {};
         const r = await api(`/api/prof/devoirs/${id}/remises/${encodeURIComponent(email)}`);
         if (r.status === 401) return verrou();
         const j = await r.json();
-        zone.innerHTML = `<h3>${t('Correction manuelle', 'Manual marking')} — ${esc(email)}</h3>` + (j.questions.length ? '' : `<p class="muted">${t('Devoir à copie déposée : téléchargez la copie dans la colonne « Copie », puis saisissez la note.', 'Paper assignment: download the paper from the “Paper” column, then enter the mark.')}</p>`) + j.questions.map(q => `<div class="diag-q"><p><b>${esc(q.question)}</b> <span class="muted">(${q.points} pt)</span></p><pre>${esc(q.reponse || t('(pas de réponse)', '(no answer)'))}</pre></div>`).join('')
-          + `<div class="prof-ligne"><label>${t('Points (0 à ', 'Points (0 to ')}${j.total_manuel}) <input type="number" min="0" max="${j.total_manuel}" step="0.25" name="pts" value="${j.note_manuelle ?? ''}"></label>
-          <button class="btn small accent" type="button" data-noter>${t('Enregistrer', 'Save')}</button></div><div data-msg3 role="status" aria-live="polite"></div>`;
-        zone.querySelector('[data-noter]').onclick = async () => {
-          const v = zone.querySelector('[name=pts]').value;
-          const rep = await post(`/api/prof/devoirs/${id}/remises/${encodeURIComponent(email)}/note`, { points: v === '' ? null : Number(v), recu: j.recu });
-          if (rep.ok) return agir(id, 'remises', d);
-          zone.querySelector('[data-msg3]').textContent = (await rep.json().catch(() => ({}))).error || rep.status;
+        const dlg = document.createElement('dialog');
+        dlg.className = 'corr'; dlg.setAttribute('aria-labelledby', 'corr-titre');
+        const champ = (q, nom) => `<label class="corr-pts">${t('Points', 'Points')} <input type="number" inputmode="decimal" min="0" max="${q.points}" step="0.25" name="${nom}" value="${q.note ?? ''}"> / ${q.points}</label>`;
+        const global = !j.questions.length; // devoir à copie déposée : une seule note
+        const ancienne = !global && j.note_manuelle !== null && j.questions.every(q => q.note === null);
+        dlg.innerHTML = `<header><h3 id="corr-titre">${t('Correction', 'Marking')} — ${esc(x.nom || email)} ${x.matricule ? `<b>${esc(x.matricule)}</b>` : ''}</h3><p class="muted">${esc(email)}</p></header>
+          <div class="corr-corps">${global
+            ? `<p class="muted">${t('Devoir à copie déposée : téléchargez la copie dans la colonne « Copie », puis saisissez la note.', 'Paper assignment: download the paper from the “Paper” column, then enter the mark.')}</p>
+               <label class="corr-pts">${t('Note', 'Mark')} <input type="number" inputmode="decimal" min="0" max="${j.total_manuel}" step="0.25" name="global" value="${j.note_manuelle ?? ''}"> / ${j.total_manuel}</label>`
+            : (ancienne ? `<p class="muted">${t(`Une note globale de ${j.note_manuelle} / ${j.total_manuel} avait été saisie ; elle sera remplacée par la somme des points ci-dessous.`, `An overall mark of ${j.note_manuelle} / ${j.total_manuel} was entered earlier; it will be replaced by the sum of the points below.`)}</p>` : '')
+              + j.questions.map((q, i) => `<section class="corr-q"><p><b>${t('Question', 'Question')} ${esc(q.id.slice(1))}</b> — ${esc(q.question)}</p>
+                <pre>${esc(q.reponse || t('(pas de réponse)', '(no answer)'))}</pre>${champ(q, 'q_' + q.id)}</section>`).join('')}</div>
+          <footer><span data-total></span><span data-msg role="status" aria-live="polite"></span>
+            <button class="btn small ghost" type="button" data-annuler>${t('Annuler', 'Cancel')}</button>
+            <button class="btn small accent" type="button" data-valider>${t('Valider', 'Confirm')}</button></footer>`;
+        document.body.appendChild(dlg);
+        const champs = [...dlg.querySelectorAll('input[type=number]')], total = dlg.querySelector('[data-total]'), msg = dlg.querySelector('[data-msg]');
+        const maj = () => {
+          const vides = champs.filter(c => c.value === '').length, somme = champs.reduce((s, c) => s + (Number(c.value) || 0), 0);
+          total.textContent = global ? '' : t(`Total : ${somme} / ${j.total_manuel}`, `Total: ${somme} / ${j.total_manuel}`) + (vides ? t(` — ${vides} question(s) sans points`, ` — ${vides} question(s) without points`) : '');
         };
+        champs.forEach(c => c.addEventListener('input', maj)); maj();
+        const fermer = () => { dlg.close(); dlg.remove(); };
+        dlg.addEventListener('cancel', () => setTimeout(() => dlg.remove())); // Échap
+        dlg.querySelector('[data-annuler]').onclick = fermer;
+        dlg.querySelector('[data-valider]').onclick = async () => {
+          const corps = { recu: j.recu };
+          if (global) corps.points = champs[0].value === '' ? null : Number(champs[0].value);
+          else corps.notes = Object.fromEntries(j.questions.map((q, i) => [q.id, champs[i].value === '' ? null : Number(champs[i].value)]));
+          const rep = await post(`/api/prof/devoirs/${id}/remises/${encodeURIComponent(email)}/note`, corps);
+          if (rep.status === 401) { fermer(); return verrou(); }
+          if (!rep.ok) { msg.textContent = (await rep.json().catch(() => ({}))).error || rep.status; return; }
+          fermer();
+          agir(id, 'remises', d); // la note de l'étudiant est mise à jour dans le tableau
+        };
+        dlg.showModal();
+        (champs[0] || dlg.querySelector('[data-annuler]')).focus();
       };
     });
   }

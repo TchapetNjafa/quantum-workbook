@@ -22,6 +22,7 @@ const SCHEMA = [
      PRIMARY KEY (devoir_id, email))`,
   `ALTER TABLE remises ADD COLUMN IF NOT EXISTS hors_ligne BOOLEAN NOT NULL DEFAULT FALSE`,
   `ALTER TABLE remises ADD COLUMN IF NOT EXISTS note_manuelle NUMERIC`,
+  `ALTER TABLE remises ADD COLUMN IF NOT EXISTS notes_questions JSONB`, // points par question à correction manuelle : { q4: 2.5, … }
   `ALTER TABLE remises ADD COLUMN IF NOT EXISTS total_manuel NUMERIC NOT NULL DEFAULT 0`,
   // remises enregistrées avant l'existence de total_manuel : on le recalcule depuis les questions « interpretation » du devoir
   `UPDATE remises r SET total_manuel = COALESCE((SELECT SUM((q->>'points')::numeric) FROM devoirs d, jsonb_array_elements(d.questions) q
@@ -50,7 +51,9 @@ const SCHEMA = [
      ok INT NOT NULL, duree INT NOT NULL, quand TIMESTAMPTZ NOT NULL, PRIMARY KEY (code, email))`,
   // ----- phase 7 : liste de classe importée par l'enseignant (matricule ↔ nom ↔ adresse) ; purge des remises 5 mois après la fermeture du devoir -----
   `CREATE TABLE IF NOT EXISTS liste_classe (matricule TEXT PRIMARY KEY, nom TEXT NOT NULL DEFAULT '', email TEXT UNIQUE)`,
-  `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS purge TIMESTAMPTZ` // date à laquelle remises, ouvertures et copies ont été supprimées
+  `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS purge TIMESTAMPTZ`, // date à laquelle remises, ouvertures et copies ont été supprimées
+  // ----- notifications push : un abonnement par navigateur, rattaché au profil (effacé avec lui) -----
+  `CREATE TABLE IF NOT EXISTS push_abos (endpoint TEXT PRIMARY KEY, email TEXT NOT NULL REFERENCES profils(email) ON DELETE CASCADE, cree TIMESTAMPTZ NOT NULL)`
 ];
 
 function connexion() {
