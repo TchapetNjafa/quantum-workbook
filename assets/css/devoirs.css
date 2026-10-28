@@ -13,7 +13,8 @@
 #prof .tableau { overflow-x: auto; }
 
 /* Fenêtre de correction (dialog) : réponses de l'étudiant, points par question, Valider / Annuler. */
-dialog.corr { width: min(42rem, calc(100vw - 1rem)); max-height: calc(100dvh - 1rem); padding: 0; border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--paper); color: var(--ink); box-shadow: 0 12px 40px rgb(0 0 0 / .25); }
+/* position fixe explicite : la règle `body > * { position: relative }` du Carnet sinon sortirait la fenêtre de l'écran et ferait sauter la page */
+dialog.corr { position: fixed; inset: 0; margin: auto; width: min(42rem, calc(100vw - 1rem)); max-height: calc(100dvh - 1rem); padding: 0; border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--paper); color: var(--ink); box-shadow: 0 12px 40px rgb(0 0 0 / .25); }
 dialog.corr::backdrop { background: rgb(0 0 0 / .45); }
 dialog.corr[open] { display: flex; flex-direction: column; }
 dialog.corr header { padding: .9rem 1.1rem .5rem; border-bottom: 1px solid var(--rule-soft); }
