@@ -161,6 +161,8 @@ const TABLE = [
   ['POST', '/api/prof/devoirs/:id/remises/:email/note', 'prof', 1_000, prof.noterManuel],
   ['POST', '/api/prof/devoirs/:id/purger-copies', 'prof', 1_000, prof.purgerCopies],
   ['GET', '/api/prof/devoirs/:id/apercu', 'prof', 0, prof.apercu],
+  ['GET', '/api/prof/devoirs/:id/etudiant', 'prof', 0, prof.vueEtudiant],
+  ['GET', '/api/prof/devoirs/:id/sujet', 'prof', 0, fichiers.sujetLireProf],
   ['GET', '/api/prof/notes', 'prof', 0, prof.recapNotes],
   ['GET', '/api/prof/notes.csv', 'prof', 0, prof.recapNotesCsv],
   ['POST', '/api/prof/devoirs/:id/supprimer', 'prof', 1_000, prof.supprimerDevoir]

@@ -106,3 +106,13 @@ export async function copieLire({ params }) {
   const ext = f.type === 'application/pdf' ? 'pdf' : f.type === 'image/png' ? 'png' : 'jpg';
   return [200, { flux: r.stream, mime: f.type, nom: `copie-devoir${params.id}-${nomSur(email)}.${ext}` }];
 }
+
+/** Sujet PDF pour l'enseignant (aperçu d'un devoir non publié ou pas encore ouvert). */
+export async function sujetLireProf({ params }) {
+  if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
+  const [d] = await q('SELECT id, sujet FROM devoirs WHERE id = $1', [Number(params.id)]);
+  if (!d || !d.sujet) return [404, { error: 'pas de sujet pour ce devoir' }];
+  const r = await lire(`sujets/${d.id}.pdf`);
+  if (!r || !r.stream) return [404, { error: 'sujet introuvable' }];
+  return [200, { flux: r.stream, mime: 'application/pdf', nom: `sujet-devoir-${d.id}.pdf` }];
+}
