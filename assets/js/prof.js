@@ -273,6 +273,17 @@
         : t(`${j.envoyes} notification(s) envoyée(s) sur ${j.abonnes} appareil(s) abonné(s)${j.expires ? `, ${j.expires} abonnement(s) expiré(s) retiré(s)` : ''}${j.echecs ? `, ${j.echecs} échec(s)` : ''}.`,
           `${j.envoyes} notification(s) sent to ${j.abonnes} subscribed device(s)${j.expires ? `, ${j.expires} expired subscription(s) removed` : ''}${j.echecs ? `, ${j.echecs} failure(s)` : ''}.`);
     };
+    // Tout panneau de résultats (profils, liste de classe, défis, configuration) reçoit un bouton « Fermer » dès qu'il contient quelque chose.
+    root.querySelectorAll('[data-profils-res], [data-liste-res], [data-defis-res], [data-diag-res]').forEach(z => {
+      const maj = () => {
+        const btn = z.querySelector(':scope > [data-fermer-zone]');
+        const vide = ![...z.childNodes].some(n => n !== btn && (n.nodeType === 1 || (n.textContent || '').trim()));
+        if (vide) { if (btn) btn.remove(); return; }
+        if (!btn) z.insertAdjacentHTML('afterbegin', `<p data-fermer-zone><button class="btn small ghost" type="button">✕ ${t('Fermer', 'Close')}</button></p>`);
+      };
+      new MutationObserver(maj).observe(z, { childList: true });
+      z.addEventListener('click', e => { if (e.target.closest('[data-fermer-zone]')) z.innerHTML = ''; });
+    });
     root.querySelector('[data-detail]').addEventListener('click', e => { if (e.target.closest('[data-fermer-detail]')) e.currentTarget.innerHTML = ''; });
     root.querySelectorAll('[data-act]').forEach(b => { b.onclick = () => agir(b.closest('tr').dataset.id, b.dataset.act, devoirs.find(d => String(d.id) === b.closest('tr').dataset.id)).catch(erreur); });
   }
