@@ -18,6 +18,7 @@ async function devoirPublie(id) {
 }
 
 export async function deposerCopie({ session, params, body }) {
+  if (session.role === 'prof') return [403, { error: 'lecture seule : l’enseignant ne dépose pas de copie' }];
   const d = await devoirPublie(params.id);
   if (!d) return [404, { error: 'devoir introuvable' }];
   if (!d.copie) return [403, { error: 'ce devoir n’accepte pas de copie déposée' }];

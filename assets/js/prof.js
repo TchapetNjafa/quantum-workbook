@@ -84,6 +84,7 @@
         <button class="btn small ghost" type="button" data-act="visible">${d.resultat_visible ? t('Masquer les résultats', 'Hide results') : t('Montrer les résultats', 'Show results')}</button>
         <button class="btn small ghost" type="button" data-act="copie">${d.copie ? t('Copie déposée : oui', 'Paper upload: on') : t('Copie déposée : non', 'Paper upload: off')}</button>
         <button class="btn small ghost" type="button" data-act="sujet">${d.sujet ? t('Remplacer le sujet PDF', 'Replace the PDF assignment') : t('Ajouter un sujet PDF', 'Add a PDF assignment')}</button>
+        <button class="btn small ghost" type="button" data-act="apercu">${t('Aperçu', 'Preview')}</button>
         <button class="btn small ghost" type="button" data-act="remises">${t('Remises', 'Submissions')}</button>
         <button class="btn small ghost" type="button" data-act="dates">${t('Dates', 'Dates')}</button></div></td></tr>`).join('')}
       </tbody></table></div>` : `<p class="muted">${t('Aucun devoir.', 'No assignment.')}</p>`}
@@ -144,6 +145,23 @@
     prf.innerHTML = `<h2>${t('Profils des étudiants', 'Student profiles')}</h2>
       <p class="muted">${t('Le matricule est obligatoire pour remettre un devoir, figurer au classement et jouer un défi. Les données du classement sont supprimées 5 mois après la dernière activité.', 'The student number is required to submit assignments, appear in the leaderboard and play challenges. Leaderboard data is deleted 5 months after the last activity.')}</p>
       <div class="btn-row"><button class="btn small ghost" type="button" data-profils>${t('Afficher les profils', 'Show profiles')}</button></div><div data-profils-res></div>`;
+    const rec = document.createElement('div');
+    rec.innerHTML = `<h2>${t('Récapitulatif des notes', 'Marks summary')}</h2>
+      <p class="muted">${t('Tous les devoirs publiés, une ligne par étudiant, notes ramenées sur 20. La dernière colonne est la moyenne sur l’ensemble des devoirs donnés ; elle n’existe que si l’étudiant a rendu au moins un devoir. Un devoir non rendu compte 0 ; un devoir rendu mais pas encore noté est écarté de la moyenne. Le fichier est recalculé à chaque téléchargement. Les devoirs dont les remises ont été supprimées (5 mois) n’y figurent plus.',
+        'All published assignments, one row per student, marks out of 20. The last column is the mean over all assignments given; it exists only if the student has handed in at least one assignment. A missing assignment counts 0; a submitted but unmarked one is left out of the mean. The file is recomputed at each download. Assignments whose submissions were deleted (5 months) no longer appear.')}</p>
+      <div class="btn-row"><a class="btn small accent" href="/api/prof/notes.csv">${t('Télécharger le récapitulatif (CSV)', 'Download the summary (CSV)')}</a>
+        <button class="btn small ghost" type="button" data-recap>${t('Afficher à l’écran', 'Show on screen')}</button></div><div data-recap-res></div>`;
+    root.appendChild(rec);
+    rec.querySelector('[data-recap]').onclick = async () => {
+      const out = rec.querySelector('[data-recap-res]'), rep = await api('/api/prof/notes');
+      if (rep.status === 401) return verrou();
+      if (!rep.ok) { out.textContent = (await rep.json().catch(() => ({}))).error || rep.status; return; }
+      const { devoirs: ds, lignes } = await rep.json();
+      const cel = v => (typeof v === 'number' ? (Math.round(v * 100) / 100).toLocaleString(EN ? 'en-GB' : 'fr-FR') : v === 'a_noter' ? t('à noter', 'to mark') : '');
+      out.innerHTML = lignes.length ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Matricule', 'Student no.')}</th><th>${t('Nom', 'Name')}</th>${ds.map(d => `<th>${esc(d.titre)}</th>`).join('')}<th>${t('Moyenne', 'Mean')}</th></tr></thead><tbody>
+        ${lignes.map(l => `<tr><td>${esc(l.matricule)}</td><td>${esc(l.nom || l.email)}</td>${ds.map(d => `<td>${d.id in l.notes ? cel(l.notes[d.id]) : ''}</td>`).join('')}<td><b>${l.moyenne === null ? '' : cel(l.moyenne)}</b></td></tr>`).join('')}</tbody></table></div>`
+        : `<p class="muted">${t('Aucun étudiant.', 'No student.')}</p>`;
+    };
     root.appendChild(prf);
     prf.querySelector('[data-profils]').onclick = async () => {
       const sortie = prf.querySelector('[data-profils-res]');
@@ -254,8 +272,55 @@
     root.querySelectorAll('[data-act]').forEach(b => { b.onclick = () => agir(b.closest('tr').dataset.id, b.dataset.act, devoirs.find(d => String(d.id) === b.closest('tr').dataset.id)).catch(erreur); });
   }
 
+  // ---------- aperçu (lecture seule) et modification d'un devoir non publié ----------
+  const LETTRES = 'ABCDEFGH';
+  const blocQuestion = (q, i, corrige) => {
+    const rep = corrige ? `<p class="muted">${t('Réponse attendue : ', 'Expected answer: ')}<b>${esc(q.type === 'qcm' ? `${LETTRES[q.correct_answer]}. ${q.options[q.correct_answer]}` : q.type === 'vrai_faux' ? (q.correct_answer ? t('vrai', 'true') : t('faux', 'false'))
+      : q.type === 'numerical' ? `${q.correct_answer}${q.unit ? ' ' + q.unit : ''} (± ${q.tolerance})` : t('correction manuelle', 'manual marking'))}</b>${q.explanation ? ` — ${esc(q.explanation)}` : ''}</p>` : '';
+    return `<fieldset class="diag-q" disabled><legend>${i + 1}. ${esc(q.question)} <span class="muted">(${q.points} pt${q.points > 1 ? 's' : ''}${q.type === 'interpretation' ? t(', corrigée à la main', ', marked by hand') : ''})</span></legend>
+      ${q.type === 'qcm' ? `<ul class="choices">${q.options.map((o, k) => `<li><label class="choice"><input type="radio" disabled>${LETTRES[k]}. ${esc(o)}${corrige && k === q.correct_answer ? ` <b>✓</b>` : ''}</label></li>`).join('')}</ul>`
+        : q.type === 'vrai_faux' ? `<p>${t('Vrai / faux', 'True / false')}</p>` : q.type === 'numerical' ? `<input type="text" disabled placeholder="${esc(q.unit || '')}">` : `<textarea disabled rows="2"></textarea>`}${rep}</fieldset>`;
+  };
+
+  async function apercu(id, d) {
+    const detail = root.querySelector('[data-detail]');
+    const r = await api(`/api/prof/devoirs/${id}/apercu`);
+    if (r.status === 401) return verrou();
+    if (!r.ok) { detail.textContent = (await r.json().catch(() => ({}))).error || r.status; return; }
+    const a = await r.json();
+    detail.innerHTML = `<h3>${t('Aperçu : ', 'Preview: ')}${esc(a.titre)}</h3>
+      <p class="muted">${a.publie ? t('Publié : lecture seule.', 'Published: read-only.') : t('Non publié : les étudiants ne le voient pas encore.', 'Not published: students cannot see it yet.')} ${esc(quand(a.ouvre))} → ${esc(quand(a.ferme))}${a.copie ? t(' · copie à déposer', ' · paper upload') : ''}${a.sujet ? t(' · sujet PDF joint', ' · PDF assignment attached') : ''}</p>
+      <p class="muted">${t('Vue étudiant (aucun champ n’est actif).', 'Student view (no field is active).')}</p>
+      ${a.etudiant.length ? a.etudiant.map((q, i) => blocQuestion(q, i, false)).join('') : `<p class="muted">${t('Devoir à copie déposée : pas de question.', 'Paper-upload assignment: no questions.')}</p>`}
+      <details><summary>${t('Corrigé (jamais montré aux étudiants avant la remise)', 'Answer key (never shown to students before submission)')}</summary>${a.corrige.map((q, i) => blocQuestion(q, i, true)).join('')}</details>
+      <div class="prof-ligne">${a.publie ? '' : `<button class="btn small accent" type="button" data-ap-publier>${t('Publier', 'Publish')}</button>`}
+        ${a.modifiable ? `<button class="btn small ghost" type="button" data-ap-modifier>${t('Modifier le contenu', 'Edit the content')}</button>` : `<span class="muted">${a.publie ? t('Pour modifier le contenu : dépubliez d’abord, tant que personne n’a remis.', 'To edit the content: unpublish first, as long as nobody has submitted.') : t('Des étudiants ont déjà remis : contenu verrouillé.', 'Students have already submitted: content locked.')}</span>`}
+        <button class="btn small ghost" type="button" data-ap-fermer>${t('Fermer l’aperçu', 'Close preview')}</button></div><div data-msg2 role="status" aria-live="polite"></div>`;
+    detail.querySelector('[data-ap-fermer]').onclick = () => { detail.innerHTML = ''; };
+    const pub = detail.querySelector('[data-ap-publier]');
+    if (pub) pub.onclick = () => agir(id, 'publie', d).catch(erreur);
+    const mod = detail.querySelector('[data-ap-modifier]');
+    if (mod) mod.onclick = () => {
+      detail.innerHTML = `<h3>${t('Modifier : ', 'Edit: ')}${esc(a.titre)}</h3>
+        <p class="muted">${t('Corrigez le JSON puis enregistrez : le devoir n’est pas supprimé, il garde son numéro. Possible tant qu’il n’est pas publié et que personne n’a remis.', 'Fix the JSON then save: the assignment is not deleted and keeps its number. Possible while it is unpublished and nobody has submitted.')}</p>
+        <textarea data-contenu rows="18" spellcheck="false">${esc(JSON.stringify(a.contenu, null, 2))}</textarea>
+        <div class="btn-row"><button class="btn accent" type="button" data-enreg>${t('Enregistrer', 'Save')}</button><button class="btn ghost" type="button" data-annuler>${t('Annuler', 'Cancel')}</button></div><div data-msg2 role="status" aria-live="polite"></div>`;
+      detail.querySelector('[data-annuler]').onclick = () => apercu(id, d).catch(erreur);
+      detail.querySelector('[data-enreg]').onclick = async () => {
+        const m = detail.querySelector('[data-msg2]'); let contenu;
+        try { contenu = JSON.parse(detail.querySelector('[data-contenu]').value); } catch { m.innerHTML = `<p class="prof-erreurs">${t('JSON invalide.', 'Invalid JSON.')}</p>`; return; }
+        const rep = await post(`/api/prof/devoirs/${id}`, { contenu }), j = await rep.json().catch(() => ({}));
+        if (rep.status === 401) return verrou();
+        if (rep.ok) return apercu(id, d).catch(erreur);
+        m.innerHTML = `<p class="prof-erreurs">${esc(j.error || rep.status)}</p>${(j.erreurs || []).length ? `<ul>${j.erreurs.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`;
+      };
+    };
+  }
+
   async function agir(id, act, d) {
     const detail = root.querySelector('[data-detail]');
+    if (act === 'publie' && !d.publie && !confirm(t(`Publier « ${d.titre} » ? Les étudiants le verront dès l’ouverture. Avez-vous vérifié l’aperçu ?`, `Publish “${d.titre}”? Students will see it from its opening time. Did you check the preview?`))) return;
+    if (act === 'apercu') return apercu(id, d);
     if (act === 'publie' || act === 'visible') {
       await post(`/api/prof/devoirs/${id}`, act === 'publie' ? { publie: !d.publie } : { resultat_visible: !d.resultat_visible });
       return tableau();

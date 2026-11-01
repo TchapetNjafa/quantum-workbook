@@ -35,6 +35,7 @@ export async function liste({ session }) {
       WHERE d.publie ORDER BY d.ferme DESC`, [session.email]);
   const devoirs = lignes.map(d => ({
     id: d.id, titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), limite: iso(limite(d)),
+    lecture_seule: session.role === 'prof',
     copie: !!d.copie, sujet: !!d.sujet, etat: etat(d, now), rendu: !!d.recu, recu: iso(d.recu), retard: !!d.retard,
     // La note n'est montrée qu'après la fin du délai de remise : sinon, des remises répétées permettraient de deviner les réponses.
     ...(d.resultat_visible && d.recu && now > limite(d) ? {
@@ -58,6 +59,9 @@ export async function ouvrir({ session, params }) {
   if (!d) return [404, { error: 'devoir introuvable' }];
   const now = maintenant(), e = etat(d, now);
   if (e === 'a_venir' || e === 'clos') return [403, { error: e === 'a_venir' ? 'devoir pas encore ouvert' : 'devoir clos' }];
+  // l'enseignant peut lire le devoir comme un étudiant, sans l'ouvrir (pas d'horodatage) ni le remettre
+  if (session.role === 'prof') return [200, { id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limite(d)), etat: e, maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
+    questions: sansReponses(d.questions), rendu: false, reponses: {}, recu: null, lecture_seule: true }];
   // l'ouverture est horodatée par le serveur (première fois seulement)
   await q('INSERT INTO debuts (devoir_id, email, debut) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [d.id, session.email, now.toISOString()]);
   const [r] = await q('SELECT reponses, recu, retard FROM remises WHERE devoir_id = $1 AND email = $2', [d.id, session.email]);
@@ -68,6 +72,7 @@ export async function ouvrir({ session, params }) {
 }
 
 export async function remettre({ session, params, body }) {
+  if (session.role === 'prof') return [403, { error: 'lecture seule : l’enseignant ne remet pas de devoir' }];
   const d = await charger(params.id);
   if (!d) return [404, { error: 'devoir introuvable' }];
   const now = maintenant(), e = etat(d, now);

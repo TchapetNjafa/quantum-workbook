@@ -88,7 +88,7 @@
         <h3>${esc(d.titre)}</h3>
         <p class="muted">${esc(ETAT[d.etat])} · ${t('ouvre le ', 'opens ')}${esc(quand(d.ouvre))} · ${t('ferme le ', 'closes ')}${esc(quand(d.ferme))}${peut ? t(' · dernier délai ', ' · final deadline ') + esc(quand(d.limite)) : ''}</p>
         ${rendu}
-        ${peut ? `<button class="btn ${d.rendu ? 'ghost' : 'accent'}" type="button" data-ouvrir="${d.id}">${d.rendu ? t('Modifier ma remise', 'Edit my submission') : t('Commencer', 'Start')}</button>` : ''}
+        ${peut ? `<button class="btn ${d.rendu || d.lecture_seule ? 'ghost' : 'accent'}" type="button" data-ouvrir="${d.id}">${d.lecture_seule ? t('Voir le devoir (lecture seule)', 'View the assignment (read-only)') : d.rendu ? t('Modifier ma remise', 'Edit my submission') : t('Commencer', 'Start')}</button>` : ''}
       </article>`;
     }).join('') : `<p class="muted">${t('Aucun devoir publié pour le moment.', 'No assignment published yet.')}</p>`;
     montrer((horsLigne ? `<p class="muted" role="status">${reseau}</p>` : '') + (horsLigne ? '' : '<div id="notif-zone"></div>') + enAttente() + corps);
@@ -171,6 +171,11 @@
       if (horsLigne && memo.lire(`phy321.copie.${d.id}`)) activer(); // copie déjà envoyée avant la coupure du réseau
     }
     if (d.copie) copie(d, horsLigne, activer);
+    if (d.lecture_seule) { // compte enseignant : on regarde, on ne remet pas (le serveur refuse aussi)
+      root.querySelectorAll('#dev-form input, #dev-form textarea, #dev-form select').forEach(e => { e.disabled = true; });
+      root.querySelectorAll('[data-envoyer], [data-envoyer-fichier], #dev-fichier').forEach(e => { e.hidden = true; });
+      root.querySelector('#dev-form').insertAdjacentHTML('beforebegin', `<p class="muted" role="status">${t('Lecture seule : vous voyez le devoir tel que les étudiants le voient. Aucune ouverture ni remise n’est enregistrée.', 'Read-only: you see the assignment as students see it. No opening or submission is recorded.')}</p>`);
+    }
     const form = root.querySelector('#dev-form');
     for (const q of d.questions) {
       const prev = d.reponses[q.id]; if (prev === undefined || prev === null) continue;
