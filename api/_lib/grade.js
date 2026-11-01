@@ -1,6 +1,7 @@
 // Validation d'un devoir et correction automatique côté serveur (fonctions pures).
 // Types : qcm, vrai_faux, numerical (corrigés), interpretation (correction manuelle).
 export const TYPES = ['qcm', 'vrai_faux', 'numerical', 'interpretation'];
+export const LABOS = ['young', 'mz', 'phasors', 'qubit', 'deco']; // simulateurs du Carnet affichables dans un devoir (labos du chapitre 1)
 const SECRETS = ['correct_answer', 'tolerance', 'explanation', 'sample_answer'];
 
 /** Adresse e-mail reçue dans l'URL : décodée sans exception, en minuscules, ou null si elle est invalide. */
@@ -32,6 +33,7 @@ export function valider(d) {
     const points = q.points === undefined ? 1 : Number(q.points);
     if (!(points > 0 && points <= 20)) return erreurs.push(`${n} : points invalides`);
     const out = { id: `q${i + 1}`, type: q.type, question: q.question, points };
+    if (q.labo !== undefined) { if (!LABOS.includes(q.labo)) return erreurs.push(`${n} : labo inconnu (${LABOS.join(', ')})`); out.labo = q.labo; }
     if (q.type === 'qcm') {
       const ok = Array.isArray(q.options) && q.options.length >= 2 && q.options.length <= 8 && q.options.every(o => texte(o, 500));
       if (!ok) return erreurs.push(`${n} : 2 à 8 options attendues`);

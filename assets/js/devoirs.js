@@ -6,6 +6,10 @@
   const t = (fr, en) => (EN ? en : fr);
   const root = document.getElementById('devoirs');
   if (!root) return;
+  // Aperçu de l'enseignant : /devoirs.html?apercu=ID[&embed=1] affiche la VRAIE page étudiante (mêmes données, même code), en lecture seule.
+  const P = new URLSearchParams(location.search);
+  const APERCU = /^\d+$/.test(P.get('apercu') || '') ? P.get('apercu') : null;
+  if (P.get('embed') === '1') document.documentElement.classList.add('apercu-embed');
 
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const quand = iso => new Date(iso).toLocaleString(EN ? 'en-GB' : 'fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
@@ -131,9 +135,34 @@
 
   const estRadio = els => els && els.length !== undefined && els[0] && els[0].type === 'radio';
 
+  /* ---------- simulateurs intégrés : les labos du Carnet, copiés tels quels depuis la page du chapitre (une seule instance par labo) ---------- */
+  const LABO_CH = { young: 1, mz: 1, phasors: 1, qubit: 1, deco: 1 };
+  const PAGES = { 1: ['/chapitres/1-etats-quantiques.html', '/en/chapters/1-quantum-states.html'] };
+  async function monterLabos(d) {
+    const zone = root.querySelector('#dev-labos');
+    const ids = [...new Set(d.questions.map(q => q.labo).filter(id => LABO_CH[id]))];
+    if (!zone || !ids.length || !window.Lab || !window.Lab.mounters) return;
+    zone.innerHTML = `<h4>${t('Simulateurs du devoir', 'Assignment simulators')}</h4><p class="muted">${t('Manipulez-les pour répondre aux questions qui les citent (lien « simulateur »). Ils ne sont pas notés.', 'Use them to answer the questions that mention them (“simulator” link). They are not marked.')}</p>`;
+    const pages = {};
+    for (const id of ids) {
+      const det = document.createElement('details'); det.className = 'dev-labo'; det.id = `labo-${id}`; det.open = true;
+      det.innerHTML = `<summary>${esc(id)}</summary><p class="muted">${t('Chargement…', 'Loading…')}</p>`; zone.appendChild(det);
+      try {
+        const ch = LABO_CH[id];
+        if (!pages[ch]) { const r = await api(PAGES[ch][EN ? 1 : 0]); if (!r.ok) throw new Error('page'); pages[ch] = new DOMParser().parseFromString(await r.text(), 'text/html'); }
+        const noeud = document.importNode(pages[ch].querySelector(`figure[data-lab="${id}"]`), true);
+        noeud.classList.remove('rise'); // l'apparition au défilement n'est branchée qu'au chargement de la page
+        det.querySelector('summary').textContent = (noeud.querySelector('h3') || {}).textContent || id;
+        det.querySelector('p').replaceWith(noeud);
+        window.Lab.mounters[id](noeud);
+        if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([noeud]).catch(() => {});
+      } catch { det.querySelector('p').textContent = t('Simulateur indisponible (réseau). Ouvrez le chapitre 1 du Carnet pour le manipuler.', 'Simulator unavailable (network). Open chapter 1 of the Workbook to use it.'); }
+    }
+  }
+
   async function ouvrir(id) {
     let r, d, horsLigne = false;
-    try { r = await api(`/api/devoirs/${id}`); }
+    try { r = await api(APERCU ? `/api/prof/devoirs/${id}/etudiant` : `/api/devoirs/${id}`); }
     catch { d = memo.lire(`phy321.devoir.${id}`); horsLigne = true; if (!d) return erreur(); }
     if (r) {
       if (!r.ok) {
@@ -143,14 +172,15 @@
         return;
       }
       d = await r.json();
-      memo.ecrire(`phy321.devoir.${id}`, { ...d, reponses: {} }); // énoncés seulement : permet de répondre si le réseau coupe
+      if (!APERCU) memo.ecrire(`phy321.devoir.${id}`, { ...d, reponses: {} }); // énoncés seulement : permet de répondre si le réseau coupe
     }
     vue = 'devoir';
     montrer(`${horsLigne ? `<p class="muted" role="status">${reseau}</p>` : ''}<h3>${esc(d.titre)}</h3>
       <p class="muted">${t('Fermeture : ', 'Closes: ')}${esc(quand(d.ferme))}. ${t('Une remise reçue après cette heure et avant ', 'A submission received after that time and before ')}${esc(quand(d.limite))}${t(' est acceptée mais marquée en retard.', ' is accepted but marked late.')}
         ${t('L’heure retenue est celle du serveur, pas celle de votre appareil. Sans connexion, la remise est gardée sur votre appareil et envoyée au retour du réseau : elle doit parvenir au serveur avant l’heure limite.', 'The time recorded is the server’s, not your device’s. Without a connection, your submission is kept on your device and sent when the network returns: it must reach the server before the final deadline.')}</p>
-      ${d.sujet && !horsLigne ? `<p><a class="btn small ghost" href="/api/devoirs/${d.id}/sujet">${t('Télécharger le sujet (PDF à remplir)', 'Download the assignment (PDF to fill in)')}</a></p>` : ''}
-      <form id="dev-form">${d.questions.map((q, i) => `<fieldset class="diag-q"><legend>${i + 1}. ${esc(q.question)}${q.points > 1 ? ` <span class="muted">(${q.points} pts)</span>` : ''}</legend>${champ(q)}</fieldset>`).join('')}</form>
+      ${d.sujet && !horsLigne ? `<p><a class="btn small ghost" href="${APERCU ? `/api/prof/devoirs/${d.id}/sujet` : `/api/devoirs/${d.id}/sujet`}">${t('Télécharger le sujet (PDF à remplir)', 'Download the assignment (PDF to fill in)')}</a></p>` : ''}
+      <div id="dev-labos"></div>
+      <form id="dev-form">${d.questions.map((q, i) => `<fieldset class="diag-q"><legend>${i + 1}. ${esc(q.question)}${q.points > 1 ? ` <span class="muted">(${q.points} pts)</span>` : ''}${q.labo ? ` <a class="muted" href="#labo-${q.labo}">↑ ${t('simulateur', 'simulator')}</a>` : ''}</legend>${champ(q)}</fieldset>`).join('')}</form>
       <div class="btn-row"><button class="btn accent" type="button" data-envoyer>${t('Remettre', 'Submit')}</button><button class="btn ghost" type="button" data-retour>${t('Retour', 'Back')}</button></div>
       <div id="dev-msg" role="status" aria-live="polite"></div>
       ${d.copie ? `<fieldset class="diag-q"><legend>${t('Copie à déposer (PDF ou photo, 2 Mo maximum)', 'Paper to upload (PDF or photo, 2 MB maximum)')}</legend>
@@ -171,10 +201,12 @@
       if (horsLigne && memo.lire(`phy321.copie.${d.id}`)) activer(); // copie déjà envoyée avant la coupure du réseau
     }
     if (d.copie) copie(d, horsLigne, activer);
+    monterLabos(d).catch(() => {});
+    if (APERCU) root.querySelectorAll('[data-retour]').forEach(b => { b.hidden = true; });
     if (d.lecture_seule) { // compte enseignant : on regarde, on ne remet pas (le serveur refuse aussi)
       root.querySelectorAll('#dev-form input, #dev-form textarea, #dev-form select').forEach(e => { e.disabled = true; });
       root.querySelectorAll('[data-envoyer], [data-envoyer-fichier], #dev-fichier').forEach(e => { e.hidden = true; });
-      root.querySelector('#dev-form').insertAdjacentHTML('beforebegin', `<p class="muted" role="status">${t('Lecture seule : vous voyez le devoir tel que les étudiants le voient. Aucune ouverture ni remise n’est enregistrée.', 'Read-only: you see the assignment as students see it. No opening or submission is recorded.')}</p>`);
+      root.querySelector('#dev-form').insertAdjacentHTML('beforebegin', `<p class="muted" role="status">${APERCU ? t('Aperçu : c’est exactement la page que verront les étudiants. Les champs sont inactifs ; les simulateurs fonctionnent.', 'Preview: this is exactly the page students will see. Fields are inactive; simulators work.') : t('Lecture seule : vous voyez le devoir tel que les étudiants le voient. Aucune ouverture ni remise n’est enregistrée.', 'Read-only: you see the assignment as students see it. No opening or submission is recorded.')}</p>`);
     }
     const form = root.querySelector('#dev-form');
     for (const q of d.questions) {
@@ -262,5 +294,5 @@
   const erreur = () => montrer(`<p class="muted">${t('Impossible de joindre le serveur. Vérifiez votre connexion internet puis réessayez.', 'Cannot reach the server. Check your internet connection and try again.')}</p>`);
   // quand la file change (envoi réussi, refus), la liste se met à jour ; une saisie en cours n'est jamais écrasée
   addEventListener('phy321:file', () => { if (vue === 'liste') liste().catch(erreur); });
-  liste().catch(erreur);
+  (APERCU ? ouvrir(APERCU) : liste()).catch(erreur);
 })();

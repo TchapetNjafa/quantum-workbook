@@ -4,6 +4,7 @@ import { q, maintenant } from './db.js';
 import { valider, decoderEmail, sansReponses } from './grade.js';
 import { creer, depuisRequete } from './session.js';
 import { supprimer, essai, modeAuth } from './stockage.js';
+import { etatDevoir, limiteDevoir } from './devoirs.js';
 import { RETENTION_JOURS, FORMAT_MATRICULE, normaliser } from './profil.js';
 
 export const COOKIE_PROF = 'phy321_prof';
@@ -361,4 +362,15 @@ export async function recapNotesCsv() {
   const corps = lignes.map(l => [l.matricule, l.nom, l.email, ...devoirs.map(d => (d.id in l.notes ? fr(l.notes[d.id]) : '')), l.moyenne === null ? '' : fr(l.moyenne)]);
   const texte = '﻿' + [entete, ...corps].map(l => l.map(cellule).join(';')).join('\r\n') + '\r\n';
   return [200, { texte, mime: 'text/csv; charset=utf-8', nom: 'recapitulatif-notes.csv' }];
+}
+
+/** Le devoir tel que l'étudiant le reçoit (mêmes champs que GET /api/devoirs/:id), pour n'importe quel devoir, publié ou non.
+ *  L'aperçu de l'enseignant affiche la vraie page étudiante avec ces données : il ne peut donc pas différer de ce que verront les étudiants. N'écrit rien. */
+export async function vueEtudiant({ params }) {
+  if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
+  const [d] = await q('SELECT * FROM devoirs WHERE id = $1', [Number(params.id)]);
+  if (!d) return [404, { error: 'introuvable' }];
+  const now = maintenant();
+  return [200, { id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limiteDevoir(d)), etat: etatDevoir(d, now), maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
+    questions: sansReponses(d.questions), rendu: false, reponses: {}, recu: null, lecture_seule: true, apercu: true }];
 }
