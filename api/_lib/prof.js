@@ -1,7 +1,7 @@
 // Fonctions réservées à l'enseignant : verrou (compte Google + mot de passe), création et gestion des devoirs.
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { q, maintenant } from './db.js';
-import { valider, decoderEmail } from './grade.js';
+import { valider, decoderEmail, sansReponses } from './grade.js';
 import { creer, depuisRequete } from './session.js';
 import { supprimer, essai, modeAuth } from './stockage.js';
 import { RETENTION_JOURS, FORMAT_MATRICULE, normaliser } from './profil.js';
@@ -75,6 +75,7 @@ export async function modifierDevoir({ params, body }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
   const [d] = await q('SELECT * FROM devoirs WHERE id = $1', [Number(params.id)]);
   if (!d) return [404, { error: 'introuvable' }];
+  if (body.contenu !== undefined) return remplacerContenu(d, body.contenu);
   const ouvre = body.ouvre !== undefined ? new Date(body.ouvre) : new Date(d.ouvre);
   const ferme = body.ferme !== undefined ? new Date(body.ferme) : new Date(d.ferme);
   if (isNaN(ouvre) || isNaN(ferme) || ferme <= ouvre) return [400, { error: 'dates invalides' }];
@@ -295,4 +296,69 @@ export async function listeDefis() {
        FROM defis d LEFT JOIN profils p ON p.email = d.createur
       WHERE d.cree > $1 ORDER BY d.cree DESC LIMIT 100`, [new Date(maintenant().getTime() - 30 * 24 * 3600e3).toISOString()]);
   return [200, { defis: l.map(d => ({ ...d, cree: iso(d.cree) })) }];
+}
+
+/** Aperçu en lecture seule : le devoir comme l'étudiant le verra, plus le corrigé. Valable pour un devoir publié ou non ; n'écrit rien. */
+export async function apercu({ params }) {
+  if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
+  const [d] = await q('SELECT * FROM devoirs WHERE id = $1', [Number(params.id)]);
+  if (!d) return [404, { error: 'introuvable' }];
+  const [{ n }] = await q('SELECT ((SELECT count(*) FROM remises WHERE devoir_id = $1) + (SELECT count(*) FROM fichiers WHERE devoir_id = $1))::int AS n', [d.id]);
+  return [200, {
+    id: d.id, titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), publie: d.publie, copie: !!d.copie, sujet: !!d.sujet, nb_remises: n,
+    modifiable: !d.publie && n === 0, // le contenu ne change que tant que le devoir n'est pas publié et qu'aucun étudiant n'a rien remis
+    etudiant: sansReponses(d.questions), corrige: d.questions,
+    contenu: { titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), copie: !!d.copie, ...(d.questions.length ? {} : { bareme: Number(d.bareme ?? 20) }), questions: d.questions }
+  }];
+}
+
+/** Remplace le contenu d'un devoir NON publié et sans remise (corriger une faute sans supprimer le devoir). */
+async function remplacerContenu(d, contenu) {
+  if (d.publie) return [409, { error: 'devoir publié : dépubliez-le d’abord pour modifier son contenu' }];
+  const [{ n }] = await q('SELECT ((SELECT count(*) FROM remises WHERE devoir_id = $1) + (SELECT count(*) FROM fichiers WHERE devoir_id = $1))::int AS n', [d.id]);
+  if (n) return [409, { error: 'des étudiants ont déjà remis ce devoir : son contenu ne peut plus être modifié' }];
+  const v = valider(contenu);
+  if (!v.ok) return [400, { error: 'devoir invalide', erreurs: v.erreurs }];
+  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, questions=$5, copie=$6, bareme=$7 WHERE id=$1',
+    [d.id, v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, JSON.stringify(v.devoir.questions), contenu.copie === true, v.devoir.questions.length === 0 ? Number(contenu.bareme ?? 20) : null]);
+  return [200, { ok: true }];
+}
+
+// ---------- récapitulatif des notes : tous les devoirs publiés, une ligne par étudiant, la moyenne en dernière colonne ----------
+const sur20 = r => (r.note === null || (r.manuel && r.note_manuelle === null) ? 'a_noter'
+  : (Number(r.total) + Number(r.total_manuel)) > 0 ? (Number(r.note) + Number(r.note_manuelle || 0)) / (Number(r.total) + Number(r.total_manuel)) * 20 : 'a_noter');
+
+/** Notes sur 20. Un devoir non rendu compte 0 ; un devoir rendu mais pas encore noté est écarté de la moyenne.
+ *  La moyenne n'existe que si l'étudiant a rendu au moins un devoir (sinon la case reste vide). Les devoirs dont les remises ont été purgées (5 mois) sont omis. */
+export async function recapNotes() {
+  const devoirs = await q('SELECT id, titre FROM devoirs WHERE publie AND purge IS NULL ORDER BY ouvre, id');
+  const remises = await q(`SELECT r.devoir_id, r.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel
+                             FROM remises r JOIN devoirs d ON d.id = r.devoir_id WHERE d.publie AND d.purge IS NULL`);
+  const liste = await q('SELECT matricule, nom, email FROM liste_classe');
+  const profils = await q('SELECT email, matricule, nom FROM profils');
+  const parMat = new Map(profils.map(p => [p.matricule, p])), parEmail = new Map(profils.map(p => [p.email, p]));
+  const etu = new Map(); // clé : adresse si connue, sinon matricule
+  const fiche = (cle, init) => { if (!etu.has(cle)) etu.set(cle, { matricule: '', nom: '', email: '', ...init }); return etu.get(cle); };
+  for (const l of liste) { const p = parMat.get(l.matricule); const email = l.email || p?.email || ''; Object.assign(fiche(email || 'mat:' + l.matricule, {}), { matricule: l.matricule, nom: l.nom, email }); }
+  for (const p of profils) { const f = fiche(p.email, {}); f.email = p.email; f.matricule ||= p.matricule; f.nom ||= p.nom; }
+  for (const r of remises) { const f = fiche(r.email, {}); f.email = r.email; f.nom ||= r.nom; f.matricule ||= parEmail.get(r.email)?.matricule || ''; }
+  const parEtu = new Map();
+  for (const r of remises) { if (!parEtu.has(r.email)) parEtu.set(r.email, new Map()); parEtu.get(r.email).set(r.devoir_id, sur20(r)); }
+  const lignes = [...etu.values()].map(f => {
+    const mes = parEtu.get(f.email);
+    if (!mes) return { ...f, notes: {}, moyenne: null }; // n'a rien rendu : pas de note
+    const notes = {}; const comptes = [];
+    for (const d of devoirs) { const v = mes.has(d.id) ? mes.get(d.id) : 0; notes[d.id] = v; if (v !== 'a_noter') comptes.push(v); }
+    return { ...f, notes, moyenne: comptes.length ? Math.round(comptes.reduce((a, b) => a + b, 0) / comptes.length * 100) / 100 : null };
+  }).sort((a, b) => (a.nom || a.matricule || a.email).localeCompare(b.nom || b.matricule || b.email, 'fr'));
+  return [200, { devoirs, lignes }];
+}
+
+export async function recapNotesCsv() {
+  const [, { devoirs, lignes }] = await recapNotes();
+  const fr = v => (typeof v === 'number' ? String(Math.round(v * 100) / 100).replace('.', ',') : v === 'a_noter' ? 'à noter' : '');
+  const entete = ['matricule', 'nom', 'email', ...devoirs.map(d => `${d.titre} (/20)`), 'moyenne (/20)'];
+  const corps = lignes.map(l => [l.matricule, l.nom, l.email, ...devoirs.map(d => (d.id in l.notes ? fr(l.notes[d.id]) : '')), l.moyenne === null ? '' : fr(l.moyenne)]);
+  const texte = '﻿' + [entete, ...corps].map(l => l.map(cellule).join(';')).join('\r\n') + '\r\n';
+  return [200, { texte, mime: 'text/csv; charset=utf-8', nom: 'recapitulatif-notes.csv' }];
 }
