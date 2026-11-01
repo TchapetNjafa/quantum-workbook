@@ -138,25 +138,33 @@
   /* ---------- simulateurs intégrés : les labos du Carnet, copiés tels quels depuis la page du chapitre (une seule instance par labo) ---------- */
   const LABO_CH = { young: 1, mz: 1, phasors: 1, qubit: 1, deco: 1 };
   const PAGES = { 1: ['/chapitres/1-etats-quantiques.html', '/en/chapters/1-quantum-states.html'] };
+  /* Un seul exemplaire de chaque labo (les labos repèrent leurs éléments par identifiant). Il s'affiche sous la première question qui l'utilise ;
+     le bouton « Utiliser le simulateur ici » des autres questions le déplace sous elles, avec ses réglages. */
   async function monterLabos(d) {
-    const zone = root.querySelector('#dev-labos');
+    const form = root.querySelector('#dev-form');
     const ids = [...new Set(d.questions.map(q => q.labo).filter(id => LABO_CH[id]))];
-    if (!zone || !ids.length || !window.Lab || !window.Lab.mounters) return;
-    zone.innerHTML = `<h4>${t('Simulateurs du devoir', 'Assignment simulators')}</h4><p class="muted">${t('Manipulez-les pour répondre aux questions qui les citent (lien « simulateur »). Ils ne sont pas notés.', 'Use them to answer the questions that mention them (“simulator” link). They are not marked.')}</p>`;
+    if (!form || !ids.length || !window.Lab || !window.Lab.mounters) return;
     const pages = {};
     for (const id of ids) {
-      const det = document.createElement('details'); det.className = 'dev-labo'; det.id = `labo-${id}`; det.open = true;
-      det.innerHTML = `<summary>${esc(id)}</summary><p class="muted">${t('Chargement…', 'Loading…')}</p>`; zone.appendChild(det);
+      const qs = d.questions.filter(q => q.labo === id).map(q => q.id);
+      const boite = document.createElement('div'); boite.className = 'dev-labo'; boite.id = `labo-${id}`;
+      boite.innerHTML = `<p class="muted">${t('Chargement du simulateur…', 'Loading the simulator…')}</p>`;
+      const place = qid => {
+        const slot = form.querySelector(`[data-slot="${qid}"]`); if (!slot) return;
+        slot.appendChild(boite);
+        qs.forEach(x => { const b = form.querySelector(`[data-btn-labo="${x}"]`); if (b) b.hidden = x === qid; });
+      };
+      form.querySelectorAll(`[data-utiliser="${id}"]`).forEach(b => { b.onclick = () => { place(b.dataset.q); boite.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }; });
+      place(qs[0]);
       try {
         const ch = LABO_CH[id];
         if (!pages[ch]) { const r = await api(PAGES[ch][EN ? 1 : 0]); if (!r.ok) throw new Error('page'); pages[ch] = new DOMParser().parseFromString(await r.text(), 'text/html'); }
         const noeud = document.importNode(pages[ch].querySelector(`figure[data-lab="${id}"]`), true);
         noeud.classList.remove('rise'); // l'apparition au défilement n'est branchée qu'au chargement de la page
-        det.querySelector('summary').textContent = (noeud.querySelector('h3') || {}).textContent || id;
-        det.querySelector('p').replaceWith(noeud);
+        boite.replaceChildren(noeud);
         window.Lab.mounters[id](noeud);
         if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([noeud]).catch(() => {});
-      } catch { det.querySelector('p').textContent = t('Simulateur indisponible (réseau). Ouvrez le chapitre 1 du Carnet pour le manipuler.', 'Simulator unavailable (network). Open chapter 1 of the Workbook to use it.'); }
+      } catch { boite.querySelector('p').textContent = t('Simulateur indisponible (réseau). Ouvrez le chapitre 1 du Carnet pour le manipuler.', 'Simulator unavailable (network). Open chapter 1 of the Workbook to use it.'); }
     }
   }
 
@@ -179,8 +187,7 @@
       <p class="muted">${t('Fermeture : ', 'Closes: ')}${esc(quand(d.ferme))}. ${t('Une remise reçue après cette heure et avant ', 'A submission received after that time and before ')}${esc(quand(d.limite))}${t(' est acceptée mais marquée en retard.', ' is accepted but marked late.')}
         ${t('L’heure retenue est celle du serveur, pas celle de votre appareil. Sans connexion, la remise est gardée sur votre appareil et envoyée au retour du réseau : elle doit parvenir au serveur avant l’heure limite.', 'The time recorded is the server’s, not your device’s. Without a connection, your submission is kept on your device and sent when the network returns: it must reach the server before the final deadline.')}</p>
       ${d.sujet && !horsLigne ? `<p><a class="btn small ghost" href="${APERCU ? `/api/prof/devoirs/${d.id}/sujet` : `/api/devoirs/${d.id}/sujet`}">${t('Télécharger le sujet (PDF à remplir)', 'Download the assignment (PDF to fill in)')}</a></p>` : ''}
-      <div id="dev-labos"></div>
-      <form id="dev-form">${d.questions.map((q, i) => `<fieldset class="diag-q"><legend>${i + 1}. ${esc(q.question)}${q.points > 1 ? ` <span class="muted">(${q.points} pts)</span>` : ''}${q.labo ? ` <a class="muted" href="#labo-${q.labo}">↑ ${t('simulateur', 'simulator')}</a>` : ''}</legend>${champ(q)}</fieldset>`).join('')}</form>
+      <form id="dev-form">${d.questions.map((q, i) => `<fieldset class="diag-q"><legend>${i + 1}. ${esc(q.question)}${q.points > 1 ? ` <span class="muted">(${q.points} pts)</span>` : ''}</legend>${q.labo ? `<p class="dev-labo-btn" data-btn-labo="${q.id}" hidden><button class="btn small ghost" type="button" data-utiliser="${q.labo}" data-q="${q.id}">${t('Utiliser le simulateur ici', 'Use the simulator here')}</button></p><div class="dev-slot" data-slot="${q.id}"></div>` : ''}${champ(q)}</fieldset>`).join('')}</form>
       <div class="btn-row"><button class="btn accent" type="button" data-envoyer>${t('Remettre', 'Submit')}</button><button class="btn ghost" type="button" data-retour>${t('Retour', 'Back')}</button></div>
       <div id="dev-msg" role="status" aria-live="polite"></div>
       ${d.copie ? `<fieldset class="diag-q"><legend>${t('Copie à déposer (PDF ou photo, 2 Mo maximum)', 'Paper to upload (PDF or photo, 2 MB maximum)')}</legend>
@@ -204,7 +211,7 @@
     monterLabos(d).catch(() => {});
     if (APERCU) root.querySelectorAll('[data-retour]').forEach(b => { b.hidden = true; });
     if (d.lecture_seule) { // compte enseignant : on regarde, on ne remet pas (le serveur refuse aussi)
-      root.querySelectorAll('#dev-form input, #dev-form textarea, #dev-form select').forEach(e => { e.disabled = true; });
+      root.querySelectorAll('#dev-form input, #dev-form textarea, #dev-form select').forEach(e => { if (!e.closest('.dev-labo')) e.disabled = true; }); // les simulateurs restent actifs
       root.querySelectorAll('[data-envoyer], [data-envoyer-fichier], #dev-fichier').forEach(e => { e.hidden = true; });
       root.querySelector('#dev-form').insertAdjacentHTML('beforebegin', `<p class="muted" role="status">${APERCU ? t('Aperçu : c’est exactement la page que verront les étudiants. Les champs sont inactifs ; les simulateurs fonctionnent.', 'Preview: this is exactly the page students will see. Fields are inactive; simulators work.') : t('Lecture seule : vous voyez le devoir tel que les étudiants le voient. Aucune ouverture ni remise n’est enregistrée.', 'Read-only: you see the assignment as students see it. No opening or submission is recorded.')}</p>`);
     }
