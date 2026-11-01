@@ -37,3 +37,7 @@ dialog.corr footer [data-msg]:empty { display: none; }
 .dev-labo > summary { cursor: pointer; font-family: var(--sans); font-weight: 500; }
 html.apercu-embed .topbar, html.apercu-embed .site-foot, html.apercu-embed .skip, html.apercu-embed .bottom-bar { display: none; }
 iframe.apercu-cadre { width: 100%; height: 75vh; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--paper); }
+
+/* pleine largeur : liste, énoncés et simulateurs des devoirs suivent la largeur de la page (et non la mesure de lecture des chapitres, ~68 caractères) */
+#devoirs > p, #devoirs > ul, #devoirs > ol, #devoirs .devoir-card, #dev-form .diag-q, #devoirs .box, #devoirs details.reveal { max-width: none; }
+#dev-form fieldset { min-width: 0; } /* un fieldset ne doit pas s'élargir au contenu minimal d'un simulateur : il se cale sur la page */
