@@ -426,6 +426,11 @@
         <span class="box-title">Clarification — decoherence</span>
         <p>The lecture notes state that Schrödinger’s cats are “instantaneously” measured by their environment. Decoherence is not instantaneous: it has a characteristic time, extremely short for a macroscopic object, but measurable for mesoscopic systems. It is this time that one tries to lengthen in a quantum computer.</p>
       </div>
+
+      <div class="box note rise" id="piege-preparation">
+        <span class="box-title">Common pitfall — one \(\rho\), many preparations</span>
+        <p>A given density operator does not say how the state was prepared. An equal mixture of \(\ket{z+}\) and \(\ket{z-}\) and an equal mixture of \(\ket{x+}\) and \(\ket{x-}\) both give \(\rho=\tfrac12\mathbb 1\). If you are handed a qubit in this state, no measurement reveals the recipe: \(\rho\) describes what is known, not the history of the system.</p>
+      </div>
     </section>
 
     <!-- ===================================================== 4.5 -->
@@ -569,9 +574,45 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="4.Q3" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 4.Q3</span><h3>Alice measures: can Bob tell?</h3></div>
+        <p>Alice and Bob share the singlet \(\ket{\Psi^-}=(\ket{01}-\ket{10})/\sqrt2\). Alice measures her qubit along \(z\) and finds \(+1\), sending nothing to Bob. Can Bob detect locally that she has measured? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: Bob does not know which result Alice got, and his state is still \(\tfrac12\mathbb 1\) for him."><input type="radio" name="cq4Q3" value="a">Yes: Bob’s qubit has instantly collapsed onto \(\ket1\).</label></li>
+          <li><label class="choice" data-why="Correct: he gets 50 % of \(+1\) and 50 % of \(-1\) in any basis. The correlations appear only when results are compared, which requires a classical channel (no-communication theorem)."><input type="radio" name="cq4Q3" value="b">No: his reduced state stays \(\rho_B=\mathrm{Tr}_A\rho_{AB}=\tfrac12\mathbb 1\), before and after.</label></li>
+          <li><label class="choice" data-why="No: on any batch Bob sees the same 50/50 statistics."><input type="radio" name="cq4Q3" value="c">Yes: by repeating the measurement on many pairs, without consulting Alice.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">File with a knowledge holder</span>
         <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Key points of chapter 4</span>
+        <p><strong>Main ideas.</strong></p>
+        <ul>
+          <li>The space of \(N\) qubits is the tensor product, of dimension \(2^N\).</li>
+          <li>An entangled state is not a product of individual states; its correlations violate the CHSH inequality without violating relativistic causality.</li>
+          <li>A subsystem of an entangled state is described by \(\rho_A=\mathrm{Tr}_B\rho_{AB}\). For a (pure) Bell state each half is maximally mixed: \(\rho_A=\tfrac12\mathbb 1\), \(S=1\) bit.</li>
+        </ul>
+        <p><strong>Formulas.</strong></p>
+        <ul>
+          <li>Separability of a pure two-qubit state: \(c_{00}c_{11}-c_{01}c_{10}=0\).</li>
+          <li>Bell: \(\ket{\Phi^\pm}=(\ket{00}\pm\ket{11})/\sqrt2\), \(\ket{\Psi^\pm}=(\ket{01}\pm\ket{10})/\sqrt2\).</li>
+          <li>CHSH: \(|S|\le2\) (local hidden variables), \(|S|\le2\sqrt2\approx2.83\) (quantum).</li>
+          <li>\(\rho=\sum_ip_i\ket{\psi_i}\bra{\psi_i}\), \(\mathrm{Tr}\rho=1\); purity \(\mathrm{Tr}\rho^2=\tfrac12(1+|\vec b|^2)\); \(S(\rho)=-\mathrm{Tr}(\rho\log_2\rho)\).</li>
+        </ul>
+        <p><strong>Pitfalls.</strong> Confusing the tensor product (a vector of dimension \(d_Ad_B\)) with the outer product (an operator); believing entanglement sends a signal (\(\rho_B\) does not change); confusing classical correlation with entanglement (pre-existing gloves always satisfy \(|S|\le2\)); believing teleportation moves matter or copies the state (Alice’s measurement destroys it, and 2 classical bits are needed).</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">French – English glossary</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Term</th><th>Terme français</th><th>Definition</th></tr></thead><tbody><tr><td>Bell states</td><td>États de Bell</td><td>Basis of four maximally entangled two-qubit states.</td></tr><tr><td>Bell inequalities</td><td>Inégalités de Bell</td><td>Bounds set by local realism: \(|S|\le2\) for CHSH, \(2\sqrt2\) in quantum theory.</td></tr><tr><td>Entanglement</td><td>Intrication</td><td>Non-factorisable state: \(\ket{\psi_{AB}}\neq\ket{\psi_A}\otimes\ket{\psi_B}\).</td></tr><tr><td>Density matrix</td><td>Matrice densité</td><td>Density operator \(\rho\ge0\), \(\mathrm{Tr}\rho=1\); pure states and mixtures.</td></tr><tr><td>Tensor product</td><td>Produit tensoriel</td><td>Composite space \(\mathcal H_A\otimes\mathcal H_B\) of dimension \(d_Ad_B\).</td></tr><tr><td>Quantum teleportation</td><td>Téléportation quantique</td><td>Transfer of a state using entanglement and 2 classical bits, with no transport of matter.</td></tr></tbody></table></div>
       </div>
     </section>
 

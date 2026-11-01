@@ -316,6 +316,28 @@
       <h3>Decoherence</h3>
       <p>A cat is never isolated: air molecules and infrared photons “observe” it constantly. Each interaction carries a little which-path information away into the environment. This is exactly what the slider <i>D</i> in lab 1.1 does: when the information leaks out, the fringe visibility drops to zero and the state behaves like a statistical mixture. For a macroscopic object, this takes a tiny fraction of a second. It is also the first enemy of quantum computers.</p>
 
+            <figure class="lab rise" data-lab="deco" aria-labelledby="lab-deco-t">
+        <div class="lab-head"><h3 id="lab-deco-t">Decoherence of an ensemble of qubits</h3><span class="tag">LAB 1.5</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"><span class="lab-hint">One dot per qubit, all starting from \(\ket+\)</span></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="deco-sigma">Coupling to the environment σ <output for="deco-sigma"></output></label><input id="deco-sigma" type="range" min="0.2" max="2" step="0.05" value="0.8"></div>
+            <div class="btn-row">
+              <button class="btn small" data-act="restart" type="button">Restart</button>
+              <button class="btn ghost small" data-act="zero" type="button">Back to t = 0</button>
+            </div>
+            <dl class="readout">
+              <div><dt>Length of the mean vector r</dt><dd data-out="r"></dd></div>
+              <div><dt>Purity \(\mathrm{Tr}\,\rho^2\)</dt><dd data-out="pur"></dd></div>
+              <div><dt>P(+) in basis \(\{\ket+,\ket-\}\)</dt><dd data-out="px"></dd></div>
+            </dl>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Each qubit rotates about the \(z\) axis at a slightly different rate (standard deviation σ), because the environment is not known. Individually the state stays pure; for the ensemble, the mean Bloch vector shrinks as \(r(t)=e^{-\sigma^2t^2/2}\) and the purity falls from 1 towards ½: coherent superposition → mixture. The fringe visibility of an interferometer follows \(r\). This is decoherence, with no qubit being “measured”.</p>
+        </figcaption>
+      </figure>
+
       <article class="exo" data-id="1.4" data-answer="c">
         <div class="exo-head"><span class="num">Exercise 1.4</span><h3>Superposition or mixture?</h3><span class="stars" aria-label="difficulty 2 of 3">★★☆</span></div>
         <p>We prepare 1,000 qubits in \(\tfrac{1}{\sqrt2}(\ket0 + \ket1)\), and 1,000 others by tossing a coin for each one to choose between \(\ket0\) and \(\ket1\). Which experiment can tell the two batches apart?</p>
@@ -506,6 +528,29 @@
       <div class="box note rise">
         <span class="box-title">File with a knowledge holder</span>
         <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Key points of chapter 1</span>
+        <p><strong>Main ideas.</strong></p>
+        <ul>
+          <li>A quanton is detected as a localised particle, but if several paths to the detector are indistinguishable, their amplitudes interfere.</li>
+          <li>An isolated system can be in a coherent combination \(\alpha\ket0+\beta\ket1\); coupling to the environment (decoherence) quickly destroys these interferences at macroscopic scale.</li>
+          <li>The pure states of a qubit live in \(\mathbb C^2\) and are drawn on the Bloch sphere.</li>
+        </ul>
+        <p><strong>Formulas.</strong></p>
+        <ul>
+          <li>\(\ket\psi=\alpha\ket0+\beta\ket1\), \(|\alpha|^2+|\beta|^2=1\); Born rule \(P(k)=|\braket{k|\psi}|^2\).</li>
+          <li>Two indistinguishable paths: \(P=|c_1+c_2e^{i\varphi}|^2\); balanced Mach-Zehnder: \(P(\varphi)=\cos^2(\varphi/2)\).</li>
+          <li>Bloch sphere: \(\ket\psi=\cos\tfrac\theta2\ket0+e^{i\phi}\sin\tfrac\theta2\ket1\).</li>
+        </ul>
+        <p><strong>Pitfalls.</strong> Confusing superposition with classical ignorance (only a superposition interferes); forgetting Holevo’s bound: despite two continuous complex numbers, a measurement on one qubit yields at most 1 classical bit; believing a measurement reveals a pre-existing value, whereas an incompatible quantity has no definite value before the measurement.</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">French – English glossary</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Term</th><th>Terme français</th><th>Definition</th></tr></thead><tbody><tr><td>Probability amplitude</td><td>Amplitude de probabilité</td><td>Complex number \(c_k\) with \(P(k)=|c_k|^2\).</td></tr><tr><td>Decoherence</td><td>Décohérence</td><td>Leak of information to the environment: a superposition becomes a mixture.</td></tr><tr><td>Wave-particle duality</td><td>Dualité onde-corpuscule</td><td>Interference or a point-like impact depending on the measurement; \(\lambda=h/p\).</td></tr><tr><td>Hilbert space</td><td>Espace de Hilbert</td><td>Complete complex vector space with an inner product.</td></tr><tr><td>Qubit</td><td>Qubit</td><td>Two-level system, \(\alpha\ket0+\beta\ket1\).</td></tr><tr><td>Bloch sphere</td><td>Sphère de Bloch</td><td>Representation of the pure states of a qubit on \(S^2\).</td></tr><tr><td>Superposition</td><td>Superposition</td><td>Linear combination of basis states, \(\sum_ic_i\ket{\phi_i}\).</td></tr></tbody></table></div>
       </div>
     </section>
 

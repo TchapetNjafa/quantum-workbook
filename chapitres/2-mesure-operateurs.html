@@ -224,6 +224,14 @@
         </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Pratiques divinatoires d’Afrique : le cours ne précise pas la tradition, à préciser auprès d’un praticien.</p>
         <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
+
+      <div class="box history rise" id="dialogue-hasard">
+        <p><strong>Dialogue imaginé : le hasard en question.</strong> L’incompatibilité des mesures a nourri le débat entre Einstein et Bohr. Les répliques résument leurs positions, ce ne sont pas des citations (la formule « Dieu ne joue pas aux dés » est, elle, d’Einstein).</p>
+        <p>Einstein : « L’atome doit savoir où il va. Ce 50/50 ne peut être que le signe de notre ignorance : il y a des instructions cachées. Dieu ne joue pas aux dés. »</p>
+        <p>Bohr : « Il n’y a pas de mémoire à effacer : la propriété « spin en \(z\) » n’était pas définie pendant que nous interrogions le spin en \(x\). Ce n’est pas de l’ignorance, c’est une indéfinition fondamentale. »</p>
+        <p>Einstein : « Alors la théorie est incomplète. »</p>
+        <p>Bohr : « Elle est complète. C’est notre langage qui doit s’adapter, pas la nature. » Les inégalités de Bell (chapitre 4) permettront de trancher expérimentalement.</p>
+      </div>
     </section>
 
     <!-- ===================================================== 2.2 -->
@@ -444,6 +452,17 @@
         </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Masques cérémoniels de nombreuses cultures : le cours n’en nomme aucune, à préciser.</p>
         <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
+
+      <div class="box note rise" id="piege-commutateur">
+        <span class="box-title">Piège courant — commutateur nul ou non nul</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>\([A,B]=0\)</th><th>\([A,B]\neq0\)</th></tr></thead><tbody>
+          <tr><td>Grandeurs compatibles</td><td>Grandeurs incompatibles</td></tr>
+          <tr><td>Mesurables ensemble avec une précision arbitraire</td><td>Pas de mesure simultanée précise</td></tr>
+          <tr><td>Base commune de vecteurs propres</td><td>Pas de base commune</td></tr>
+          <tr><td>Mesurer \(A\) ne perturbe pas \(B\)</td><td>Mesurer \(A\) efface l’information sur \(B\)</td></tr>
+          <tr><td>\([S_z,S_z]=0\)</td><td>\([S_z,S_x]=i\hbar S_y\)</td></tr>
+        </tbody></table></div>
+      </div>
     </section>
 
     <!-- ===================================================== 2.5 -->
@@ -526,9 +545,45 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="2.Q3" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 2.Q3</span><h3>Mesures simultanées</h3></div>
+        <p>Peut-on mesurer simultanément, avec une précision arbitraire, les composantes \(S_x\) et \(S_z\) du spin d’un même électron ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : la limite n’est pas technologique. Elle est intrinsèque à l’état."><input type="radio" name="cq2Q3" value="a">Oui, avec un détecteur assez sensible et sans bruit thermique.</label></li>
+          <li><label class="choice" data-why="Exact : deux observables ne sont simultanément définies que si leurs opérateurs commutent. Aucun état n’est propre à la fois de \(S_x\) et de \(S_z\)."><input type="radio" name="cq2Q3" value="b">Non : \([S_x,S_z]=-i\hbar S_y\neq0\), il n’existe pas de base commune d’états propres.</label></li>
+          <li><label class="choice" data-why="Non : cela mesure la composante \(S_{45^\circ}\), une autre observable, qui ne donne ni \(S_x\) ni \(S_z\)."><input type="radio" name="cq2Q3" value="c">Oui, en orientant l’aimant de Stern-Gerlach à 45° entre \(x\) et \(z\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">Dossier avec un détenteur de savoirs</span>
         <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Ce qu’il faut retenir du chapitre 2</span>
+        <p><strong>Points clés.</strong></p>
+        <ul>
+          <li>Mesurer, c’est projeter \(\ket\psi\) sur le sous-espace propre du résultat obtenu.</li>
+          <li>Une grandeur mesurable est un opérateur hermitien ; ses valeurs propres réelles sont les seuls résultats possibles.</li>
+          <li>Deux observables sont compatibles si et seulement si \([A,B]=0\) ; sinon mesurer l’une efface l’information sur l’autre.</li>
+          <li>Un commutateur non nul impose une borne inférieure au produit des écarts-types.</li>
+        </ul>
+        <p><strong>Formules.</strong></p>
+        <ul>
+          <li>\(A=\sum_na_n\ket{a_n}\bra{a_n}\) ; \(P(a_n)=|\braket{a_n|\psi}|^2\) ; \(\langle A\rangle=\braket{\psi|A|\psi}\).</li>
+          <li>\(S_j=\tfrac\hbar2\sigma_j\) ; \([\sigma_j,\sigma_k]=2i\epsilon_{jkl}\sigma_l\).</li>
+          <li>Robertson : \(\Delta A\,\Delta B\ge\tfrac12|\langle[A,B]\rangle|\).</li>
+        </ul>
+        <p><strong>Pièges.</strong> Croire que la mesure révèle une valeur préexistante cachée ; confondre indétermination quantique (propriété de l’état) et imprécision de l’appareil ; prendre le jet d’atomes sortant du four pour une superposition : c’est un mélange statistique, et seul un premier Stern-Gerlach prépare un état pur.</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">Glossaire français – anglais</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Terme</th><th>English term</th><th>Définition</th></tr></thead><tbody><tr><td>Commutateur</td><td>Commutator</td><td>\([A,B]=AB-BA\) ; non nul, les observables sont incompatibles.</td></tr><tr><td>Matrices de Pauli</td><td>Pauli matrices</td><td>Matrices \(2\times2\) hermitiennes et unitaires, \([\sigma_j,\sigma_k]=2i\epsilon_{jkl}\sigma_l\).</td></tr><tr><td>Observable</td><td>Observable</td><td>Grandeur mesurable, représentée par un opérateur hermitien.</td></tr><tr><td>Opérateur hermitien</td><td>Hermitian operator</td><td>Égal à son adjoint ; spectre réel.</td></tr><tr><td>Relation d’indétermination</td><td>Uncertainty relation</td><td>\(\Delta A\,\Delta B\ge\tfrac12|\langle[A,B]\rangle|\).</td></tr><tr><td>Spin</td><td>Spin</td><td>Moment cinétique intrinsèque sans équivalent classique.</td></tr></tbody></table></div>
       </div>
     </section>
 

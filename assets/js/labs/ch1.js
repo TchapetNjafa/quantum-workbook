@@ -386,6 +386,83 @@
     text(); bars();
   }
 
-  const labs = { young, mz: machZehnder, phasors, qubit };
+
+  /* =====================================================================
+     5. Décohérence : N qubits préparés dans |+⟩ se déphasent à des vitesses légèrement différentes
+     (environnement). Le vecteur de Bloch moyen raccourcit : r(t) = exp(−σ²t²/2), pureté (1 + r²)/2.
+     ===================================================================== */
+  function decoherence(root) {
+    const stage = $(root, '.lab-stage');
+    const N = 160, TMAX = 5;
+    let sigma = 0.8, tt = 0, om = new Float64Array(N);
+    const gauss = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random());
+    const draw0 = () => { for (let i = 0; i < N; i++) om[i] = gauss(); };   // écarts normalisés, multipliés par σ
+    draw0();
+    const view = canvas(stage, (ctx, w, h, c) => paint(ctx, w, h, c));
+    const mean = () => {
+      let sx = 0, sy = 0;
+      for (let i = 0; i < N; i++) { const a = sigma * om[i] * tt; sx += Math.cos(a); sy += Math.sin(a); }
+      return [sx / N, sy / N];
+    };
+    const rTheory = x => Math.exp(-0.5 * sigma * sigma * x * x);
+
+    function paint(ctx, w, h, c) {
+      ctx.clearRect(0, 0, w, h);
+      const side = w >= h * 1.25;
+      const u = side ? Math.min(h * 0.36, w * 0.2) : Math.min(w * 0.3, h * 0.2);
+      const cx = side ? w * 0.25 : w / 2, cy = side ? h / 2 : h * 0.27;
+      ctx.strokeStyle = c.rule; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, u, 0, 2 * Math.PI); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx - u - 8, cy); ctx.lineTo(cx + u + 8, cy); ctx.moveTo(cx, cy - u - 8); ctx.lineTo(cx, cy + u + 8); ctx.stroke();
+      D.text(ctx, 'x', cx + u + 10, cy - 6, { font: c.mono, color: c.muted });
+      D.text(ctx, 'y', cx + 6, cy - u - 10, { font: c.mono, color: c.muted });
+      ctx.fillStyle = D.alpha(c.blue, 0.55);
+      for (let i = 0; i < N; i++) {
+        const a = sigma * om[i] * tt;
+        ctx.beginPath(); ctx.arc(cx + u * Math.cos(a), cy - u * Math.sin(a), 2.4, 0, 2 * Math.PI); ctx.fill();
+      }
+      const [mx, my] = mean();
+      ctx.strokeStyle = c.accent; ctx.fillStyle = c.accent; ctx.lineWidth = 3;
+      if (Math.hypot(mx, my) > 0.03) D.arrow(ctx, cx, cy, cx + u * mx, cy - u * my, 11);
+      D.text(ctx, t('un point = un qubit', 'one dot = one qubit'), cx, cy + u + 22, { font: c.mono, color: c.muted, align: 'center' });
+
+      // courbes r(t) et pureté (1 + r²)/2
+      const px = side ? w * 0.5 + 24 : 24, pw = side ? w * 0.5 - 40 : w - 48;
+      const py = side ? h * 0.14 : h * 0.55, ph = side ? h * 0.66 : h * 0.3;
+      ctx.strokeStyle = c.rule; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + ph); ctx.lineTo(px + pw, py + ph); ctx.stroke();
+      const X = x => px + (x / TMAX) * pw, Y = v => py + ph * (1 - v);
+      const curve = (f, col) => {
+        ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+        for (let k = 0; k <= 80; k++) { const x = TMAX * k / 80; k ? ctx.lineTo(X(x), Y(f(x))) : ctx.moveTo(X(x), Y(f(x))); }
+        ctx.stroke();
+      };
+      curve(x => rTheory(x), c.accent);
+      curve(x => (1 + rTheory(x) ** 2) / 2, c.blue);
+      ctx.strokeStyle = D.alpha(c.ink, 0.35); ctx.setLineDash([3, 4]);
+      ctx.beginPath(); ctx.moveTo(X(tt), py); ctx.lineTo(X(tt), py + ph); ctx.stroke(); ctx.setLineDash([]);
+      D.text(ctx, t('visibilité r', 'visibility r'), px + pw * 0.8, Y(rTheory(TMAX * 0.8)) - 10, { font: c.mono, color: c.accent, align: 'right' });
+      D.text(ctx, t('pureté', 'purity'), px + pw - 4, Y((1 + rTheory(TMAX) ** 2) / 2) - 10, { font: c.mono, color: c.blue, align: 'right' });
+      D.text(ctx, t('temps (unité arbitraire)', 'time (arbitrary unit)'), px + pw, py + ph + 18, { font: c.mono, color: c.muted, align: 'right' });
+      D.text(ctx, '1', px - 6, py + 4, { font: c.mono, color: c.muted, align: 'right' });
+      D.text(ctx, t('0,5', '0.5'), px - 6, Y(0.5) + 4, { font: c.mono, color: c.muted, align: 'right' });
+      readout(mx, my);
+    }
+    function readout(mx, my) {
+      const r = Math.hypot(mx, my);
+      $(root, '[data-out="r"]').textContent = r.toFixed(2);
+      $(root, '[data-out="pur"]').textContent = ((1 + r * r) / 2).toFixed(2);
+      $(root, '[data-out="px"]').textContent = pct((1 + mx) / 2);
+    }
+    const anim = loop(stage, dt => {
+      if (tt >= TMAX) return;
+      tt = Math.min(TMAX, tt + dt * 0.7); view.redraw();
+    });
+    bind($(root, '#deco-sigma'), v => { sigma = v; view.redraw(); }, v => v.toFixed(2));
+    $(root, '[data-act="restart"]').addEventListener('click', () => { tt = 0; draw0(); anim.play(); view.redraw(); });
+    $(root, '[data-act="zero"]').addEventListener('click', () => { tt = 0; anim.pause(); view.redraw(); });
+  }
+
+  const labs = { young, mz: machZehnder, phasors, qubit, deco: decoherence };
   document.querySelectorAll('[data-lab]').forEach(el => { const f = labs[el.dataset.lab]; if (f) f(el); });
 })();
