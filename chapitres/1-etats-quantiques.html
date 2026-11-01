@@ -316,6 +316,28 @@
       <h3>Décohérence</h3>
       <p>Un chat n’est jamais isolé : molécules d’air et photons infrarouges l’« observent » en permanence. Chaque interaction emporte un peu d’information de chemin dans l’environnement. C’est exactement ce que fait le curseur <i>D</i> du labo 1.1 : quand l’information fuit, la visibilité des franges tombe à zéro et l’état se comporte comme un mélange statistique. Pour un objet macroscopique, cela prend un temps infime. C’est aussi le premier ennemi des ordinateurs quantiques.</p>
 
+            <figure class="lab rise" data-lab="deco" aria-labelledby="lab-deco-t">
+        <div class="lab-head"><h3 id="lab-deco-t">Décohérence d’un ensemble de qubits</h3><span class="tag">LABO 1.5</span></div>
+        <div class="lab-body split">
+          <div class="lab-stage tall"><span class="lab-hint">Un point par qubit, tous partis de \(\ket+\)</span></div>
+          <div class="lab-panel">
+            <div class="ctrl"><label for="deco-sigma">Couplage à l’environnement σ <output for="deco-sigma"></output></label><input id="deco-sigma" type="range" min="0.2" max="2" step="0.05" value="0.8"></div>
+            <div class="btn-row">
+              <button class="btn small" data-act="restart" type="button">Relancer</button>
+              <button class="btn ghost small" data-act="zero" type="button">Revenir à t = 0</button>
+            </div>
+            <dl class="readout">
+              <div><dt>Longueur du vecteur moyen r</dt><dd data-out="r"></dd></div>
+              <div><dt>Pureté \(\mathrm{Tr}\,\rho^2\)</dt><dd data-out="pur"></dd></div>
+              <div><dt>P(+) en base \(\{\ket+,\ket-\}\)</dt><dd data-out="px"></dd></div>
+            </dl>
+          </div>
+        </div>
+        <figcaption class="lab-caption">
+          <p>Chaque qubit tourne autour de l’axe \(z\) à une vitesse légèrement différente (écart-type σ), faute de connaître l’environnement. Individuellement, l’état reste pur ; pour l’ensemble, le vecteur de Bloch moyen raccourcit comme \(r(t)=e^{-\sigma^2t^2/2}\) et la pureté tombe de 1 vers ½ : superposition cohérente → mélange. La visibilité des franges d’un interféromètre suit \(r\). C’est la décohérence, sans qu’aucun qubit ne soit « mesuré ».</p>
+        </figcaption>
+      </figure>
+
       <article class="exo" data-id="1.4" data-answer="c">
         <div class="exo-head"><span class="num">Exercice 1.4</span><h3>Superposition ou mélange ?</h3><span class="stars" aria-label="difficulté 2 sur 3">★★☆</span></div>
         <p>On prépare 1 000 qubits dans \(\tfrac{1}{\sqrt2}(\ket0 + \ket1)\), et 1 000 autres en tirant chacun à pile ou face entre \(\ket0\) et \(\ket1\). Quelle expérience permet de distinguer les deux lots ?</p>
@@ -506,6 +528,29 @@
       <div class="box note rise">
         <span class="box-title">Dossier avec un détenteur de savoirs</span>
         <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Ce qu’il faut retenir du chapitre 1</span>
+        <p><strong>Points clés.</strong></p>
+        <ul>
+          <li>Un quanton est détecté comme un corpuscule localisé, mais si plusieurs chemins vers le détecteur sont indiscernables, leurs amplitudes interfèrent.</li>
+          <li>Un système isolé peut être dans une combinaison cohérente \(\alpha\ket0+\beta\ket1\) ; le couplage à l’environnement (décohérence) détruit vite ces interférences à l’échelle macroscopique.</li>
+          <li>Les états purs d’un qubit vivent dans \(\mathbb C^2\) et se représentent sur la sphère de Bloch.</li>
+        </ul>
+        <p><strong>Formules.</strong></p>
+        <ul>
+          <li>\(\ket\psi=\alpha\ket0+\beta\ket1\), \(|\alpha|^2+|\beta|^2=1\) ; règle de Born \(P(k)=|\braket{k|\psi}|^2\).</li>
+          <li>Deux chemins indiscernables : \(P=|c_1+c_2e^{i\varphi}|^2\) ; Mach-Zehnder équilibré : \(P(\varphi)=\cos^2(\varphi/2)\).</li>
+          <li>Sphère de Bloch : \(\ket\psi=\cos\tfrac\theta2\ket0+e^{i\phi}\sin\tfrac\theta2\ket1\).</li>
+        </ul>
+        <p><strong>Pièges.</strong> Confondre superposition et ignorance classique (seule la superposition interfère) ; oublier la borne de Holevo : malgré deux nombres complexes continus, une mesure sur un qubit livre au plus 1 bit classique ; croire que la mesure révèle une valeur préexistante, alors que la grandeur non compatible n’a pas de valeur définie avant la mesure.</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">Glossaire français – anglais</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Terme</th><th>English term</th><th>Définition</th></tr></thead><tbody><tr><td>Amplitude de probabilité</td><td>Probability amplitude</td><td>Nombre complexe \(c_k\) avec \(P(k)=|c_k|^2\).</td></tr><tr><td>Décohérence</td><td>Decoherence</td><td>Fuite d’information vers l’environnement : la superposition devient un mélange.</td></tr><tr><td>Dualité onde-corpuscule</td><td>Wave-particle duality</td><td>Interférences ou impact ponctuel selon la mesure ; \(\lambda=h/p\).</td></tr><tr><td>Espace de Hilbert</td><td>Hilbert space</td><td>Espace vectoriel complexe complet muni d’un produit scalaire.</td></tr><tr><td>Qubit</td><td>Qubit</td><td>Système à deux niveaux, \(\alpha\ket0+\beta\ket1\).</td></tr><tr><td>Sphère de Bloch</td><td>Bloch sphere</td><td>Représentation des états purs d’un qubit sur \(S^2\).</td></tr><tr><td>Superposition</td><td>Superposition</td><td>Combinaison linéaire d’états de base, \(\sum_ic_i\ket{\phi_i}\).</td></tr></tbody></table></div>
       </div>
     </section>
 

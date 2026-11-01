@@ -175,6 +175,14 @@
         </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Physics image, no particular tradition.</p>
         <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
+
+      <div class="box history rise" id="dialogue-born">
+        <p><strong>Imagined dialogue: a wave of what?</strong> Born’s probabilistic reading (1926) did not convince everyone, Schrödinger first of all. The lines summarise positions; they are not quotations.</p>
+        <p>Schrödinger: “My equation describes a continuous phenomenon, a matter wave. That its square is only a probability, and that it collapses to a point on measurement, I cannot accept.”</p>
+        <p>Bohr: “The wave does not say where the electron is, but where it can be found if we look for it.”</p>
+        <p>Schrödinger: “Then the wave function is just a catalogue of our knowledge?”</p>
+        <p>Bohr: “It is the most complete tool we have. And the chance involved here is not that of our ignorance.”</p>
+      </div>
     </section>
 
     <!-- ===================================================== 5.2 -->
@@ -288,6 +296,14 @@
         <div class="num-answer"><label for="e56">Δp =</label><input id="e56" type="text" inputmode="decimal" autocomplete="off"><span>× 10⁻²⁵ kg m/s</span><button class="btn small" data-check type="button">Check</button></div>
         <div class="feedback"></div>
       </article>
+
+      <div class="box history rise" id="dialogue-flou">
+        <p><strong>Imagined dialogue: is reality blurred?</strong> The relation \([X, P] = i\hbar\) fed the disagreements between Einstein and Bohr. The lines summarise their positions; they are not quotations.</p>
+        <p>Einstein: “At every instant an electron must have a definite position and momentum. If the theory does not give them, it is incomplete.”</p>
+        <p>Bohr: “Position and momentum are not properties the electron carries alone. They are defined by the measuring apparatus, and no apparatus measures both together.”</p>
+        <p>Einstein: “So the Moon exists only when we look at it?”</p>
+        <p>Bohr: “The Moon constantly interacts with its environment. An isolated electron does not: it is described by \(\psi\), not by a point.”</p>
+      </div>
     </section>
 
     <!-- ===================================================== 5.4 -->
@@ -373,6 +389,15 @@
         </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Master drummers of the Yoruba and Akan traditions, according to the course.</p>
         <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
+
+      <div class="box history rise" id="histoire-debye">
+        <p>According to an anecdote reported by Felix Bloch, Peter Debye remarked, after a seminar by Schrödinger on de Broglie’s thesis, that a wave should have a wave equation. Schrödinger would have written it a few weeks later.</p>
+      </div>
+
+      <div class="box note rise" id="piege-stationnaire">
+        <span class="box-title">Common pitfall — “stationary” does not mean “at rest”</span>
+        <p>In a stationary state it is the <strong>probability density</strong> \(|\psi(x,t)|^2\) that does not depend on time: the cloud neither deforms nor moves. The particle is not “frozen” for all that: a stationary state can describe a constant current of particles with non-zero mean momentum. The word refers to the stability of observable quantities, not to the absence of motion.</p>
+      </div>
     </section>
 
     <!-- ===================================================== 5.5 -->
@@ -512,9 +537,45 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="5.Q3" data-answer="c">
+        <div class="exo-head"><span class="num">Conceptual question 5.Q3</span><h3>Plane wave and localisation</h3></div>
+        <p>A free particle is described by the plane wave \(\psi(x,t)=A\,e^{i(kx-\omega t)}\), with perfectly known momentum (\(\Delta p = 0\)). What is the uncertainty \(\Delta x\)? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: \(\Delta x\,\Delta p \ge \hbar/2\) forbids \(\Delta x = 0\) together with \(\Delta p = 0\)."><input type="radio" name="cq5Q3" value="a">\(\Delta x = 0\): a point-like trajectory at speed \(p/m\).</label></li>
+          <li><label class="choice" data-why="No: \(|\psi|^2\) does not depend on \(x\); nothing localises the particle."><input type="radio" name="cq5Q3" value="b">\(\Delta x = \lambda\): localised over one wavelength.</label></li>
+          <li><label class="choice" data-why="Correct: \(|\psi|^2 = |A|^2\) everywhere. A plane wave is not normalisable; a physical state is a wave packet, a continuous superposition of plane waves."><input type="radio" name="cq5Q3" value="c">\(\Delta x = +\infty\): uniform density over all space.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">File with a knowledge holder</span>
         <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Key points of chapter 5</span>
+        <p><strong>Main ideas.</strong></p>
+        <ul>
+          <li>The ket \(\ket\psi\) is projected onto the continuous basis \(\{\ket x\}\): \(\psi(x)=\braket{x|\psi}\in L^2(\mathbb R)\).</li>
+          <li>\(|\psi|^2\) is a density (m<sup>−1</sup>): only its integral over an interval is a probability.</li>
+          <li>\(\psi(x)\) and \(\varphi(p)\) are related by the Fourier transform; \(P\) generates translations.</li>
+          <li>A free wave packet moves at the group velocity and spreads; a barrier higher than the energy can still be crossed by tunnelling.</li>
+        </ul>
+        <p><strong>Formulas.</strong></p>
+        <ul>
+          <li>\(\displaystyle\int|\psi(x)|^2\,\mathrm dx=\int|\varphi(p)|^2\,\mathrm dp=1\); \(\hat p=-i\hbar\,\partial_x\), \([X,P]=i\hbar\).</li>
+          <li>\(\Delta x\,\Delta p\ge\hbar/2\), with equality for the Gaussian.</li>
+          <li>\(v_g=\mathrm d\omega/\mathrm dk=p_0/m\); \(\sigma_x(t)=\sigma_0\sqrt{1+(t/\tau)^2}\) with \(\tau=2m\sigma_0^2/\hbar\).</li>
+        </ul>
+        <p><strong>Pitfalls.</strong> Taking the cloud literally (each detection is point-like); thinking the electron “grows” (it is the region of uncertainty that widens); confusing the phase velocity \(p_0/2m\) with the group velocity \(p_0/m\).</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">French – English glossary</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Term</th><th>Terme français</th><th>Definition</th></tr></thead><tbody><tr><td>Probability density</td><td>Densité de présence</td><td>\(\rho(x)=|\psi(x)|^2\), with \(\mathrm dP=\rho\,\mathrm dx\).</td></tr><tr><td>Quantum tunnelling</td><td>Effet tunnel</td><td>Crossing a barrier \(V_0>E\) through an evanescent wave, \(T\propto e^{-2\kappa a}\).</td></tr><tr><td>Wave function</td><td>Fonction d’état</td><td>\(\psi(x,t)=\braket{x|\psi(t)}\), normalised to 1.</td></tr><tr><td>Momentum operator</td><td>Opérateur impulsion</td><td>\(\hat p=-i\hbar\,\mathrm d/\mathrm dx\), with \([X,P]=i\hbar\).</td></tr><tr><td>Wave packet</td><td>Paquet d’ondes</td><td>Superposition of plane waves with nearby momenta.</td></tr><tr><td>Fourier transform</td><td>Transformée de Fourier</td><td>Unitary change from the position basis to the momentum basis.</td></tr></tbody></table></div>
       </div>
     </section>
 

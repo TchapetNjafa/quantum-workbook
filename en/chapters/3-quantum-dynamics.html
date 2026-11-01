@@ -139,6 +139,11 @@
         <div class="num-answer"><label for="e31">P(a₁) =</label><input id="e31" type="text" autocomplete="off" placeholder="e.g. 1/2"><button class="btn small" data-check type="button">Check</button></div>
         <div class="feedback"></div>
       </article>
+
+      <div class="box note rise" id="piege-saut">
+        <span class="box-title">Common pitfall — the “quantum jump” is not a displacement</span>
+        <p>“Wave-packet reduction” or “quantum jump” does not describe an object moving instantly through space. It is a rule for updating the state: after a measurement result, the system is described by the normalised projection \(P_n\ket\psi/\sqrt{p_n}\). The formalism does not say whether this update reflects a physical process or a gain of information: interpretations differ, predictions do not.</p>
+      </div>
     </section>
 
     <!-- ===================================================== 3.2 -->
@@ -478,9 +483,45 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="3.Q3" data-answer="a">
+        <div class="exo-head"><span class="num">Conceptual question 3.Q3</span><h3>Duration of a π pulse</h3></div>
+        <p>At exact resonance the transition probability is \(P_{0\to1}(t)=\sin^2(\Omega_R t/2)\). Which pulse duration flips \(\ket0\) into \(\ket1\) with certainty (an \(X\) gate)? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Correct: \(\Omega_Rt/2=\pi/2\), so \(P=\sin^2(\pi/2)=1\). This is the \(\pi\) pulse."><input type="radio" name="cq3Q3" value="a">\(t=\pi/\Omega_R\).</label></li>
+          <li><label class="choice" data-why="No: \(\sin^2\pi=0\). A \(2\pi\) pulse returns the qubit to \(\ket0\), up to a global sign."><input type="radio" name="cq3Q3" value="b">\(t=2\pi/\Omega_R\).</label></li>
+          <li><label class="choice" data-why="No: \(\sin^2(\pi/4)=1/2\). This is the \(\pi/2\) pulse, which puts the qubit on the equator of the Bloch sphere."><input type="radio" name="cq3Q3" value="c">\(t=\pi/(2\Omega_R)\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">File with a knowledge holder</span>
         <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Key points of chapter 3</span>
+        <p><strong>Main ideas.</strong></p>
+        <ul>
+          <li>Postulates 1 to 5 govern the Hilbert space and measurement (spectrum, Born rule, reduction); postulate 6 governs time evolution.</li>
+          <li>An isolated system evolves deterministically, continuously and unitarily; randomness appears only at measurement.</li>
+          <li>Only eigenstates of \(H\) are stationary; a time-independent observable commuting with \(H\) has a conserved mean value.</li>
+          <li>A near-resonant field drives Rabi oscillations, hence \(\pi/2\) and \(\pi\) gates; frequent measurements freeze the dynamics (Zeno effect).</li>
+        </ul>
+        <p><strong>Formulas.</strong></p>
+        <ul>
+          <li>\(i\hbar\,\mathrm d_t\ket{\psi}=H\ket\psi\); \(U(t)=e^{-iHt/\hbar}\), \(U^\dagger U=\mathbb 1\).</li>
+          <li>Ehrenfest: \(\dfrac{\mathrm d}{\mathrm dt}\langle A\rangle=\dfrac1{i\hbar}\langle[A,H]\rangle+\langle\partial_tA\rangle\).</li>
+          <li>Rabi: \(\Omega=\sqrt{\Omega_R^2+\delta^2}\), \(P_{0\to1}=(\Omega_R/\Omega)^2\sin^2(\Omega t/2)\); \(t_\pi=\pi/\Omega_R\), \(t_{\pi/2}=\pi/2\Omega_R\).</li>
+        </ul>
+        <p><strong>Pitfalls.</strong> Confusing Ehrenfest’s theorem (on the mean value) with the Heisenberg equation (on the operator); thinking evolution between measurements is random; confusing a unitary pulse-calibration error with decoherence (\(T_1\), \(T_2\)), which is irreversible; defining the second through Rabi oscillations (it is defined by the caesium-133 hyperfine transition, probed with Ramsey fringes); believing MRI measures a single spin (it detects a macroscopic magnetisation, polarised to a few ppm).</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">French – English glossary</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Term</th><th>Terme français</th><th>Definition</th></tr></thead><tbody><tr><td>Schrödinger equation</td><td>Équation de Schrödinger</td><td>\(i\hbar\,\mathrm d_t\ket\psi=H\ket\psi\), continuous unitary evolution.</td></tr><tr><td>Hamiltonian</td><td>Hamiltonien</td><td>Total-energy observable, generator of time evolution.</td></tr><tr><td>Rabi oscillations</td><td>Oscillations de Rabi</td><td>Coherent oscillation between two levels at angular frequency \(\Omega=\sqrt{\Omega_R^2+\delta^2}\).</td></tr><tr><td>Postulates of QM</td><td>Postulats quantiques</td><td>Six axioms: Hilbert space, observables, spectrum, Born, projection, Schrödinger.</td></tr><tr><td>Born rule</td><td>Règle de Born</td><td>\(P(a_n)=|\braket{\varphi_n|\psi}|^2\) for a non-degenerate spectrum.</td></tr><tr><td>Wave-function collapse</td><td>Réduction du paquet d’ondes</td><td>Projection \(\ket\psi\to P_n\ket\psi/\sqrt{P(a_n)}\) after a measurement.</td></tr></tbody></table></div>
       </div>
     </section>
 

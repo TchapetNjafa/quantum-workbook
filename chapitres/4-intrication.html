@@ -426,6 +426,11 @@
         <span class="box-title">Précision — décohérence</span>
         <p>Le cours écrit que les chats de Schrödinger sont « instantanément » mesurés par leur environnement. La décohérence n’est pas instantanée : elle a un temps caractéristique, extrêmement court pour un objet macroscopique, mais mesurable pour des systèmes mésoscopiques. C’est ce temps que l’on cherche à allonger dans un ordinateur quantique.</p>
       </div>
+
+      <div class="box note rise" id="piege-preparation">
+        <span class="box-title">Piège courant — un même \(\rho\), plusieurs préparations</span>
+        <p>Un opérateur statistique donné ne dit pas comment l’état a été préparé. Un mélange équiprobable de \(\ket{z+}\) et \(\ket{z-}\) et un mélange équiprobable de \(\ket{x+}\) et \(\ket{x-}\) donnent tous deux \(\rho=\tfrac12\mathbb 1\). Si l’on vous remet un qubit dans cet état, aucune mesure ne révèle la recette : \(\rho\) décrit ce que l’on sait, pas l’histoire du système.</p>
+      </div>
     </section>
 
     <!-- ===================================================== 4.5 -->
@@ -569,9 +574,45 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="4.Q3" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 4.Q3</span><h3>Alice mesure, Bob peut-il le voir ?</h3></div>
+        <p>Alice et Bob partagent le singulet \(\ket{\Psi^-}=(\ket{01}-\ket{10})/\sqrt2\). Alice mesure son qubit selon \(z\) et trouve \(+1\), sans rien envoyer à Bob. Bob peut-il détecter localement qu’elle a mesuré ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : Bob ne sait pas quel résultat Alice a obtenu, et son état reste \(\tfrac12\mathbb 1\) pour lui."><input type="radio" name="cq4Q3" value="a">Oui : le qubit de Bob s’est instantanément projeté sur \(\ket1\).</label></li>
+          <li><label class="choice" data-why="Exact : il obtient 50 % de \(+1\) et 50 % de \(-1\) dans toute base. Les corrélations n’apparaissent qu’en comparant les résultats, ce qui exige un canal classique (théorème de non-communication)."><input type="radio" name="cq4Q3" value="b">Non : son état réduit reste \(\rho_B=\mathrm{Tr}_A\rho_{AB}=\tfrac12\mathbb 1\), avant comme après.</label></li>
+          <li><label class="choice" data-why="Non : sur n’importe quel lot, Bob voit la même statistique 50/50."><input type="radio" name="cq4Q3" value="c">Oui : en répétant la mesure sur beaucoup de paires, sans consulter Alice.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">Dossier avec un détenteur de savoirs</span>
         <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Ce qu’il faut retenir du chapitre 4</span>
+        <p><strong>Points clés.</strong></p>
+        <ul>
+          <li>L’espace de \(N\) qubits est le produit tensoriel de dimension \(2^N\).</li>
+          <li>Un état intriqué n’est pas un produit d’états individuels ; ses corrélations violent l’inégalité CHSH sans violer la causalité relativiste.</li>
+          <li>Un sous-système d’un état intriqué est décrit par \(\rho_A=\mathrm{Tr}_B\rho_{AB}\). Pour un état de Bell (pur), chaque moitié est maximalement mixte : \(\rho_A=\tfrac12\mathbb 1\), \(S=1\) bit.</li>
+        </ul>
+        <p><strong>Formules.</strong></p>
+        <ul>
+          <li>Séparabilité de deux qubits pour un état pur : \(c_{00}c_{11}-c_{01}c_{10}=0\).</li>
+          <li>Bell : \(\ket{\Phi^\pm}=(\ket{00}\pm\ket{11})/\sqrt2\), \(\ket{\Psi^\pm}=(\ket{01}\pm\ket{10})/\sqrt2\).</li>
+          <li>CHSH : \(|S|\le2\) (variables cachées locales), \(|S|\le2\sqrt2\approx2{,}83\) (quantique).</li>
+          <li>\(\rho=\sum_ip_i\ket{\psi_i}\bra{\psi_i}\), \(\mathrm{Tr}\rho=1\) ; pureté \(\mathrm{Tr}\rho^2=\tfrac12(1+|\vec b|^2)\) ; \(S(\rho)=-\mathrm{Tr}(\rho\log_2\rho)\).</li>
+        </ul>
+        <p><strong>Pièges.</strong> Confondre produit tensoriel (un vecteur de dimension \(d_Ad_B\)) et produit extérieur (un opérateur) ; croire que l’intrication transmet un signal (\(\rho_B\) ne change pas) ; confondre corrélation classique et intrication (des gants préexistants vérifient toujours \(|S|\le2\)) ; croire que la téléportation transporte de la matière ou copie l’état (la mesure d’Alice le détruit, et 2 bits classiques sont nécessaires).</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">Glossaire français – anglais</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Terme</th><th>English term</th><th>Définition</th></tr></thead><tbody><tr><td>États de Bell</td><td>Bell states</td><td>Base de quatre états maximalement intriqués de deux qubits.</td></tr><tr><td>Inégalités de Bell</td><td>Bell inequalities</td><td>Bornes imposées par la localité réaliste : \(|S|\le2\) pour CHSH, \(2\sqrt2\) en quantique.</td></tr><tr><td>Intrication</td><td>Entanglement</td><td>État non factorisable : \(\ket{\psi_{AB}}\neq\ket{\psi_A}\otimes\ket{\psi_B}\).</td></tr><tr><td>Matrice densité</td><td>Density matrix</td><td>Opérateur statistique \(\rho\ge0\), \(\mathrm{Tr}\rho=1\) ; états purs et mélanges.</td></tr><tr><td>Produit tensoriel</td><td>Tensor product</td><td>Assemblage \(\mathcal H_A\otimes\mathcal H_B\) de dimension \(d_Ad_B\).</td></tr><tr><td>Téléportation quantique</td><td>Quantum teleportation</td><td>Transfert d’un état par intrication et 2 bits classiques, sans transport de matière.</td></tr></tbody></table></div>
       </div>
     </section>
 

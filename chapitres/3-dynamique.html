@@ -139,6 +139,11 @@
         <div class="num-answer"><label for="e31">P(a₁) =</label><input id="e31" type="text" autocomplete="off" placeholder="ex. 1/2"><button class="btn small" data-check type="button">Vérifier</button></div>
         <div class="feedback"></div>
       </article>
+
+      <div class="box note rise" id="piege-saut">
+        <span class="box-title">Piège courant — le « saut quantique » n’est pas un déplacement</span>
+        <p>« Réduction du paquet d’ondes » ou « saut quantique » ne décrit pas un objet qui se déplace instantanément dans l’espace. Il s’agit d’une règle de mise à jour de l’état : après un résultat de mesure, on décrit le système par le projeté normalisé \(P_n\ket\psi/\sqrt{p_n}\). Le formalisme ne dit pas si cette mise à jour traduit un processus physique ou un gain d’information : les interprétations divergent, les prédictions ne changent pas.</p>
+      </div>
     </section>
 
     <!-- ===================================================== 3.2 -->
@@ -478,9 +483,45 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="3.Q3" data-answer="a">
+        <div class="exo-head"><span class="num">Question conceptuelle 3.Q3</span><h3>Durée d’une impulsion π</h3></div>
+        <p>À résonance exacte, la probabilité de transition est \(P_{0\to1}(t)=\sin^2(\Omega_R t/2)\). Quelle durée d’impulsion fait basculer \(\ket0\) en \(\ket1\) avec certitude (porte \(X\)) ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Exact : \(\Omega_Rt/2=\pi/2\), donc \(P=\sin^2(\pi/2)=1\). C’est l’impulsion \(\pi\)."><input type="radio" name="cq3Q3" value="a">\(t=\pi/\Omega_R\).</label></li>
+          <li><label class="choice" data-why="Non : \(\sin^2\pi=0\). L’impulsion \(2\pi\) ramène le qubit en \(\ket0\), à un signe global près."><input type="radio" name="cq3Q3" value="b">\(t=2\pi/\Omega_R\).</label></li>
+          <li><label class="choice" data-why="Non : \(\sin^2(\pi/4)=1/2\). C’est l’impulsion \(\pi/2\), qui place le qubit sur l’équateur de la sphère de Bloch."><input type="radio" name="cq3Q3" value="c">\(t=\pi/(2\Omega_R)\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">Dossier avec un détenteur de savoirs</span>
         <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Ce qu’il faut retenir du chapitre 3</span>
+        <p><strong>Points clés.</strong></p>
+        <ul>
+          <li>Les postulats 1 à 5 régissent l’espace de Hilbert et la mesure (spectre, règle de Born, réduction), le postulat 6 l’évolution.</li>
+          <li>Un système isolé évolue de façon déterministe, continue et unitaire ; le hasard n’apparaît qu’à la mesure.</li>
+          <li>Seuls les états propres de \(H\) sont stationnaires ; une observable indépendante du temps qui commute avec \(H\) a une valeur moyenne conservée.</li>
+          <li>Un champ quasi résonnant induit des oscillations de Rabi, d’où les portes \(\pi/2\) et \(\pi\) ; des mesures rapprochées figent la dynamique (effet Zénon).</li>
+        </ul>
+        <p><strong>Formules.</strong></p>
+        <ul>
+          <li>\(i\hbar\,\mathrm d_t\ket{\psi}=H\ket\psi\) ; \(U(t)=e^{-iHt/\hbar}\), \(U^\dagger U=\mathbb 1\).</li>
+          <li>Ehrenfest : \(\dfrac{\mathrm d}{\mathrm dt}\langle A\rangle=\dfrac1{i\hbar}\langle[A,H]\rangle+\langle\partial_tA\rangle\).</li>
+          <li>Rabi : \(\Omega=\sqrt{\Omega_R^2+\delta^2}\), \(P_{0\to1}=(\Omega_R/\Omega)^2\sin^2(\Omega t/2)\) ; \(t_\pi=\pi/\Omega_R\), \(t_{\pi/2}=\pi/2\Omega_R\).</li>
+        </ul>
+        <p><strong>Pièges.</strong> Confondre le théorème d’Ehrenfest (sur la valeur moyenne) et l’équation de Heisenberg (sur l’opérateur) ; croire l’évolution entre deux mesures aléatoire ; confondre une erreur de calibration d’impulsion, unitaire, et la décohérence (\(T_1\), \(T_2\)), irréversible ; définir la seconde par des oscillations de Rabi (elle est définie par la transition hyperfine du césium 133, sondée par franges de Ramsey) ; croire que l’IRM mesure un spin isolé (elle détecte une aimantation macroscopique, polarisée de quelques ppm).</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">Glossaire français – anglais</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Terme</th><th>English term</th><th>Définition</th></tr></thead><tbody><tr><td>Équation de Schrödinger</td><td>Schrödinger equation</td><td>\(i\hbar\,\mathrm d_t\ket\psi=H\ket\psi\), évolution unitaire continue.</td></tr><tr><td>Hamiltonien</td><td>Hamiltonian</td><td>Observable de l’énergie totale, générateur de l’évolution temporelle.</td></tr><tr><td>Oscillations de Rabi</td><td>Rabi oscillations</td><td>Oscillation cohérente entre deux niveaux, à la pulsation \(\Omega=\sqrt{\Omega_R^2+\delta^2}\).</td></tr><tr><td>Postulats quantiques</td><td>Postulates of QM</td><td>Six axiomes : espace de Hilbert, grandeurs, spectre, Born, projection, Schrödinger.</td></tr><tr><td>Règle de Born</td><td>Born rule</td><td>\(P(a_n)=|\braket{\varphi_n|\psi}|^2\) pour un spectre non dégénéré.</td></tr><tr><td>Réduction du paquet d’ondes</td><td>Wave-function collapse</td><td>Projection \(\ket\psi\to P_n\ket\psi/\sqrt{P(a_n)}\) après une mesure.</td></tr></tbody></table></div>
       </div>
     </section>
 

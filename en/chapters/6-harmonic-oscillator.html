@@ -171,6 +171,11 @@
         <button class="btn small" data-check type="button">Check</button>
         <div class="feedback"></div>
       </article>
+
+      <div class="box note rise" id="piege-echelle">
+        <span class="box-title">Common pitfall — \(a\) and \(a^\dagger\) are not physical quantities</span>
+        <p>One is tempted to look for a direct meaning, as for \(X\) and \(P\). But \(a^\dagger\neq a\): they are not Hermitian, so they represent no measurable quantity. They are tools that move up or down the ladder of levels. The physical quantities built from them are Hermitian: \(H=\hbar\omega(a^\dagger a+\tfrac12)\), \(N=a^\dagger a\).</p>
+      </div>
     </section>
 
     <!-- ===================================================== 6.1.3 -->
@@ -365,6 +370,17 @@
         </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Gnawa music (Morocco) and vodun ceremonies (Gulf of Guinea: Benin, Togo): two distinct traditions.</p>
         <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
+
+      <div class="box history rise" id="histoire-glauber">
+        <p>Schrödinger introduced coherent states as early as 1926, but they long remained a mathematical curiosity. In the 1960s Roy Glauber showed that they describe the light of an ideal laser and set it apart from the chaotic light of a bulb, a statistical mixture. This work founded modern quantum optics and earned him a share of the 2005 Nobel Prize in Physics.</p>
+      </div>
+      <div class="box history rise" id="dialogue-glauber">
+        <p><strong>Imagined dialogue: how does a wave emerge from the vacuum?</strong> The lines summarise an argument; they are not quotations.</p>
+        <p>The sceptic: “My laser emits billions of photons per second; their number is well defined. Why a state where it is uncertain?”</p>
+        <p>Glauber: “In a state \(\ket n\) the mean field is zero, yet your beam visibly oscillates. To get an oscillation with a stable phase you must superpose states \(\ket n\), and so give up a definite photon number.”</p>
+        <p>The sceptic: “A compromise, then?”</p>
+        <p>Glauber: “Yes: we lose certainty about the number and gain a stable phase. That is a coherent state.”</p>
+      </div>
     </section>
 
     <!-- ===================================================== 6.3 -->
@@ -429,9 +445,43 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="6.Q3" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 6.Q3</span><h3>Photons in a laser beam</h3></div>
+        <p>An ideal single-mode laser pulse is described by a coherent state \(\ket\alpha\) with \(\langle N\rangle=|\alpha|^2=4\). A perfect photodetector (100 % efficiency) records no photon at all with what probability? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: a coherent state has no definite photon number; 4 is an average."><input type="radio" name="cq6Q3" value="a">0, because the pulse contains exactly 4 photons.</label></li>
+          <li><label class="choice" data-why="Correct: \(P(n)=e^{-|\alpha|^2}|\alpha|^{2n}/n!\), so \(P(0)=e^{-4}\approx 0.018\). In a Fock state \(\ket4\), by contrast, \(P(0)=0\)."><input type="radio" name="cq6Q3" value="b">\(e^{-4}\approx 1.8\,\%\).</label></li>
+          <li><label class="choice" data-why="No: nothing in the Poisson law gives \(1/\langle N\rangle\)."><input type="radio" name="cq6Q3" value="c">1/4 = 25 %.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">File with a knowledge holder</span>
         <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Key points of chapter 6</span>
+        <p><strong>Main ideas.</strong></p>
+        <ul>
+          <li>The levels are equally spaced, \(E_n=\hbar\omega(n+\tfrac12)\); the zero-point energy \(E_0=\tfrac12\hbar\omega>0\) follows from the uncertainty relation.</li>
+          <li>The (non-Hermitian) operators \(a\) and \(a^\dagger\) build the whole ladder of Fock states \(\ket n\), in which \(\langle X\rangle=0\).</li>
+          <li>A coherent state \(\ket\alpha\) is an eigenstate of \(a\), obtained by displacing the vacuum; it oscillates at angular frequency \(\omega\) without deforming and saturates \(\Delta x\,\Delta p=\hbar/2\).</li>
+        </ul>
+        <p><strong>Formulas.</strong></p>
+        <ul>
+          <li>\([a,a^\dagger]=\mathbb 1\); \(H=\hbar\omega(N+\tfrac12)\), \(N=a^\dagger a\); \(a\ket n=\sqrt n\ket{n-1}\), \(a^\dagger\ket n=\sqrt{n+1}\ket{n+1}\).</li>
+          <li>\(a\ket\alpha=\alpha\ket\alpha\); \(P(n)=e^{-|\alpha|^2}|\alpha|^{2n}/n!\); \(\langle N\rangle=|\alpha|^2\), \(\Delta N=|\alpha|\).</li>
+        </ul>
+        <p><strong>Pitfalls.</strong> Believing Planck proved light quanta in 1900 (Einstein postulates them in 1905); confusing a coherent state, a pure state with a definite phase, with a thermal mixture; believing a squeezed state violates Heisenberg (it redistributes the uncertainty between two quadratures).</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">French – English glossary</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Term</th><th>Terme français</th><th>Definition</th></tr></thead><tbody><tr><td>Zero-point energy</td><td>Énergie du point zéro</td><td>\(E_0=\tfrac12\hbar\omega\), the minimum set by the uncertainty relation.</td></tr><tr><td>Coherent states</td><td>États cohérents</td><td>Eigenstates of the annihilation operator, \(a\ket\alpha=\alpha\ket\alpha\), with minimum uncertainty.</td></tr><tr><td>Squeezed states</td><td>États comprimés</td><td>Reduced fluctuations in one quadrature, increased in the conjugate one.</td></tr><tr><td>Fock states</td><td>États de Fock</td><td>Eigenstates of \(N\) with a fixed number of quanta: \(N\ket n=n\ket n\).</td></tr><tr><td>Ladder operators</td><td>Opérateurs d’échelle</td><td>\(a\) and \(a^\dagger\), with \([a,a^\dagger]=1\).</td></tr><tr><td>Hermite polynomials</td><td>Polynômes de Hermite</td><td>Polynomial part of the eigenfunctions \(\psi_n(x)\).</td></tr></tbody></table></div>
       </div>
     </section>
 

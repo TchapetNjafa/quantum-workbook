@@ -175,6 +175,14 @@
         </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Image de physique, sans tradition particulière.</p>
         <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
+
+      <div class="box history rise" id="dialogue-born">
+        <p><strong>Dialogue imaginé : l’onde est-elle une onde de quoi ?</strong> La lecture probabiliste de Born (1926) n’a pas convaincu tout le monde, Schrödinger en tête. Les répliques résument des positions, ce ne sont pas des citations.</p>
+        <p>Schrödinger : « Mon équation décrit un phénomène continu, une onde de matière. Que son carré ne soit qu’une probabilité, et qu’elle s’effondre en un point à la mesure, je ne l’accepte pas. »</p>
+        <p>Bohr : « L’onde ne dit pas où est l’électron, mais où on peut le trouver si on le cherche. »</p>
+        <p>Schrödinger : « Alors la fonction d’état n’est qu’un catalogue de nos connaissances ? »</p>
+        <p>Bohr : « Elle est l’outil le plus complet que nous ayons. Et le hasard ici n’est pas celui de notre ignorance. »</p>
+      </div>
     </section>
 
     <!-- ===================================================== 5.2 -->
@@ -288,6 +296,14 @@
         <div class="num-answer"><label for="e56">Δp =</label><input id="e56" type="text" inputmode="decimal" autocomplete="off"><span>× 10⁻²⁵ kg m/s</span><button class="btn small" data-check type="button">Vérifier</button></div>
         <div class="feedback"></div>
       </article>
+
+      <div class="box history rise" id="dialogue-flou">
+        <p><strong>Dialogue imaginé : la réalité est-elle floue ?</strong> La relation \([X, P] = i\hbar\) a nourri les désaccords entre Einstein et Bohr. Les répliques résument leurs positions, ce ne sont pas des citations.</p>
+        <p>Einstein : « À chaque instant, un électron doit avoir une position et une impulsion définies. Si la théorie ne les donne pas, elle est incomplète. »</p>
+        <p>Bohr : « Position et impulsion ne sont pas des propriétés que l’électron porterait seul. Elles se définissent par le dispositif de mesure, et aucun dispositif ne les mesure ensemble. »</p>
+        <p>Einstein : « Alors la Lune n’existerait que si on la regarde ? »</p>
+        <p>Bohr : « La Lune interagit sans cesse avec son environnement. Un électron isolé, non : il est décrit par \(\psi\), pas par un point. »</p>
+      </div>
     </section>
 
     <!-- ===================================================== 5.4 -->
@@ -373,6 +389,15 @@
         </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Maîtres-tambours des traditions yoruba et akan, d’après le cours.</p>
         <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
+
+      <div class="box history rise" id="histoire-debye">
+        <p>Selon une anecdote rapportée par Felix Bloch, Peter Debye aurait remarqué, après un séminaire de Schrödinger sur la thèse de de Broglie, qu’une onde devrait avoir une équation d’onde. Schrödinger l’aurait écrite quelques semaines plus tard.</p>
+      </div>
+
+      <div class="box note rise" id="piege-stationnaire">
+        <span class="box-title">Piège courant — « stationnaire » ne veut pas dire « immobile »</span>
+        <p>Dans un état stationnaire, c’est la <strong>densité de probabilité</strong> \(|\psi(x,t)|^2\) qui ne dépend pas du temps : le nuage ne se déforme pas et ne se déplace pas. Le quanton n’est pas pour autant « figé » : un état stationnaire peut décrire un courant constant de particules, d’impulsion moyenne non nulle. Le mot désigne la stabilité des grandeurs observables, pas l’absence de mouvement.</p>
+      </div>
     </section>
 
     <!-- ===================================================== 5.5 -->
@@ -512,9 +537,45 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="5.Q3" data-answer="c">
+        <div class="exo-head"><span class="num">Question conceptuelle 5.Q3</span><h3>Onde plane et localisation</h3></div>
+        <p>Une particule libre est décrite par l’onde plane \(\psi(x,t)=A\,e^{i(kx-\omega t)}\), d’impulsion parfaitement connue (\(\Delta p = 0\)). Quelle est l’indétermination \(\Delta x\) ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : \(\Delta x\,\Delta p \ge \hbar/2\) interdit \(\Delta x = 0\) avec \(\Delta p = 0\)."><input type="radio" name="cq5Q3" value="a">\(\Delta x = 0\) : trajectoire ponctuelle à la vitesse \(p/m\).</label></li>
+          <li><label class="choice" data-why="Non : \(|\psi|^2\) ne dépend pas de \(x\), rien ne localise la particule."><input type="radio" name="cq5Q3" value="b">\(\Delta x = \lambda\) : localisée sur une longueur d’onde.</label></li>
+          <li><label class="choice" data-why="Exact : \(|\psi|^2 = |A|^2\) partout. L’onde plane n’est pas normalisable ; un état physique est un paquet d’ondes, superposition continue d’ondes planes."><input type="radio" name="cq5Q3" value="c">\(\Delta x = +\infty\) : densité uniforme dans tout l’espace.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">Dossier avec un détenteur de savoirs</span>
         <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Ce qu’il faut retenir du chapitre 5</span>
+        <p><strong>Points clés.</strong></p>
+        <ul>
+          <li>Le ket \(\ket\psi\) se projette sur la base continue \(\{\ket x\}\) : \(\psi(x)=\braket{x|\psi}\in L^2(\mathbb R)\).</li>
+          <li>\(|\psi|^2\) est une densité (m<sup>−1</sup>) : seule l’intégrale sur un intervalle est une probabilité.</li>
+          <li>\(\psi(x)\) et \(\varphi(p)\) sont liées par la transformée de Fourier ; \(P\) génère les translations.</li>
+          <li>Un paquet d’ondes libre avance à la vitesse de groupe et s’étale ; une barrière plus haute que l’énergie reste franchissable par effet tunnel.</li>
+        </ul>
+        <p><strong>Formules.</strong></p>
+        <ul>
+          <li>\(\displaystyle\int|\psi(x)|^2\,\mathrm dx=\int|\varphi(p)|^2\,\mathrm dp=1\) ; \(\hat p=-i\hbar\,\partial_x\), \([X,P]=i\hbar\).</li>
+          <li>\(\Delta x\,\Delta p\ge\hbar/2\), égalité pour la gaussienne.</li>
+          <li>\(v_g=\mathrm d\omega/\mathrm dk=p_0/m\) ; \(\sigma_x(t)=\sigma_0\sqrt{1+(t/\tau)^2}\) avec \(\tau=2m\sigma_0^2/\hbar\).</li>
+        </ul>
+        <p><strong>Pièges.</strong> Prendre le nuage au pied de la lettre (chaque détection est ponctuelle) ; croire que l’électron « grossit » (c’est la zone d’indétermination qui s’élargit) ; confondre vitesse de phase \(p_0/2m\) et vitesse de groupe \(p_0/m\).</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">Glossaire français – anglais</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Terme</th><th>English term</th><th>Définition</th></tr></thead><tbody><tr><td>Densité de présence</td><td>Probability density</td><td>\(\rho(x)=|\psi(x)|^2\), avec \(\mathrm dP=\rho\,\mathrm dx\).</td></tr><tr><td>Effet tunnel</td><td>Quantum tunnelling</td><td>Passage d’une barrière \(V_0>E\) par une onde évanescente, \(T\propto e^{-2\kappa a}\).</td></tr><tr><td>Fonction d’état</td><td>Wave function</td><td>\(\psi(x,t)=\braket{x|\psi(t)}\), normalisée à 1.</td></tr><tr><td>Opérateur impulsion</td><td>Momentum operator</td><td>\(\hat p=-i\hbar\,\mathrm d/\mathrm dx\), avec \([X,P]=i\hbar\).</td></tr><tr><td>Paquet d’ondes</td><td>Wave packet</td><td>Superposition d’ondes planes d’impulsions voisines.</td></tr><tr><td>Transformée de Fourier</td><td>Fourier transform</td><td>Passage unitaire de la base des positions à celle des impulsions.</td></tr></tbody></table></div>
       </div>
     </section>
 

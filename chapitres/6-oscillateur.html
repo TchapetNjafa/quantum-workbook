@@ -171,6 +171,11 @@
         <button class="btn small" data-check type="button">Vérifier</button>
         <div class="feedback"></div>
       </article>
+
+      <div class="box note rise" id="piege-echelle">
+        <span class="box-title">Piège courant — \(a\) et \(a^\dagger\) ne sont pas des grandeurs physiques</span>
+        <p>On est tenté de leur chercher un sens direct, comme pour \(X\) et \(P\). Or \(a^\dagger\neq a\) : ils ne sont pas hermitiens, donc ne représentent aucune grandeur mesurable. Ce sont des outils qui font monter ou descendre sur l’échelle des niveaux. Les grandeurs physiques construites avec eux sont hermitiennes : \(H=\hbar\omega(a^\dagger a+\tfrac12)\), \(N=a^\dagger a\).</p>
+      </div>
     </section>
 
     <!-- ===================================================== 6.1.3 -->
@@ -365,6 +370,17 @@
         </div></details>        <p class="analogy-src"><strong>Source du savoir.</strong> Musique gnawa (Maroc) et cérémonies vodun (golfe de Guinée : Bénin, Togo) : deux traditions distinctes.</p>
         <p class="analogy-q"><strong>Trois questions.</strong> Quelles <em>relations</em> l’analogie met-elle en correspondance (et non quels objets) ? Où casse-t-elle ? Que dit la physique, indépendamment de l’analogie ?</p>
       </aside>
+
+      <div class="box history rise" id="histoire-glauber">
+        <p>Schrödinger introduit les états cohérents dès 1926, mais ils restent longtemps une curiosité mathématique. Dans les années 1960, Roy Glauber montre qu’ils décrivent la lumière d’un laser idéal et la distingue de la lumière chaotique d’une ampoule, un mélange statistique. Ces travaux fondent l’optique quantique moderne et lui valent une part du prix Nobel de physique 2005.</p>
+      </div>
+      <div class="box history rise" id="dialogue-glauber">
+        <p><strong>Dialogue imaginé : comment une onde émerge-t-elle du vide ?</strong> Les répliques résument un argument, ce ne sont pas des citations.</p>
+        <p>Le sceptique : « Mon laser émet des milliards de photons par seconde, leur nombre est bien défini. Pourquoi un état où il est incertain ? »</p>
+        <p>Glauber : « Dans un état \(\ket n\), le champ moyen est nul, alors que votre faisceau oscille visiblement. Pour obtenir une oscillation de phase stable, il faut superposer des états \(\ket n\), donc renoncer à un nombre de photons défini. »</p>
+        <p>Le sceptique : « Un compromis, en somme ? »</p>
+        <p>Glauber : « Oui : on perd la certitude sur le nombre, on gagne la stabilité de la phase. C’est un état cohérent. »</p>
+      </div>
     </section>
 
     <!-- ===================================================== 6.3 -->
@@ -429,9 +445,43 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="6.Q3" data-answer="b">
+        <div class="exo-head"><span class="num">Question conceptuelle 6.Q3</span><h3>Photons dans un faisceau laser</h3></div>
+        <p>Une impulsion laser monomode idéale est décrite par un état cohérent \(\ket\alpha\) avec \(\langle N\rangle=|\alpha|^2=4\). Un photodétecteur parfait (rendement 100 %) n’enregistre aucun photon avec quelle probabilité ? <em>À discuter par deux avant de répondre.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="Non : un état cohérent n’a pas de nombre de photons défini ; 4 est une moyenne."><input type="radio" name="cq6Q3" value="a">0, car l’impulsion contient exactement 4 photons.</label></li>
+          <li><label class="choice" data-why="Exact : \(P(n)=e^{-|\alpha|^2}|\alpha|^{2n}/n!\), donc \(P(0)=e^{-4}\approx 0{,}018\). Dans un état de Fock \(\ket4\), en revanche, \(P(0)=0\)."><input type="radio" name="cq6Q3" value="b">\(e^{-4}\approx 1{,}8\,\%\).</label></li>
+          <li><label class="choice" data-why="Non : rien dans la loi de Poisson ne donne \(1/\langle N\rangle\)."><input type="radio" name="cq6Q3" value="c">1/4 = 25 %.</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Vérifier</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">Dossier avec un détenteur de savoirs</span>
         <p>Choisissez une analogie de ce chapitre. Avec l’accord de la personne, qui peut être une aînée, un praticien, un artisan ou un musicien, demandez : (1) comment elle présente cette notion, dans quelle langue et avec quels mots ; (2) à quelles conditions ce savoir se transmet ; (3) ce qui, selon elle, ne se traduit pas en physique. Notez les mots en langue locale, restituez votre dossier à la personne, puis présentez les deux systèmes, chacun cohérent avec ses propres critères, sans conclure que l’un prouve l’autre.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Ce qu’il faut retenir du chapitre 6</span>
+        <p><strong>Points clés.</strong></p>
+        <ul>
+          <li>Les niveaux sont équidistants, \(E_n=\hbar\omega(n+\tfrac12)\) ; l’énergie du point zéro \(E_0=\tfrac12\hbar\omega>0\) découle de la relation d’indétermination.</li>
+          <li>Les opérateurs \(a\) et \(a^\dagger\) (non hermitiens) construisent toute l’échelle des états de Fock \(\ket n\), dans lesquels \(\langle X\rangle=0\).</li>
+          <li>Un état cohérent \(\ket\alpha\) est propre de \(a\), obtenu en déplaçant le vide ; il oscille à la pulsation \(\omega\) sans se déformer et sature \(\Delta x\,\Delta p=\hbar/2\).</li>
+        </ul>
+        <p><strong>Formules.</strong></p>
+        <ul>
+          <li>\([a,a^\dagger]=\mathbb 1\) ; \(H=\hbar\omega(N+\tfrac12)\), \(N=a^\dagger a\) ; \(a\ket n=\sqrt n\ket{n-1}\), \(a^\dagger\ket n=\sqrt{n+1}\ket{n+1}\).</li>
+          <li>\(a\ket\alpha=\alpha\ket\alpha\) ; \(P(n)=e^{-|\alpha|^2}|\alpha|^{2n}/n!\) ; \(\langle N\rangle=|\alpha|^2\), \(\Delta N=|\alpha|\).</li>
+        </ul>
+        <p><strong>Pièges.</strong> Croire que Planck a prouvé en 1900 l’existence de quanta de lumière (Einstein le postule en 1905) ; confondre un état cohérent, état pur à phase définie, avec un mélange thermique ; croire qu’un état comprimé viole Heisenberg (il redistribue l’indétermination entre deux quadratures).</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">Glossaire français – anglais</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Terme</th><th>English term</th><th>Définition</th></tr></thead><tbody><tr><td>Énergie du point zéro</td><td>Zero-point energy</td><td>\(E_0=\tfrac12\hbar\omega\), minimum imposé par la relation d’indétermination.</td></tr><tr><td>États cohérents</td><td>Coherent states</td><td>États propres de l’annihilation, \(a\ket\alpha=\alpha\ket\alpha\), à indétermination minimale.</td></tr><tr><td>États comprimés</td><td>Squeezed states</td><td>Fluctuations réduites sur une quadrature, accrues sur la conjuguée.</td></tr><tr><td>États de Fock</td><td>Fock states</td><td>États propres de \(N\) à nombre de quanta fixé : \(N\ket n=n\ket n\).</td></tr><tr><td>Opérateurs d’échelle</td><td>Ladder operators</td><td>\(a\) et \(a^\dagger\), avec \([a,a^\dagger]=1\).</td></tr><tr><td>Polynômes de Hermite</td><td>Hermite polynomials</td><td>Partie polynomiale des fonctions propres \(\psi_n(x)\).</td></tr></tbody></table></div>
       </div>
     </section>
 

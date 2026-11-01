@@ -224,6 +224,14 @@
         </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Divination practices of Africa: the course does not name the tradition, to be specified with a practitioner.</p>
         <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
+
+      <div class="box history rise" id="dialogue-hasard">
+        <p><strong>Imagined dialogue: chance in question.</strong> The incompatibility of measurements fed the debate between Einstein and Bohr. The lines summarise their positions; they are not quotations (the phrase “God does not play dice” is Einstein’s own).</p>
+        <p>Einstein: “The atom must know where it is going. This 50/50 can only be a sign of our ignorance: there are hidden instructions. God does not play dice.”</p>
+        <p>Bohr: “There is no memory to erase: the property ‘spin along \(z\)’ was simply not defined while we were asking about spin along \(x\). This is not ignorance, it is a fundamental indefiniteness.”</p>
+        <p>Einstein: “Then the theory is incomplete.”</p>
+        <p>Bohr: “It is complete. It is our language that must adapt, not nature.” Bell’s inequalities (chapter 4) will settle the question experimentally.</p>
+      </div>
     </section>
 
     <!-- ===================================================== 2.2 -->
@@ -444,6 +452,17 @@
         </div></details>        <p class="analogy-src"><strong>Source of the knowledge.</strong> Ceremonial masks of many cultures: the course names none, to be specified.</p>
         <p class="analogy-q"><strong>Three questions.</strong> Which <em>relations</em> does the analogy map (not which objects)? Where does it break? What does the physics say, independently of the analogy?</p>
       </aside>
+
+      <div class="box note rise" id="piege-commutateur">
+        <span class="box-title">Common pitfall — zero or non-zero commutator</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>\([A,B]=0\)</th><th>\([A,B]\neq0\)</th></tr></thead><tbody>
+          <tr><td>Compatible quantities</td><td>Incompatible quantities</td></tr>
+          <tr><td>Measurable together with arbitrary precision</td><td>No precise simultaneous measurement</td></tr>
+          <tr><td>Common eigenbasis</td><td>No common eigenbasis</td></tr>
+          <tr><td>Measuring \(A\) does not disturb \(B\)</td><td>Measuring \(A\) erases information about \(B\)</td></tr>
+          <tr><td>\([S_z,S_z]=0\)</td><td>\([S_z,S_x]=i\hbar S_y\)</td></tr>
+        </tbody></table></div>
+      </div>
     </section>
 
     <!-- ===================================================== 2.5 -->
@@ -526,9 +545,45 @@
         <div class="feedback"></div>
       </article>
 
+      <article class="exo" data-id="2.Q3" data-answer="b">
+        <div class="exo-head"><span class="num">Conceptual question 2.Q3</span><h3>Simultaneous measurements</h3></div>
+        <p>Can the components \(S_x\) and \(S_z\) of the spin of one electron be measured simultaneously with arbitrary precision? <em>Discuss in pairs before answering.</em></p>
+        <ul class="choices">
+          <li><label class="choice" data-why="No: the limit is not technological. It is intrinsic to the state."><input type="radio" name="cq2Q3" value="a">Yes, with a sensitive enough detector and no thermal noise.</label></li>
+          <li><label class="choice" data-why="Correct: two observables are simultaneously defined only if their operators commute. No state is an eigenstate of both \(S_x\) and \(S_z\)."><input type="radio" name="cq2Q3" value="b">No: \([S_x,S_z]=-i\hbar S_y\neq0\), there is no common eigenbasis.</label></li>
+          <li><label class="choice" data-why="No: that measures the component \(S_{45^\circ}\), a different observable, which gives neither \(S_x\) nor \(S_z\)."><input type="radio" name="cq2Q3" value="c">Yes, by orienting the Stern-Gerlach magnet at 45° between \(x\) and \(z\).</label></li>
+        </ul>
+        <button class="btn small" data-check type="button">Check</button>
+        <div class="feedback"></div>
+      </article>
+
       <div class="box note rise">
         <span class="box-title">File with a knowledge holder</span>
         <p>Choose one analogy from this chapter. With the person’s consent, who may be an elder, a practitioner, a craftsperson or a musician, ask: (1) how they present this notion, in what language and with what words; (2) under what conditions this knowledge is passed on; (3) what, in their view, does not translate into physics. Write down the words in the local language, return your file to the person, then present both systems, each coherent by its own criteria, without concluding that one proves the other.</p>
+      </div>
+    </section>
+
+        <section class="section" id="recap">
+      <div class="box note rise">
+        <span class="box-title">Key points of chapter 2</span>
+        <p><strong>Main ideas.</strong></p>
+        <ul>
+          <li>To measure is to project \(\ket\psi\) onto the eigenspace of the result obtained.</li>
+          <li>A measurable quantity is a Hermitian operator; its real eigenvalues are the only possible results.</li>
+          <li>Two observables are compatible if and only if \([A,B]=0\); otherwise measuring one erases information about the other.</li>
+          <li>A non-zero commutator sets a lower bound on the product of standard deviations.</li>
+        </ul>
+        <p><strong>Formulas.</strong></p>
+        <ul>
+          <li>\(A=\sum_na_n\ket{a_n}\bra{a_n}\); \(P(a_n)=|\braket{a_n|\psi}|^2\); \(\langle A\rangle=\braket{\psi|A|\psi}\).</li>
+          <li>\(S_j=\tfrac\hbar2\sigma_j\); \([\sigma_j,\sigma_k]=2i\epsilon_{jkl}\sigma_l\).</li>
+          <li>Robertson: \(\Delta A\,\Delta B\ge\tfrac12|\langle[A,B]\rangle|\).</li>
+        </ul>
+        <p><strong>Pitfalls.</strong> Believing a measurement reveals a hidden pre-existing value; confusing quantum uncertainty (a property of the state) with instrument imprecision; taking the beam of atoms leaving the oven for a superposition: it is a statistical mixture, and only a first Stern-Gerlach prepares a pure state.</p>
+      </div>
+      <div class="box def rise" id="glossaire">
+        <span class="box-title">French – English glossary</span>
+        <div class="table-wrap"><table class="plain-table"><thead><tr><th>Term</th><th>Terme français</th><th>Definition</th></tr></thead><tbody><tr><td>Commutator</td><td>Commutateur</td><td>\([A,B]=AB-BA\); if non-zero, the observables are incompatible.</td></tr><tr><td>Pauli matrices</td><td>Matrices de Pauli</td><td>Hermitian, unitary \(2\times2\) matrices, \([\sigma_j,\sigma_k]=2i\epsilon_{jkl}\sigma_l\).</td></tr><tr><td>Observable</td><td>Observable</td><td>Measurable quantity, represented by a Hermitian operator.</td></tr><tr><td>Hermitian operator</td><td>Opérateur hermitien</td><td>Equal to its adjoint; real spectrum.</td></tr><tr><td>Uncertainty relation</td><td>Relation d’indétermination</td><td>\(\Delta A\,\Delta B\ge\tfrac12|\langle[A,B]\rangle|\).</td></tr><tr><td>Spin</td><td>Spin</td><td>Intrinsic angular momentum with no classical counterpart.</td></tr></tbody></table></div>
       </div>
     </section>
 
