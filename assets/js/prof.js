@@ -85,6 +85,7 @@
         <button class="btn small ghost" type="button" data-act="copie">${d.copie ? t('Copie déposée : oui', 'Paper upload: on') : t('Copie déposée : non', 'Paper upload: off')}</button>
         <button class="btn small ghost" type="button" data-act="sujet">${d.sujet ? t('Remplacer le sujet PDF', 'Replace the PDF assignment') : t('Ajouter un sujet PDF', 'Add a PDF assignment')}</button>
         <button class="btn small ghost" type="button" data-act="apercu">${t('Aperçu', 'Preview')}</button>
+        <a class="btn small ghost" href="/api/prof/devoirs/${d.id}/export.csv">${t('Notes (CSV)', 'Marks (CSV)')}</a>
         <button class="btn small ghost" type="button" data-act="remises">${t('Remises', 'Submissions')}</button>
         <button class="btn small ghost" type="button" data-act="dates">${t('Dates', 'Dates')}</button></div></td></tr>`).join('')}
       </tbody></table></div>` : `<p class="muted">${t('Aucun devoir.', 'No assignment.')}</p>`}
@@ -150,7 +151,9 @@
       <p class="muted">${t('Tous les devoirs publiés, une ligne par étudiant, notes ramenées sur 20. La dernière colonne est la moyenne sur l’ensemble des devoirs donnés ; elle n’existe que si l’étudiant a rendu au moins un devoir. Un devoir non rendu compte 0 ; un devoir rendu mais pas encore noté est écarté de la moyenne. Le fichier est recalculé à chaque téléchargement. Les devoirs dont les remises ont été supprimées (5 mois) n’y figurent plus.',
         'All published assignments, one row per student, marks out of 20. The last column is the mean over all assignments given; it exists only if the student has handed in at least one assignment. A missing assignment counts 0; a submitted but unmarked one is left out of the mean. The file is recomputed at each download. Assignments whose submissions were deleted (5 months) no longer appear.')}</p>
       <div class="btn-row"><a class="btn small accent" href="/api/prof/notes.csv">${t('Télécharger le récapitulatif (CSV)', 'Download the summary (CSV)')}</a>
-        <button class="btn small ghost" type="button" data-recap>${t('Afficher à l’écran', 'Show on screen')}</button></div><div data-recap-res></div>`;
+        <button class="btn small ghost" type="button" data-recap>${t('Afficher à l’écran', 'Show on screen')}</button>
+        <button class="btn small ghost" type="button" data-recap-fermer hidden>✕ ${t('Masquer le tableau', 'Hide the table')}</button></div><div data-recap-res></div>`;
+    rec.querySelector('[data-recap-fermer]').onclick = () => { rec.querySelector('[data-recap-res]').innerHTML = ''; rec.querySelector('[data-recap-fermer]').hidden = true; };
     root.appendChild(rec);
     rec.querySelector('[data-recap]').onclick = async () => {
       const out = rec.querySelector('[data-recap-res]'), rep = await api('/api/prof/notes');
@@ -161,6 +164,7 @@
       out.innerHTML = lignes.length ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Matricule', 'Student no.')}</th><th>${t('Nom', 'Name')}</th>${ds.map(d => `<th>${esc(d.titre)}</th>`).join('')}<th>${t('Moyenne', 'Mean')}</th></tr></thead><tbody>
         ${lignes.map(l => `<tr><td>${esc(l.matricule)}</td><td>${esc(l.nom || l.email)}</td>${ds.map(d => `<td>${d.id in l.notes ? cel(l.notes[d.id]) : ''}</td>`).join('')}<td><b>${l.moyenne === null ? '' : cel(l.moyenne)}</b></td></tr>`).join('')}</tbody></table></div>`
         : `<p class="muted">${t('Aucun étudiant.', 'No student.')}</p>`;
+      rec.querySelector('[data-recap-fermer]').hidden = false;
     };
     root.appendChild(prf);
     prf.querySelector('[data-profils]').onclick = async () => {
@@ -269,6 +273,7 @@
         : t(`${j.envoyes} notification(s) envoyée(s) sur ${j.abonnes} appareil(s) abonné(s)${j.expires ? `, ${j.expires} abonnement(s) expiré(s) retiré(s)` : ''}${j.echecs ? `, ${j.echecs} échec(s)` : ''}.`,
           `${j.envoyes} notification(s) sent to ${j.abonnes} subscribed device(s)${j.expires ? `, ${j.expires} expired subscription(s) removed` : ''}${j.echecs ? `, ${j.echecs} failure(s)` : ''}.`);
     };
+    root.querySelector('[data-detail]').addEventListener('click', e => { if (e.target.closest('[data-fermer-detail]')) e.currentTarget.innerHTML = ''; });
     root.querySelectorAll('[data-act]').forEach(b => { b.onclick = () => agir(b.closest('tr').dataset.id, b.dataset.act, devoirs.find(d => String(d.id) === b.closest('tr').dataset.id)).catch(erreur); });
   }
 
@@ -288,7 +293,7 @@
     if (r.status === 401) return verrou();
     if (!r.ok) { detail.textContent = (await r.json().catch(() => ({}))).error || r.status; return; }
     const a = await r.json();
-    detail.innerHTML = `<h3>${t('Aperçu : ', 'Preview: ')}${esc(a.titre)}</h3>
+    detail.innerHTML = `<div class="prof-ligne"><h3 style="margin:0">${t('Aperçu : ', 'Preview: ')}${esc(a.titre)}</h3><button class="btn small ghost" type="button" data-fermer-detail aria-label="${t('Fermer', 'Close')}">✕ ${t('Fermer', 'Close')}</button></div>
       <p class="muted">${a.publie ? t('Publié : lecture seule.', 'Published: read-only.') : t('Non publié : les étudiants ne le voient pas encore.', 'Not published: students cannot see it yet.')} ${esc(quand(a.ouvre))} → ${esc(quand(a.ferme))}${a.copie ? t(' · copie à déposer', ' · paper upload') : ''}${a.sujet ? t(' · sujet PDF joint', ' · PDF assignment attached') : ''}</p>
       <p class="muted">${t('Vue étudiant (aucun champ n’est actif).', 'Student view (no field is active).')}</p>
       ${a.etudiant.length ? a.etudiant.map((q, i) => blocQuestion(q, i, false)).join('') : `<p class="muted">${t('Devoir à copie déposée : pas de question.', 'Paper-upload assignment: no questions.')}</p>`}
@@ -301,7 +306,7 @@
     if (pub) pub.onclick = () => agir(id, 'publie', d).catch(erreur);
     const mod = detail.querySelector('[data-ap-modifier]');
     if (mod) mod.onclick = () => {
-      detail.innerHTML = `<h3>${t('Modifier : ', 'Edit: ')}${esc(a.titre)}</h3>
+      detail.innerHTML = `<div class="prof-ligne"><h3 style="margin:0">${t('Modifier : ', 'Edit: ')}${esc(a.titre)}</h3><button class="btn small ghost" type="button" data-fermer-detail aria-label="${t('Fermer', 'Close')}">✕ ${t('Fermer', 'Close')}</button></div>
         <p class="muted">${t('Corrigez le JSON puis enregistrez : le devoir n’est pas supprimé, il garde son numéro. Possible tant qu’il n’est pas publié et que personne n’a remis.', 'Fix the JSON then save: the assignment is not deleted and keeps its number. Possible while it is unpublished and nobody has submitted.')}</p>
         <textarea data-contenu rows="18" spellcheck="false">${esc(JSON.stringify(a.contenu, null, 2))}</textarea>
         <div class="btn-row"><button class="btn accent" type="button" data-enreg>${t('Enregistrer', 'Save')}</button><button class="btn ghost" type="button" data-annuler>${t('Annuler', 'Cancel')}</button></div><div data-msg2 role="status" aria-live="polite"></div>`;
@@ -354,7 +359,7 @@
     const r = await api(`/api/prof/devoirs/${id}/remises`);
     if (r.status === 401) return verrou();
     const { remises } = await r.json();
-    detail.innerHTML = `<h3>${esc(d.titre)} — ${t('remises', 'submissions')}</h3>` + (remises.length
+    detail.innerHTML = `<div class="prof-ligne"><h3 style="margin:0">${esc(d.titre)} — ${t('remises', 'submissions')}</h3><button class="btn small ghost" type="button" data-fermer-detail aria-label="${t('Fermer', 'Close')}">✕ ${t('Fermer', 'Close')}</button></div>` + (remises.length
       ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Étudiant', 'Student')}</th><th>${t('Note auto', 'Auto mark')}</th><th>${t('Reçue (serveur)', 'Received (server)')}</th><th>${t('Ouverte (serveur)', 'Opened (server)')}</th><th>${t('Déclarée (appareil, non vérifiable)', 'Declared (device, unverifiable)')}</th><th>${t('Retard', 'Late')}</th><th>${t('Copie', 'Paper')}</th></tr></thead><tbody>
         ${remises.map(x => `<tr><td>${esc(x.nom)} <b>${esc(x.matricule ?? t('(sans matricule)', '(no student number)'))}</b> <span class="muted">${esc(x.email)}</span></td><td>${esc(noteTxt(x))} ${x.total_manuel > 0 ? `<button class="btn small ghost" type="button" data-corriger="${esc(x.email)}">${t('Corriger', 'Mark')}</button>` : ''}</td><td>${esc(quand(x.recu))}</td><td>${esc(quand(x.debut))}</td><td>${esc(quand(x.declare))}${x.hors_ligne ? t(' <span class="muted">(préparée hors connexion)</span>', ' <span class="muted">(prepared offline)</span>') : ''}</td><td>${x.recu ? (x.retard ? t('oui', 'yes') : t('non', 'no')) : '—'}</td>
           <td>${x.copie_taille ? `<a href="/api/prof/devoirs/${id}/copie/${encodeURIComponent(x.email)}">${t('Télécharger', 'Download')}</a> <span class="muted">(${Math.max(1, Math.round(x.copie_taille / 1024))} ${t('Ko', 'KB')}, ${esc(quand(x.copie_recu))}${x.copie_retard ? t(', en retard', ', late') : ''})</span>` : '—'}</td></tr>`).join('')}</tbody></table></div>`
