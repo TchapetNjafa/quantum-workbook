@@ -60,7 +60,9 @@ const SCHEMA = [
   `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS brouillon JSONB`,          // dernières réponses envoyées automatiquement pendant le devoir
   `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS battement TIMESTAMPTZ`,    // dernier signe de vie de la page
   `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS sorties INT NOT NULL DEFAULT 0`, // fois où l'onglet a été quitté (changement d'onglet, d'application)
-  `ALTER TABLE remises ADD COLUMN IF NOT EXISTS auto TEXT`                // NULL = remise volontaire ; 'sortie' ou 'temps' = remise automatique
+  `ALTER TABLE remises ADD COLUMN IF NOT EXISTS auto TEXT`,               // NULL = remise volontaire ; 'sortie', 'onglet' ou 'temps' = remise automatique
+  `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS absence_ms INT NOT NULL DEFAULT 0`,     // durée totale pendant laquelle la page était cachée (mesurée par l'appareil, indicative)
+  `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS absence_max_ms INT NOT NULL DEFAULT 0`  // plus longue absence
 ];
 
 function connexion() {
