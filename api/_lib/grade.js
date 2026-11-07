@@ -1,7 +1,7 @@
 // Validation d'un devoir et correction automatique côté serveur (fonctions pures).
 // Types : qcm, vrai_faux, numerical (corrigés), interpretation (correction manuelle).
 export const TYPES = ['qcm', 'vrai_faux', 'numerical', 'interpretation'];
-export const LABOS = ['young', 'mz', 'phasors', 'qubit', 'deco']; // simulateurs du Carnet affichables dans un devoir (labos du chapitre 1)
+export const LABOS = ['young', 'mz', 'phasors', 'qubit', 'deco', 'sg', 'op', 'rb']; // simulateurs du Carnet affichables dans un devoir (labos des chapitres 1 et 2)
 const SECRETS = ['correct_answer', 'tolerance', 'explanation', 'sample_answer'];
 
 /** Adresse e-mail reçue dans l'URL : décodée sans exception, en minuscules, ou null si elle est invalide. */
