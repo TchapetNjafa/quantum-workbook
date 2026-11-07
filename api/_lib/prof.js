@@ -122,13 +122,13 @@ export async function exportCsv({ params }) {
   const [, { remises }] = await remisesDevoir({ params });
   const entete = ['email', 'matricule', 'nom', 'note_auto', 'total_auto', 'note_manuelle', 'total_manuel', 'note_totale', 'recu_serveur', 'en_retard', 'hors_connexion',
     'declare_appareil_non_verifiable', 'ouverture_serveur', 'copie', 'copie_octets', 'copie_recu_serveur', 'copie_en_retard',
-    'sorties_de_page', 'remise_automatique', ...manuelles.map(x => `points_${x.id}_sur_${x.points}`)];
+    'sorties_de_page', 'absence_totale_s', 'absence_max_s', 'remise_automatique', ...manuelles.map(x => `points_${x.id}_sur_${x.points}`)];
   const lignes = remises.map(r => {
     const complet = r.note !== null && (!r.manuel || r.note_manuelle !== null);
     return [r.email, r.matricule, r.nom, r.note, r.total, r.note_manuelle, r.manuel ? r.total_manuel : '', complet ? r.note + (r.note_manuelle || 0) : '',
       r.recu, r.recu ? (r.retard ? 'oui' : 'non') : '', r.recu ? (r.hors_ligne ? 'oui' : 'non') : '', r.declare, r.debut,
       r.copie_taille ? 'oui' : 'non', r.copie_taille, r.copie_recu, r.copie_taille ? (r.copie_retard ? 'oui' : 'non') : '',
-      r.sorties ?? '', r.auto === 'sortie' ? 'sortie de la page' : r.auto === 'onglet' ? 'changement d’onglet' : r.auto === 'temps' ? 'fin du temps' : '', ...manuelles.map(x => r.notes_questions?.[x.id] ?? '')];
+      r.sorties ?? '', r.absence_ms === null || r.absence_ms === undefined ? '' : Math.round(r.absence_ms / 100) / 10, r.absence_max_ms === null || r.absence_max_ms === undefined ? '' : Math.round(r.absence_max_ms / 100) / 10, r.auto === 'sortie' ? 'sortie de la page' : r.auto === 'onglet' ? 'changement d’onglet' : r.auto === 'temps' ? 'fin du temps' : '', ...manuelles.map(x => r.notes_questions?.[x.id] ?? '')];
   });
   const texte = '\ufeff' + [entete, ...lignes].map(l => l.map(cellule).join(';')).join('\r\n') + '\r\n';
   return [200, { texte, mime: 'text/csv; charset=utf-8', nom: `devoir-${params.id}-notes.csv` }];
@@ -239,7 +239,7 @@ export async function remisesDevoir({ params }) {
   if (dev) await finaliser(dev); // devoir surveillé : les sessions terminées sans remise deviennent des remises automatiques
   const l = await q(
     // un étudiant apparaît s'il a remis les réponses OU déposé une copie (l'un des deux peut manquer) ; devoir surveillé : OU s'il l'a ouvert
-    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, r.declare, r.recu, r.retard, r.hors_ligne, r.auto, b.debut, b.sorties, b.quitte,
+    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, r.declare, r.recu, r.retard, r.hors_ligne, r.auto, b.debut, b.sorties, b.quitte, b.absence_ms, b.absence_max_ms,
             f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard, pr.matricule, lc.nom AS nom_liste
        FROM (SELECT email FROM remises WHERE devoir_id = $1 UNION SELECT email FROM fichiers WHERE devoir_id = $1
              UNION SELECT email FROM debuts WHERE devoir_id = $1 AND $2::boolean) u
@@ -250,7 +250,7 @@ export async function remisesDevoir({ params }) {
        LEFT JOIN liste_classe lc ON lc.matricule = pr.matricule
       ORDER BY u.email`, [Number(params.id), !!(dev && dev.surveille)]);
   const num = v => (v === null || v === undefined ? null : Number(v));
-  return [200, { surveille: !!(dev && dev.surveille), remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), note_manuelle: num(r.note_manuelle), total_manuel: num(r.total_manuel), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), quitte: iso(r.quitte), adresse_suspecte: !emailCorrespond(r.email, r.nom_liste || r.nom), sorties: r.sorties ?? null, auto: r.auto ?? null, copie_recu: iso(r.copie_recu) })) }];
+  return [200, { surveille: !!(dev && dev.surveille), remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), note_manuelle: num(r.note_manuelle), total_manuel: num(r.total_manuel), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), quitte: iso(r.quitte), adresse_suspecte: !emailCorrespond(r.email, r.nom_liste || r.nom), sorties: r.sorties ?? null, absence_ms: r.absence_ms ?? null, absence_max_ms: r.absence_max_ms ?? null, auto: r.auto ?? null, copie_recu: iso(r.copie_recu) })) }];
 }
 
 /** Devoir surveillé : l'étudiant a perdu sa session (panne, mauvaise manipulation) → l'enseignant la rouvre. Efface l'ouverture et la remise AUTOMATIQUE ;

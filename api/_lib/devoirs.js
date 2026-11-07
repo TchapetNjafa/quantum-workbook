@@ -123,6 +123,10 @@ export async function ouvrir({ session, params }) {
   }];
 }
 
+/** Durées d'absence (page cachée) déclarées par l'appareil, en millisecondes : entiers de 0 à 24 h, sinon 0. Indicatives, comme l'heure déclarée d'une remise. */
+const ms = v => (Number.isInteger(v) && v >= 0 && v <= 86_400_000 ? v : 0);
+const absences = body => ({ total: ms(body?.absence_ms), max: ms(body?.absence_max_ms) });
+
 /** Devoir surveillé : la page envoie ses réponses à intervalle régulier (et signale les changements d'onglet). Sert de brouillon et de signe de vie. */
 export async function brouillon({ session, params, body }) {
   if (session.role === 'prof') return [200, { ok: true }];
@@ -130,10 +134,12 @@ export async function brouillon({ session, params, body }) {
   if (!d || !d.surveille) return [404, { error: 'devoir introuvable' }];
   const reponses = body && typeof body.reponses === 'object' && body.reponses !== null && !Array.isArray(body.reponses) ? body.reponses : null;
   const sorties = Number.isInteger(body?.sorties) && body.sorties >= 0 && body.sorties <= 1000 ? body.sorties : 0;
+  const { total, max } = absences(body);
   const ecrit = await q(
-    `UPDATE debuts SET brouillon = COALESCE($3::jsonb, brouillon), battement = $4, sorties = GREATEST(sorties, $5)
+    `UPDATE debuts SET brouillon = COALESCE($3::jsonb, brouillon), battement = $4, sorties = GREATEST(sorties, $5),
+            absence_ms = GREATEST(absence_ms, $6), absence_max_ms = GREATEST(absence_max_ms, $7)
       WHERE devoir_id = $1 AND email = $2 AND quitte IS NULL RETURNING devoir_id`,
-    [d.id, session.email, reponses && JSON.stringify(reponses), maintenant().toISOString(), sorties]);
+    [d.id, session.email, reponses && JSON.stringify(reponses), maintenant().toISOString(), sorties, total, max]);
   return ecrit.length ? [200, { ok: true }] : [409, { error: 'la session de ce devoir est terminée', termine: true }];
 }
 
@@ -144,7 +150,9 @@ export async function quitter({ session, params, body }) {
   if (!d || !d.surveille) return [404, { error: 'devoir introuvable' }];
   const now = maintenant();
   const sorties = Number.isInteger(body?.sorties) && body.sorties >= 0 && body.sorties <= 1000 ? body.sorties : 0;
-  const ferme = await q('UPDATE debuts SET quitte = $3, sorties = GREATEST(sorties, $4) WHERE devoir_id = $1 AND email = $2 AND quitte IS NULL RETURNING brouillon', [d.id, session.email, now.toISOString(), sorties]);
+  const { total, max } = absences(body);
+  const ferme = await q(`UPDATE debuts SET quitte = $3, sorties = GREATEST(sorties, $4), absence_ms = GREATEST(absence_ms, $5), absence_max_ms = GREATEST(absence_max_ms, $6)
+                          WHERE devoir_id = $1 AND email = $2 AND quitte IS NULL RETURNING brouillon`, [d.id, session.email, now.toISOString(), sorties, total, max]);
   if (!ferme.length) return [200, { ok: true, deja: true }]; // déjà remis ou déjà quitté (ou jamais ouvert)
   const envoyees = body && typeof body.reponses === 'object' && body.reponses !== null && !Array.isArray(body.reponses) ? body.reponses : null;
   const p = await profilDe(session.email);
