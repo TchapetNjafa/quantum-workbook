@@ -141,8 +141,8 @@
   const estRadio = els => els && els.length !== undefined && els[0] && els[0].type === 'radio';
 
   /* ---------- simulateurs intégrés : les labos du Carnet, copiés tels quels depuis la page du chapitre (une seule instance par labo) ---------- */
-  const LABO_CH = { young: 1, mz: 1, phasors: 1, qubit: 1, deco: 1 };
-  const PAGES = { 1: ['/chapitres/1-etats-quantiques.html', '/en/chapters/1-quantum-states.html'] };
+  const LABO_CH = { young: 1, mz: 1, phasors: 1, qubit: 1, deco: 1, sg: 2, op: 2, rb: 2 };
+  const PAGES = { 1: ['/chapitres/1-etats-quantiques.html', '/en/chapters/1-quantum-states.html'], 2: ['/chapitres/2-mesure-operateurs.html', '/en/chapters/2-measurement-operators.html'] };
   /* Un seul exemplaire de chaque labo (les labos repèrent leurs éléments par identifiant). Il s'affiche sous la première question qui l'utilise ;
      le bouton « Utiliser le simulateur ici » des autres questions le déplace sous elles, avec ses réglages. */
   async function monterLabos(d) {
