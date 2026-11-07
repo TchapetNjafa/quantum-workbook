@@ -5,7 +5,7 @@ import { valider, decoderEmail, sansReponses } from './grade.js';
 import { creer, depuisRequete } from './session.js';
 import { supprimer, essai, modeAuth } from './stockage.js';
 import { etatDevoir, limiteDevoir, finaliser } from './devoirs.js';
-import { RETENTION_JOURS, FORMAT_MATRICULE, normaliser, nomCorrespond } from './profil.js';
+import { RETENTION_JOURS, FORMAT_MATRICULE, normaliser, nomCorrespond, emailCorrespond } from './profil.js';
 
 export const COOKIE_PROF = 'phy321_prof';
 export const DUREE_PROF = 3600; // secondes : il faut ressaisir le mot de passe après une heure
@@ -128,7 +128,7 @@ export async function exportCsv({ params }) {
     return [r.email, r.matricule, r.nom, r.note, r.total, r.note_manuelle, r.manuel ? r.total_manuel : '', complet ? r.note + (r.note_manuelle || 0) : '',
       r.recu, r.recu ? (r.retard ? 'oui' : 'non') : '', r.recu ? (r.hors_ligne ? 'oui' : 'non') : '', r.declare, r.debut,
       r.copie_taille ? 'oui' : 'non', r.copie_taille, r.copie_recu, r.copie_taille ? (r.copie_retard ? 'oui' : 'non') : '',
-      r.sorties ?? '', r.auto === 'sortie' ? 'sortie de la page' : r.auto === 'temps' ? 'fin du temps' : '', ...manuelles.map(x => r.notes_questions?.[x.id] ?? '')];
+      r.sorties ?? '', r.auto === 'sortie' ? 'sortie de la page' : r.auto === 'onglet' ? 'changement d’onglet' : r.auto === 'temps' ? 'fin du temps' : '', ...manuelles.map(x => r.notes_questions?.[x.id] ?? '')];
   });
   const texte = '\ufeff' + [entete, ...lignes].map(l => l.map(cellule).join(';')).join('\r\n') + '\r\n';
   return [200, { texte, mime: 'text/csv; charset=utf-8', nom: `devoir-${params.id}-notes.csv` }];
@@ -221,8 +221,8 @@ export async function supprimerDevoir({ params, body }) {
 
 /** Profils des étudiants (matricule ↔ adresse), pour retrouver un étudiant et corriger une erreur de matricule. */
 export async function listeProfils() {
-  const l = await q('SELECT email, matricule, nom, visible, cree, activite FROM profils ORDER BY matricule');
-  return [200, { profils: l.map(p => ({ ...p, cree: iso(p.cree), activite: iso(p.activite) })) }];
+  const l = await q('SELECT p.email, p.matricule, p.nom, p.visible, p.cree, p.activite, c.nom AS nom_liste FROM profils p LEFT JOIN liste_classe c ON c.matricule = p.matricule ORDER BY p.matricule');
+  return [200, { profils: l.map(p => ({ ...p, cree: iso(p.cree), activite: iso(p.activite), adresse_suspecte: !emailCorrespond(p.email, p.nom_liste || p.nom) })) }];
 }
 
 /** Efface le matricule d'un étudiant (erreur de saisie, usurpation) : il devra en enregistrer un nouveau. Ses scores sont conservés tant que le profil existe ; ils sont supprimés avec lui. */
@@ -240,16 +240,17 @@ export async function remisesDevoir({ params }) {
   const l = await q(
     // un étudiant apparaît s'il a remis les réponses OU déposé une copie (l'un des deux peut manquer) ; devoir surveillé : OU s'il l'a ouvert
     `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, r.declare, r.recu, r.retard, r.hors_ligne, r.auto, b.debut, b.sorties, b.quitte,
-            f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard, pr.matricule
+            f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard, pr.matricule, lc.nom AS nom_liste
        FROM (SELECT email FROM remises WHERE devoir_id = $1 UNION SELECT email FROM fichiers WHERE devoir_id = $1
              UNION SELECT email FROM debuts WHERE devoir_id = $1 AND $2::boolean) u
        LEFT JOIN remises r ON r.devoir_id = $1 AND r.email = u.email
        LEFT JOIN debuts b ON b.devoir_id = $1 AND b.email = u.email
        LEFT JOIN fichiers f ON f.devoir_id = $1 AND f.email = u.email
        LEFT JOIN profils pr ON pr.email = u.email
+       LEFT JOIN liste_classe lc ON lc.matricule = pr.matricule
       ORDER BY u.email`, [Number(params.id), !!(dev && dev.surveille)]);
   const num = v => (v === null || v === undefined ? null : Number(v));
-  return [200, { surveille: !!(dev && dev.surveille), remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), note_manuelle: num(r.note_manuelle), total_manuel: num(r.total_manuel), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), quitte: iso(r.quitte), sorties: r.sorties ?? null, auto: r.auto ?? null, copie_recu: iso(r.copie_recu) })) }];
+  return [200, { surveille: !!(dev && dev.surveille), remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), note_manuelle: num(r.note_manuelle), total_manuel: num(r.total_manuel), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), quitte: iso(r.quitte), adresse_suspecte: !emailCorrespond(r.email, r.nom_liste || r.nom), sorties: r.sorties ?? null, auto: r.auto ?? null, copie_recu: iso(r.copie_recu) })) }];
 }
 
 /** Devoir surveillé : l'étudiant a perdu sa session (panne, mauvaise manipulation) → l'enseignant la rouvre. Efface l'ouverture et la remise AUTOMATIQUE ;
@@ -283,10 +284,10 @@ export async function verifierProfils() {
       const s = parAdr || (parNom.length === 1 ? parNom[0] : null);
       if (s && s.matricule !== p.matricule) suggestion = { matricule: s.matricule, nom: s.nom, raison: parAdr ? 'adresse' : 'nom', pris_par: pris.get(s.matricule) || null };
     }
-    return { email: p.email, matricule: p.matricule, nom: p.nom, nom_liste: l ? l.nom : null, activite: iso(p.activite), statut, suggestion };
+    return { email: p.email, matricule: p.matricule, nom: p.nom, nom_liste: l ? l.nom : null, activite: iso(p.activite), statut, suggestion, adresse_suspecte: !emailCorrespond(p.email, (l && l.nom) || p.nom) };
   });
   const resume = { total: lignes.length, ok: lignes.filter(x => x.statut === 'ok').length };
-  return [200, { liste: liste.length, resume: { ...resume, a_verifier: resume.total - resume.ok }, profils: lignes }];
+  return [200, { liste: liste.length, resume: { ...resume, a_verifier: resume.total - resume.ok, adresses_suspectes: lignes.filter(x => x.adresse_suspecte).length }, profils: lignes }];
 }
 
 /** Corrige le matricule d'un profil SANS le supprimer (les scores, défis, remises et notes restent liés à l'adresse). `aligner_nom` : reprend le nom de la liste. */
@@ -344,9 +345,11 @@ export async function importerListe({ body }) {
 /** La liste et son état : qui a déjà créé son profil. */
 export async function lireListe() {
   const l = await q(
-    `SELECT c.matricule, c.nom, c.email, (p.email IS NOT NULL) AS inscrit FROM liste_classe c
+    `SELECT c.matricule, c.nom, c.email, p.email AS profil_email, (p.email IS NOT NULL) AS inscrit FROM liste_classe c
        LEFT JOIN profils p ON p.matricule = c.matricule ORDER BY c.nom, c.matricule`);
-  return [200, { total: l.length, inscrits: l.filter(x => x.inscrit).length, lignes: l }];
+  // en rouge : adresse listée sans rapport avec le nom, ou compte inscrit sous ce matricule dont l'adresse n'a aucun rapport avec le nom (usurpation probable)
+  const lignes = l.map(x => ({ ...x, adresse_suspecte: !!x.email && !emailCorrespond(x.email, x.nom), profil_suspect: !!x.profil_email && !emailCorrespond(x.profil_email, x.nom), profil_autre_adresse: !!(x.profil_email && x.email && x.profil_email !== x.email) }));
+  return [200, { total: l.length, inscrits: l.filter(x => x.inscrit).length, suspectes: lignes.filter(x => x.adresse_suspecte || x.profil_suspect || x.profil_autre_adresse).length, lignes }];
 }
 
 export async function viderListe({ body }) {

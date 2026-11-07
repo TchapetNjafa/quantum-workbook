@@ -184,7 +184,7 @@
         <li>${t('Le devoir ne s’ouvre que du ', 'The assignment only opens from ')}<b>${esc(quand(dev.ouvre))}</b>${t(' au ', ' to ')}<b>${esc(quand(dev.ferme))}</b>${t(' (heure du serveur). Un compte à rebours s’affiche dès l’ouverture ; il se termine à l’heure de fermeture, la même pour tous.', ' (server time). A countdown is shown from the moment you open it; it ends at the closing time, the same for everyone.')}</li>
         <li><b>${t('Une fois commencé, vous ne devez plus quitter la page.', 'Once started, you must not leave the page.')}</b> ${t('Fermer l’onglet, recharger la page, revenir en arrière ou ouvrir un autre site met fin au devoir : vos réponses du moment sont remises automatiquement et vous ne pourrez plus les modifier.', 'Closing the tab, reloading, going back or opening another site ends the assignment: your answers at that moment are submitted automatically and you can no longer change them.')}</li>
         <li>${t('Le devoir ne s’ouvre qu’<b>une seule fois</b>, avec votre compte : il ne peut pas être rouvert, ni sur cet appareil ni sur un autre.', 'The assignment opens only <b>once</b> with your account: it cannot be reopened, neither on this device nor on another.')}</li>
-        <li>${t('Les changements d’onglet ou d’application pendant le devoir sont enregistrés et vus par l’enseignant.', 'Switching tabs or apps during the assignment is recorded and seen by the teacher.')}</li>
+        <li><b>${t('Changer d’onglet, de fenêtre ou d’application met fin au devoir', 'Switching tab, window or app ends the assignment')}</b> ${t('(ordinateur, téléphone et tablette) : vos réponses sont remises, comme en quittant la page. Sur téléphone, décrocher un appel qui cache la page y met fin aussi ; prévenez l’enseignant, qui peut rouvrir le devoir.', '(computer, phone and tablet): your answers are submitted, as when leaving the page. On a phone, answering a call that hides the page also ends it; tell the teacher, who can reopen the assignment.')}</li>
         <li>${t('Seule la remise peut se faire sans connexion : gardez la connexion pour toute la durée du devoir.', 'Only the submission can be made offline: keep your connection for the whole assignment.')}</li>
         <li>${t('Le devoir se fait seul, sans aide extérieure ni assistant d’intelligence artificielle.', 'The assignment is done alone, without outside help or an AI assistant.')}</li></ul></div>
       <p><label class="choice"><input type="checkbox" data-compris> <span>${t('J’ai lu ces règles et je comprends que quitter la page vaut remise et que je ne pourrai pas rouvrir le devoir.', 'I have read these rules and I understand that leaving the page counts as submitting and that I will not be able to reopen the assignment.')}</span></label></p>
@@ -219,11 +219,22 @@
     setInterval(() => { if (!estTermine()) brouillon(false); }, 8000);
     addEventListener('beforeunload', e => { if (!estTermine()) { e.preventDefault(); e.returnValue = ''; } });
     // Quitter la page = remise des dernières réponses (la requête part même pendant la fermeture de la page).
-    addEventListener('pagehide', () => { if (!estTermine()) fetch(`${base}/quitter`, { method: 'POST', credentials: 'same-origin', headers: entetes, body: corps(), keepalive: true }).catch(() => {}); });
+    let parti = false; // la page se ferme vraiment (et non un simple changement d'onglet)
+    addEventListener('pagehide', () => { parti = true; if (!estTermine()) fetch(`${base}/quitter`, { method: 'POST', credentials: 'same-origin', headers: entetes, body: corps(), keepalive: true }).catch(() => {}); });
     addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+    // Partout (ordinateur, téléphone, tablette) : changer d'onglet, de fenêtre ou d'application met fin au devoir (l'autre onglet peut porter le cours ou une IA).
+    // Une bannière d'appel ou une notification qui ne cache pas la page ne compte pas ; un appel décroché qui la cache met fin au devoir (l'enseignant peut le rouvrir).
     document.addEventListener('visibilitychange', () => {
       if (estTermine()) return;
-      if (document.visibilityState === 'hidden') { sorties++; brouillon(true); return; }
+      if (document.visibilityState === 'hidden') {
+        sorties++;
+        setTimeout(() => { // court délai : si la page se ferme vraiment, pagehide arrive tout de suite et c'est une sortie de page
+          if (estTermine() || parti) return;
+          fetch(`${base}/quitter`, { method: 'POST', credentials: 'same-origin', headers: entetes, body: JSON.stringify({ reponses: lire(), sorties, raison: 'onglet' }), keepalive: true }).catch(() => {});
+          finir(t('Devoir terminé : vous avez quitté l’onglet du devoir. Vos réponses ont été remises automatiquement et l’enseignant en est informé.', 'Assignment ended: you left the assignment tab. Your answers were submitted automatically and the teacher is informed.'));
+        }, 400);
+        return;
+      }
       if (sorties) { alerte.hidden = false; alerte.textContent = t(`Vous avez quitté l’onglet ${sorties} fois pendant ce devoir : l’enseignant le voit. Ne quittez plus la page.`, `You left the tab ${sorties} time(s) during this assignment: the teacher can see it. Do not leave the page again.`); }
     });
   }

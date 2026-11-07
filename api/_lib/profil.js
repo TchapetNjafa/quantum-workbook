@@ -36,6 +36,15 @@ export function nomCorrespond(saisi, liste) {
   return utilises.size >= Math.min(2, l.length);
 }
 
+/** L'adresse e-mail (prénom.nom@…) ressemble-t-elle au nom ? Sert à signaler en rouge un profil dont l'adresse n'a aucun rapport avec le nom de la liste
+ *  (usurpation probable de l'identité d'un camarade). Vrai quand on ne peut pas juger (nom inconnu, adresse faite de chiffres ou d'initiales). */
+export function emailCorrespond(email, nom) {
+  const n = jetons(nom);
+  const e = jetons(String(email ?? '').split('@')[0]).filter(x => x.length >= 2);
+  if (!n.length || !e.length) return true;
+  return e.some(x => n.some(y => distance1(x, y) || (y.length >= 4 && x.includes(y)) || (x.length >= 3 && y.startsWith(x))));
+}
+
 export async function lire({ session }) {
   const p = await profilDe(session.email);
   if (p) return [200, { matricule: p.matricule, visible: p.visible, nom: p.nom, conservation_jours: RETENTION_JOURS }];

@@ -137,17 +137,18 @@ export async function brouillon({ session, params, body }) {
   return ecrit.length ? [200, { ok: true }] : [409, { error: 'la session de ce devoir est terminée', termine: true }];
 }
 
-/** Devoir surveillé : la page se ferme (fermeture, rechargement, navigation). Les dernières réponses deviennent la remise, la session est terminée. */
+/** Devoir surveillé : la page se ferme (fermeture, rechargement, navigation) ou, sur ordinateur, l'étudiant change d'onglet. Les dernières réponses deviennent la remise, la session est terminée. */
 export async function quitter({ session, params, body }) {
   if (session.role === 'prof') return [200, { ok: true }];
   const d = await charger(params.id);
   if (!d || !d.surveille) return [404, { error: 'devoir introuvable' }];
   const now = maintenant();
-  const ferme = await q('UPDATE debuts SET quitte = $3 WHERE devoir_id = $1 AND email = $2 AND quitte IS NULL RETURNING brouillon', [d.id, session.email, now.toISOString()]);
+  const sorties = Number.isInteger(body?.sorties) && body.sorties >= 0 && body.sorties <= 1000 ? body.sorties : 0;
+  const ferme = await q('UPDATE debuts SET quitte = $3, sorties = GREATEST(sorties, $4) WHERE devoir_id = $1 AND email = $2 AND quitte IS NULL RETURNING brouillon', [d.id, session.email, now.toISOString(), sorties]);
   if (!ferme.length) return [200, { ok: true, deja: true }]; // déjà remis ou déjà quitté (ou jamais ouvert)
   const envoyees = body && typeof body.reponses === 'object' && body.reponses !== null && !Array.isArray(body.reponses) ? body.reponses : null;
   const p = await profilDe(session.email);
-  await remiseAuto(d, session.email, p ? p.nom : session.name, envoyees || ferme[0].brouillon || {}, now, 'sortie');
+  await remiseAuto(d, session.email, p ? p.nom : session.name, envoyees || ferme[0].brouillon || {}, now, body?.raison === 'onglet' ? 'onglet' : 'sortie'); // 'onglet' : changement d'onglet ou de fenêtre sur ordinateur
   return [200, { ok: true }];
 }
 
