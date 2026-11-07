@@ -53,7 +53,14 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS liste_classe (matricule TEXT PRIMARY KEY, nom TEXT NOT NULL DEFAULT '', email TEXT UNIQUE)`,
   `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS purge TIMESTAMPTZ`, // date à laquelle remises, ouvertures et copies ont été supprimées
   // ----- notifications push : un abonnement par navigateur, rattaché au profil (effacé avec lui) -----
-  `CREATE TABLE IF NOT EXISTS push_abos (endpoint TEXT PRIMARY KEY, email TEXT NOT NULL REFERENCES profils(email) ON DELETE CASCADE, cree TIMESTAMPTZ NOT NULL)`
+  `CREATE TABLE IF NOT EXISTS push_abos (endpoint TEXT PRIMARY KEY, email TEXT NOT NULL REFERENCES profils(email) ON DELETE CASCADE, cree TIMESTAMPTZ NOT NULL)`,
+  // ----- devoirs surveillés : une seule ouverture par étudiant, sortie de la page = remise (voir devoirs.js) -----
+  `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS surveille BOOLEAN NOT NULL DEFAULT FALSE`, // FALSE pour les devoirs existants ; les nouveaux le sont par défaut
+  `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS quitte TIMESTAMPTZ`,      // l'étudiant a quitté la page ou remis : la session est terminée
+  `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS brouillon JSONB`,          // dernières réponses envoyées automatiquement pendant le devoir
+  `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS battement TIMESTAMPTZ`,    // dernier signe de vie de la page
+  `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS sorties INT NOT NULL DEFAULT 0`, // fois où l'onglet a été quitté (changement d'onglet, d'application)
+  `ALTER TABLE remises ADD COLUMN IF NOT EXISTS auto TEXT`                // NULL = remise volontaire ; 'sortie' ou 'temps' = remise automatique
 ];
 
 function connexion() {
