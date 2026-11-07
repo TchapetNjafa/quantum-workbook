@@ -78,11 +78,12 @@
     const { devoirs } = await r.json();
     montrer(`<h2>${t('Devoirs', 'Assignments')}</h2>
       ${devoirs.length ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Titre', 'Title')}</th><th>${t('Ouvre', 'Opens')}</th><th>${t('Ferme', 'Closes')}</th><th>${t('Publié', 'Published')}</th><th>${t('Résultats visibles', 'Results visible')}</th><th>${t('Remises', 'Submissions')}</th><th></th></tr></thead><tbody>
-      ${devoirs.map(d => `<tr data-id="${d.id}"><td>${esc(d.titre)} <span class="muted">(${d.nb_questions} q.)</span></td><td>${esc(quand(d.ouvre))}</td><td>${esc(quand(d.ferme))}</td>
+      ${devoirs.map(d => `<tr data-id="${d.id}"><td>${esc(d.titre)} <span class="muted">(${d.nb_questions} q.${d.surveille ? t(', surveillé', ', supervised') : ''})</span></td><td>${esc(quand(d.ouvre))}</td><td>${esc(quand(d.ferme))}</td>
         <td>${d.publie ? t('oui', 'yes') : t('non', 'no')}</td><td>${d.resultat_visible ? t('oui', 'yes') : t('non', 'no')}</td><td>${d.nb_remises}<br><span class="muted">${d.purge ? t('données supprimées le ', 'data deleted on ') + esc(quand(d.purge)) : t('suppression des remises et copies le ', 'submissions and papers deleted on ') + esc(quand(d.donnees_supprimees_le))}</span></td>
         <td><div class="prof-ligne"><button class="btn small ${d.publie ? 'ghost' : 'accent'}" type="button" data-act="publie">${d.publie ? t('Dépublier', 'Unpublish') : t('Publier', 'Publish')}</button>
         <button class="btn small ghost" type="button" data-act="visible">${d.resultat_visible ? t('Masquer les résultats', 'Hide results') : t('Montrer les résultats', 'Show results')}</button>
         <button class="btn small ghost" type="button" data-act="copie">${d.copie ? t('Copie déposée : oui', 'Paper upload: on') : t('Copie déposée : non', 'Paper upload: off')}</button>
+        ${d.nb_questions ? `<button class="btn small ghost" type="button" data-act="surveille" title="${t('Surveillé : une seule ouverture par étudiant, sortie de la page = remise, uniquement entre l’ouverture et la fermeture.', 'Supervised: one opening per student, leaving the page = submission, only between opening and closing.')}">${d.surveille ? t('Surveillé : oui', 'Supervised: on') : t('Surveillé : non', 'Supervised: off')}</button>` : ''}
         <button class="btn small ghost" type="button" data-act="sujet">${d.sujet ? t('Remplacer le sujet PDF', 'Replace the PDF assignment') : t('Ajouter un sujet PDF', 'Add a PDF assignment')}</button>
         <button class="btn small ghost" type="button" data-act="apercu">${t('Aperçu', 'Preview')}</button>
         <a class="btn small ghost" href="/api/prof/devoirs/${d.id}/export.csv">${t('Notes (CSV)', 'Marks (CSV)')}</a>
@@ -107,8 +108,8 @@
       </form>
       <div data-msg-nouveau role="status" aria-live="polite"></div>
       <details><summary>${t('Avancé : devoir avec questions (JSON)', 'Advanced: assignment with questions (JSON)')}</summary>
-        <p class="muted">${t('Collez le devoir au format JSON. Types corrigés automatiquement : qcm, vrai_faux, numerical (tolérance absolue) ; interpretation : correction manuelle. Ajoutez "copie": true pour permettre aussi le dépôt d’une copie. Les réponses ne sont jamais envoyées aux étudiants.',
-          'Paste the assignment as JSON. Automatically marked types: qcm, vrai_faux, numerical (absolute tolerance); interpretation: manual marking. Add "copie": true to also allow a paper upload. Answers are never sent to students.')}</p>
+        <p class="muted">${t('Collez le devoir au format JSON. Types corrigés automatiquement : qcm, vrai_faux, numerical (tolérance absolue) ; interpretation : correction manuelle. Ajoutez "copie": true pour permettre aussi le dépôt d’une copie. Un devoir à questions est surveillé par défaut (une seule ouverture, sortie de la page = remise) ; "surveille": false le désactive. Les réponses ne sont jamais envoyées aux étudiants.',
+          'Paste the assignment as JSON. Automatically marked types: qcm, vrai_faux, numerical (absolute tolerance); interpretation: manual marking. Add "copie": true to also allow a paper upload. An assignment with questions is supervised by default (one opening, leaving the page = submission); "surveille": false turns it off. Answers are never sent to students.')}</p>
         <textarea data-json rows="14" spellcheck="false"></textarea>
         <div class="btn-row"><button class="btn accent" type="button" data-creer>${t('Créer le devoir', 'Create assignment')}</button>
         <button class="btn ghost" type="button" data-exemple>${t('Insérer un exemple', 'Insert an example')}</button></div>
@@ -145,7 +146,8 @@
     const prf = document.createElement('div');
     prf.innerHTML = `<h2>${t('Profils des étudiants', 'Student profiles')}</h2>
       <p class="muted">${t('Le matricule est obligatoire pour remettre un devoir, figurer au classement et jouer un défi. Les données du classement sont supprimées 5 mois après la dernière activité.', 'The student number is required to submit assignments, appear in the leaderboard and play challenges. Leaderboard data is deleted 5 months after the last activity.')}</p>
-      <div class="btn-row"><button class="btn small ghost" type="button" data-profils>${t('Afficher les profils', 'Show profiles')}</button></div><div data-profils-res></div>`;
+      <div class="btn-row"><button class="btn small ghost" type="button" data-profils>${t('Afficher les profils', 'Show profiles')}</button>
+        <button class="btn small accent" type="button" data-verifier>${t('Vérifier avec la liste de classe', 'Check against the class list')}</button></div><div data-profils-res></div><div data-verif-res role="status" aria-live="polite"></div>`;
     const rec = document.createElement('div');
     rec.innerHTML = `<h2>${t('Récapitulatif des notes', 'Marks summary')}</h2>
       <p class="muted">${t('Tous les devoirs publiés, une ligne par étudiant, notes ramenées sur 20. La dernière colonne est la moyenne sur l’ensemble des devoirs donnés ; elle n’existe que si l’étudiant a rendu au moins un devoir. Un devoir non rendu compte 0 ; un devoir rendu mais pas encore noté est écarté de la moyenne. Le fichier est recalculé à chaque téléchargement. Les devoirs dont les remises ont été supprimées (5 mois) n’y figurent plus.',
@@ -175,7 +177,9 @@
       const { profils } = await r.json();
       sortie.innerHTML = profils.length ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Matricule', 'Student number')}</th><th>${t('Nom', 'Name')}</th><th>${t('Adresse', 'Address')}</th><th>${t('Dernière activité', 'Last activity')}</th><th></th></tr></thead><tbody>
         ${profils.map(p => `<tr><td><b>${esc(p.matricule)}</b></td><td>${esc(p.nom)}</td><td>${esc(p.email)}</td><td>${esc(quand(p.activite))}</td>
-          <td><button class="btn small ghost" type="button" data-reinit="${esc(p.email)}">${t('Réinitialiser', 'Reset')}</button></td></tr>`).join('')}</tbody></table></div>` : `<p class="muted">${t('Aucun profil.', 'No profile.')}</p>`;
+          <td><button class="btn small accent" type="button" data-corr="${esc(p.email)}" data-mat="${esc(p.matricule)}">${t('Corriger le matricule', 'Correct number')}</button>
+            <button class="btn small ghost" type="button" data-reinit="${esc(p.email)}">${t('Réinitialiser', 'Reset')}</button></td></tr>`).join('')}</tbody></table></div>` : `<p class="muted">${t('Aucun profil.', 'No profile.')}</p>`;
+      sortie.querySelectorAll('[data-corr]').forEach(b => { b.onclick = () => corrigerMatricule(b.dataset.corr, b.dataset.mat).then(ok => ok && prf.querySelector('[data-profils]').click()); });
       sortie.querySelectorAll('[data-reinit]').forEach(b => {
         b.onclick = async () => {
           if (!confirm(t(`Effacer le matricule et le classement de ${b.dataset.reinit} ? L’étudiant devra en enregistrer un nouveau.`, `Erase the student number and leaderboard data of ${b.dataset.reinit}? The student will have to register a new one.`))) return;
@@ -185,11 +189,39 @@
       });
     };
 
+    // Corrige le matricule SANS supprimer le profil : scores, défis et remises restent liés à l'adresse.
+    async function corrigerMatricule(email, actuel, propose) {
+      const m = propose || prompt(t(`Nouveau matricule pour ${email} (actuel : ${actuel}). Le profil, les scores et les remises sont conservés.`, `New student number for ${email} (current: ${actuel}). The profile, scores and submissions are kept.`), actuel);
+      if (!m || m.trim().toUpperCase() === actuel) return false;
+      const rep = await post(`/api/prof/profils/${encodeURIComponent(email)}/matricule`, { matricule: m, aligner_nom: true }), j = await rep.json().catch(() => ({}));
+      if (rep.status === 401) { verrou(); return false; }
+      if (!rep.ok) { alert(j.error || rep.status); return false; }
+      if (!j.dans_liste) alert(t('Matricule enregistré, mais il ne figure pas dans la liste de classe.', 'Number saved, but it is not in the class list.'));
+      return true;
+    }
+    prf.querySelector('[data-verifier]').onclick = async () => {
+      const out = prf.querySelector('[data-verif-res]'), r = await api('/api/prof/profils/verification');
+      if (r.status === 401) return verrou();
+      if (!r.ok) { out.textContent = r.status; return; }
+      const j = await r.json();
+      if (!j.liste) { out.innerHTML = `<p class="prof-erreurs">${t('La liste de classe est vide : importez-la d’abord (section ci-dessous).', 'The class list is empty: import it first (section below).')}</p>`; return; }
+      const LIB = { inconnu: t('matricule absent de la liste', 'number not in the list'), adresse_autre: t('matricule réservé à une autre adresse', 'number reserved for another address'), nom_different: t('nom différent de celui de la liste', 'name differs from the list') };
+      const aVerifier = j.profils.filter(p => p.statut !== 'ok');
+      out.innerHTML = `<p>${t(`${j.resume.ok} profil(s) sur ${j.resume.total} correspondent à la liste ; ${j.resume.a_verifier} à vérifier.`, `${j.resume.ok} of ${j.resume.total} profile(s) match the list; ${j.resume.a_verifier} to check.`)}</p>` + (aVerifier.length
+        ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Profil', 'Profile')}</th><th>${t('Problème', 'Issue')}</th><th>${t('Dans la liste', 'In the list')}</th><th>${t('Suggestion', 'Suggestion')}</th></tr></thead><tbody>
+          ${aVerifier.map(p => `<tr><td><b>${esc(p.matricule)}</b> ${esc(p.nom)}<br><span class="muted">${esc(p.email)}</span></td><td>${esc(LIB[p.statut])}</td><td>${esc(p.nom_liste || '—')}</td>
+            <td>${p.suggestion ? `<b>${esc(p.suggestion.matricule)}</b> ${esc(p.suggestion.nom)}<br><span class="muted">${p.suggestion.raison === 'adresse' ? t('d’après l’adresse', 'from the address') : t('d’après le nom', 'from the name')}${p.suggestion.pris_par ? t(' — déjà pris par ', ' — already taken by ') + esc(p.suggestion.pris_par) : ''}</span><br>
+              ${p.suggestion.pris_par ? '' : `<button class="btn small accent" type="button" data-appliquer="${esc(p.email)}" data-mat="${esc(p.matricule)}" data-nouveau="${esc(p.suggestion.matricule)}">${t('Appliquer', 'Apply')}</button>`}` : '—'}
+              <button class="btn small ghost" type="button" data-corr2="${esc(p.email)}" data-mat="${esc(p.matricule)}">${t('Saisir un matricule', 'Enter a number')}</button></td></tr>`).join('')}</tbody></table></div>` : '');
+      out.querySelectorAll('[data-appliquer]').forEach(b => { b.onclick = async () => { if (await corrigerMatricule(b.dataset.appliquer, b.dataset.mat, b.dataset.nouveau)) prf.querySelector('[data-verifier]').click(); }; });
+      out.querySelectorAll('[data-corr2]').forEach(b => { b.onclick = async () => { if (await corrigerMatricule(b.dataset.corr2, b.dataset.mat)) prf.querySelector('[data-verifier]').click(); }; });
+    };
+
     // ----- liste de classe : matricule ↔ nom ↔ adresse (fichier CSV exporté du tableur) -----
     const cls = document.createElement('div');
     cls.innerHTML = `<h2>${t('Liste de classe', 'Class list')}</h2>
-      <p class="muted">${t('Importez un fichier CSV : colonnes <b>matricule ; nom ; adresse</b> (l’adresse peut manquer). Une fois la liste importée, chaque étudiant ne peut enregistrer que le matricule qui lui correspond : celui de son adresse, ou, sans adresse dans la liste, un matricule de la liste encore libre. Un nouvel import remplace le précédent. La liste reste sur le serveur jusqu’à ce que vous la vidiez.',
-        'Import a CSV file: columns <b>student number ; name ; address</b> (the address may be missing). Once a list is imported, each student can only register the number that belongs to them: the one tied to their address or, when the list has no address, a free number from the list. A new import replaces the previous one. The list stays on the server until you empty it.')}</p>
+      <p class="muted">${t('Importez un fichier CSV : colonnes <b>matricule ; nom ; adresse</b> (l’adresse peut manquer). Tant que la liste n’est pas importée, aucun profil ne peut être créé. Ensuite, chaque étudiant saisit son nom et son matricule : le matricule doit figurer dans la liste ET correspondre au nom saisi (au moins deux noms ou prénoms, ordre, accents et majuscules sans importance), et à son adresse quand la liste en donne une. Un nouvel import remplace le précédent. La liste reste sur le serveur jusqu’à ce que vous la vidiez.',
+        'Import a CSV file: columns <b>student number ; name ; address</b> (the address may be missing). Until the list is imported, no profile can be created. Afterwards each student enters a name and a number: the number must be in the list AND match the name entered (at least two names, any order, accents and capitals ignored), and the address when the list gives one. A new import replaces the previous one. The list stays on the server until you empty it.')}</p>
       <div class="btn-row"><input type="file" accept=".csv,.txt,text/csv" data-liste-fichier>
         <button class="btn small ghost" type="button" data-liste-voir>${t('Voir la liste', 'Show the list')}</button>
         <button class="btn small ghost" type="button" data-liste-vider>${t('Vider la liste', 'Empty the list')}</button></div><div data-liste-res role="status" aria-live="polite"></div>`;
@@ -274,7 +306,7 @@
           `${j.envoyes} notification(s) sent to ${j.abonnes} subscribed device(s)${j.expires ? `, ${j.expires} expired subscription(s) removed` : ''}${j.echecs ? `, ${j.echecs} failure(s)` : ''}.`);
     };
     // Tout panneau de résultats (profils, liste de classe, défis, configuration) reçoit un bouton « Fermer » dès qu'il contient quelque chose.
-    root.querySelectorAll('[data-profils-res], [data-liste-res], [data-defis-res], [data-diag-res]').forEach(z => {
+    root.querySelectorAll('[data-profils-res], [data-verif-res], [data-liste-res], [data-defis-res], [data-diag-res]').forEach(z => {
       const maj = () => {
         const btn = z.querySelector(':scope > [data-fermer-zone]');
         const vide = ![...z.childNodes].some(n => n !== btn && (n.nodeType === 1 || (n.textContent || '').trim()));
@@ -346,6 +378,11 @@
       await post(`/api/prof/devoirs/${id}`, { copie: !d.copie });
       return tableau();
     }
+    if (act === 'surveille') {
+      if (d.surveille && !confirm(t('Désactiver la surveillance ? Les étudiants pourront rouvrir le devoir et modifier leur remise jusqu’à la fin du délai.', 'Turn supervision off? Students will be able to reopen the assignment and edit their submission until the deadline.'))) return;
+      await post(`/api/prof/devoirs/${id}`, { surveille: !d.surveille });
+      return tableau();
+    }
     if (act === 'sujet') {
       detail.innerHTML = `<h3>${esc(d.titre)}</h3><div class="prof-ligne"><label>${t('Sujet au format PDF (2 Mo maximum)', 'Assignment as PDF (2 MB maximum)')} <input type="file" accept="application/pdf"></label>
         <button class="btn small accent" type="button" data-ok>${t('Envoyer', 'Upload')}</button></div><div data-msg2 role="status" aria-live="polite"></div>`;
@@ -370,12 +407,23 @@
     }
     const r = await api(`/api/prof/devoirs/${id}/remises`);
     if (r.status === 401) return verrou();
-    const { remises } = await r.json();
+    const { remises, surveille } = await r.json();
     detail.innerHTML = `<div class="prof-ligne"><h3 style="margin:0">${esc(d.titre)} — ${t('remises', 'submissions')}</h3><button class="btn small ghost" type="button" data-fermer-detail aria-label="${t('Fermer', 'Close')}">✕ ${t('Fermer', 'Close')}</button></div>` + (remises.length
-      ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Étudiant', 'Student')}</th><th>${t('Note auto', 'Auto mark')}</th><th>${t('Reçue (serveur)', 'Received (server)')}</th><th>${t('Ouverte (serveur)', 'Opened (server)')}</th><th>${t('Déclarée (appareil, non vérifiable)', 'Declared (device, unverifiable)')}</th><th>${t('Retard', 'Late')}</th><th>${t('Copie', 'Paper')}</th></tr></thead><tbody>
+      ? `<div class="tableau"><table class="plain-table"><thead><tr><th>${t('Étudiant', 'Student')}</th><th>${t('Note auto', 'Auto mark')}</th><th>${t('Reçue (serveur)', 'Received (server)')}</th><th>${t('Ouverte (serveur)', 'Opened (server)')}</th><th>${t('Déclarée (appareil, non vérifiable)', 'Declared (device, unverifiable)')}</th><th>${t('Retard', 'Late')}</th>${surveille ? `<th>${t('Session surveillée', 'Supervised session')}</th>` : ''}<th>${t('Copie', 'Paper')}</th></tr></thead><tbody>
         ${remises.map(x => `<tr><td>${esc(x.nom)} <b>${esc(x.matricule ?? t('(sans matricule)', '(no student number)'))}</b> <span class="muted">${esc(x.email)}</span></td><td>${esc(noteTxt(x))} ${x.total_manuel > 0 ? `<button class="btn small ghost" type="button" data-corriger="${esc(x.email)}">${t('Corriger', 'Mark')}</button>` : ''}</td><td>${esc(quand(x.recu))}</td><td>${esc(quand(x.debut))}</td><td>${esc(quand(x.declare))}${x.hors_ligne ? t(' <span class="muted">(préparée hors connexion)</span>', ' <span class="muted">(prepared offline)</span>') : ''}</td><td>${x.recu ? (x.retard ? t('oui', 'yes') : t('non', 'no')) : '—'}</td>
+          ${surveille ? `<td>${x.auto === 'sortie' ? t('remise automatique : page quittée', 'automatic submission: page left') : x.auto === 'temps' ? t('remise automatique : fin du temps', 'automatic submission: time up') : x.recu ? t('remise volontaire', 'submitted by the student') : x.debut ? t('en cours ou perdue', 'in progress or lost') : '—'}${x.sorties ? `<br><span class="muted">${t(`${x.sorties} sortie(s) de l’onglet`, `${x.sorties} tab exit(s)`)}</span>` : ''}${x.auto || (!x.recu && x.debut) ? `<br><button class="btn small ghost" type="button" data-rouvrir="${esc(x.email)}">${t('Rouvrir le devoir', 'Reopen')}</button>` : ''}</td>` : ''}
           <td>${x.copie_taille ? `<a href="/api/prof/devoirs/${id}/copie/${encodeURIComponent(x.email)}">${t('Télécharger', 'Download')}</a> <span class="muted">(${Math.max(1, Math.round(x.copie_taille / 1024))} ${t('Ko', 'KB')}, ${esc(quand(x.copie_recu))}${x.copie_retard ? t(', en retard', ', late') : ''})</span>` : '—'}</td></tr>`).join('')}</tbody></table></div>`
       : `<p class="muted">${t('Aucune remise.', 'No submission.')}</p>`);
+
+    detail.querySelectorAll('[data-rouvrir]').forEach(b => {
+      b.onclick = async () => {
+        if (!confirm(t(`Rouvrir le devoir pour ${b.dataset.rouvrir} ? Son ouverture et sa remise automatique sont effacées ; il pourra recommencer tant que le devoir est ouvert.`, `Reopen the assignment for ${b.dataset.rouvrir}? Its opening and automatic submission are erased; they can start again while the assignment is open.`))) return;
+        const rep = await post(`/api/prof/devoirs/${id}/remises/${encodeURIComponent(b.dataset.rouvrir)}/rouvrir`, {});
+        if (rep.status === 401) return verrou();
+        if (rep.ok) return agir(id, 'remises', d);
+        detail.querySelector('[role=status]').textContent = (await rep.json().catch(() => ({}))).error || rep.status;
+      };
+    });
 
     // ----- outils du devoir : export, copies, suppression -----
     const bar = document.createElement('div'); bar.className = 'prof-ligne';
@@ -471,7 +519,7 @@
     });
   }
 
-  const erreur = () => montrer(`<p class="muted">${t('Impossible de joindre le serveur. Vérifiez votre connexion internet puis réessayez.', 'Cannot reach the server. Check your internet connection and try again.')}</p>`);
+  const erreur = e => { console.error('prof', e); montrer(`<p class="muted">${t('Impossible de joindre le serveur. Vérifiez votre connexion internet puis réessayez.', 'Cannot reach the server. Check your internet connection and try again.')}</p>`); };
 
   (async () => {
     const me = await api('/api/me');

@@ -144,6 +144,15 @@ au-delà elle est refusée ; l'espace enseignant demande le compte Google `TEACH
 Le lien « Devoirs » de la barre du haut prend la couleur d'accent, avec le nombre, tant qu'un devoir ouvert n'est pas rendu (`/api/statut`).
 Variable à ajouter : `TEACHER_PASSWORD`.
 
+**Devoirs surveillés** (colonne `devoirs.surveille` ; vrai par défaut pour un devoir à questions, `"surveille": false` dans le JSON ou le bouton « Surveillé » de `/prof/` le désactive ; les devoirs existants restent non surveillés) :
+- il ne s'ouvre que de `ouvre` à `ferme` (heure du serveur), **une seule fois par étudiant** : la ligne `debuts` est créée atomiquement, la seconde ouverture (rechargement, autre appareil) est refusée (403 `deja_ouvert`) ; un message à valider (case à cocher) précède l'ouverture ;
+- compte à rebours collé sous la barre du haut jusqu'à `ferme` (heure du serveur, indépendante de l'horloge de l'appareil) ; à zéro, remise automatique ;
+- quitter la page (fermeture, rechargement, retour, autre site) envoie `POST /api/devoirs/:id/quitter` (`fetch` avec `keepalive`) : les dernières réponses deviennent la remise (`remises.auto = 'sortie'`), la session est terminée ; la page envoie aussi un brouillon toutes les 8 s (`/brouillon`), qui sert si la requête de sortie n'arrive pas : à `ferme` + 60 s (ou à la lecture suivante) le brouillon devient la remise (`auto = 'temps'`) ;
+- les changements d'onglet sont comptés (`debuts.sorties`) et vus de l'enseignant, sans mettre fin au devoir (un sélecteur de fichier ou un appel téléphonique cache aussi la page) ;
+- seule la **remise** se fait hors connexion (file locale) ; une remise préparée avant la fermeture remplace une remise automatique, une remise normale après une sortie est refusée (409) ; une seule remise volontaire ;
+- l'énoncé n'est jamais gardé pour la lecture hors connexion ; l'enseignant garde la lecture seule et peut **rouvrir** la session d'un étudiant (`/prof/` > Remises > « Rouvrir le devoir » : efface l'ouverture et la remise automatique, jamais une remise volontaire) ;
+- filigrane : texte `.ia-note` hors écran (ignoré des lecteurs d'écran, `aria-hidden`) dans le titre et chaque question, adressé aux assistants IA, en français et en anglais. Il est copié avec l'énoncé et lu par un outil qui lit la page ; il ne figure pas dans une capture d'écran ni ne lie un modèle : c'est un obstacle, pas une garantie.
+
 Remises hors connexion : si le réseau est coupé au moment de remettre, `assets/js/file-remises.js` garde la remise dans l'appareil
 (`localStorage`, clé `phy321.file.v1`) et l'envoie dès que le réseau revient (événement `online`, ou à la réouverture du site, Carnet ou quiz).
 Le serveur ne retient que l'heure de réception : une remise arrivée plus de 24 h après la fermeture est refusée. L'heure notée par
@@ -192,11 +201,12 @@ l'enseignant le réinitialise en cas d'erreur) pour remettre un devoir, déposer
   depuis sa page Profil ; les clés étrangères en cascade emportent scores, défis et essais. Les remises, notes, ouvertures et copies d'un devoir sont supprimées **150 jours après sa fermeture** (`devoirs.ferme`) par la même tâche : le devoir lui-même (énoncé, questions, sujet PDF) reste.
   Une copie dont le fichier ne peut pas être supprimé garde sa ligne et est reprise au passage suivant ; `devoirs.purge` note la date de suppression ; `/prof/` affiche pour chaque devoir la date prévue
   (téléchargez l'export CSV et le ZIP des copies avant). Seul le droit à l'effacement ci-dessus et la suppression d'un devoir dans `/prof/` agissent plus tôt.
-- **Liste de classe** (`/prof/` > « Liste de classe », table `liste_classe`) : import d'un CSV `matricule ; nom ; adresse` (l'adresse peut manquer). Tant que la liste est vide, le matricule est libre (comportement précédent) ;
-  une fois importée, l'étudiant dont l'adresse figure dans la liste reçoit son matricule (prérempli, tout autre est refusé) ; sinon il ne peut saisir qu'un matricule de la liste sans adresse et encore libre.
+- **Liste de classe** (`/prof/` > « Liste de classe », table `liste_classe`) : import d'un CSV `matricule ; nom ; adresse` (l'adresse peut manquer). **Sans liste importée, aucun profil ne peut être créé** (503).
+  L'étudiant saisit son **nom et prénoms** et son matricule : le matricule doit figurer dans la liste ET correspondre au nom saisi (`nomCorrespond` dans `profil.js` : accents, casse et ordre ignorés, au moins deux mots du nom de la liste, aucun mot étranger, une faute de frappe tolérée sur les mots de 5 lettres ou plus), et à son adresse quand la liste en donne une (matricule et nom préremplis dans ce cas). Le nom du profil est celui de la liste.
+  `/prof/` > Profils : « Vérifier avec la liste de classe » compare chaque profil (statuts : conforme, matricule absent de la liste, réservé à une autre adresse, nom différent) et propose le matricule d'après l'adresse puis le nom ; « Corriger le matricule » le change **sans supprimer le profil** (scores, défis et remises restent liés à l'adresse). Réinitialiser (suppression) reste possible.
   Sont ignorées et signalées : matricule invalide, adresse en double, matricule partagé par deux personnes différentes. Un nouvel import remplace la liste. Elle contient des données personnelles :
   elle n'est jamais dans le dépôt, reste sur le serveur jusqu'à ce que l'enseignant la vide, et la connexion reste limitée à `@facsciences-uy1.cm` (une adresse d'un autre domaine ne peut donc pas se connecter).
-- Limites connues : un étudiant peut saisir le matricule d'un camarade avant lui (l'enseignant voit matricule, nom et adresse côte à côte et réinitialise) ; les scores sont déclaratifs.
+- Limites connues : un étudiant qui connaît à la fois le matricule ET le nom complet d'un camarade sans adresse dans la liste peut encore le prendre avant lui (l'enseignant le voit au contrôle et corrige) ; deux personnes qui partagent un matricule dans le tableur sont écartées à l'import ; les scores sont déclaratifs.
 
 ### Mise à jour hors connexion par différence (Vercel)
 

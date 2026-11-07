@@ -14,44 +14,65 @@ export async function profilDe(email) {
 /** Marque l'étudiant comme actif (repousse la date de suppression automatique). */
 export const toucher = email => q('UPDATE profils SET activite = $2 WHERE email = $1', [email, maintenant().toISOString()]);
 
+// ---------- correspondance matricule ↔ nom ----------
+const jetons = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().split(/[^a-z]+/).filter(Boolean);
+const distance1 = (a, b) => { // vrai si a et b diffèrent d'au plus une lettre (faute de frappe) ; les mots courts doivent être identiques
+  if (a === b) return true;
+  if (Math.min(a.length, b.length) < 5 || Math.abs(a.length - b.length) > 1) return false;
+  let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  return a.slice(i + 1) === b.slice(i + 1) || a.slice(i) === b.slice(i + 1) || a.slice(i + 1) === b.slice(i);
+};
+/** Le nom saisi par l'étudiant correspond-il au nom de la liste de classe ? Accents, casse, ordre des mots et petite faute de frappe ignorés.
+ *  Il faut au moins deux mots du nom de la liste (un seul si le nom n'en a qu'un) et AUCUN mot saisi qui n'appartienne pas à ce nom. */
+export function nomCorrespond(saisi, liste) {
+  const s = [...new Set(jetons(saisi))], l = jetons(liste);
+  if (!s.length || !l.length) return false;
+  const utilises = new Set();
+  for (const mot of s) {
+    const i = l.findIndex((x, k) => !utilises.has(k) && distance1(mot, x));
+    if (i < 0) return false;
+    utilises.add(i);
+  }
+  return utilises.size >= Math.min(2, l.length);
+}
+
 export async function lire({ session }) {
   const p = await profilDe(session.email);
   if (p) return [200, { matricule: p.matricule, visible: p.visible, nom: p.nom, conservation_jours: RETENTION_JOURS }];
   if (session.role === 'prof') return [200, { matricule: null, enseignant: true, conservation_jours: RETENTION_JOURS }]; // l'enseignant ne remet pas de devoir : pas de matricule à demander
-  const [l] = await q('SELECT matricule FROM liste_classe WHERE email = $1', [session.email]);
-  return [200, { matricule: null, matricule_propose: l ? l.matricule : null, conservation_jours: RETENTION_JOURS }];
+  const [l] = await q('SELECT matricule, nom FROM liste_classe WHERE email = $1', [session.email]);
+  return [200, { matricule: null, matricule_propose: l ? l.matricule : null, nom_propose: l ? l.nom : null, conservation_jours: RETENTION_JOURS }];
 }
 
 export async function enregistrer({ session, body }) {
   const existant = await profilDe(session.email);
   const visible = typeof body?.visible === 'boolean' ? body.visible : (existant ? existant.visible : true);
-  if (existant) { // le matricule ne se change pas seul : en cas d'erreur, l'enseignant réinitialise le profil
+  if (existant) { // le matricule ne se change pas seul : en cas d'erreur, l'enseignant le corrige (page Enseignant > Profils)
     if (body?.matricule !== undefined && normaliser(body.matricule) !== existant.matricule)
       return [409, { error: 'matricule déjà enregistré : contactez l’enseignant pour le corriger' }];
     await q('UPDATE profils SET visible = $2, activite = $3 WHERE email = $1', [session.email, visible, maintenant().toISOString()]);
     return [200, { matricule: existant.matricule, visible }];
   }
-  const m = normaliser(body?.matricule);
-  // Liste de classe importée par l'enseignant : si elle existe, le matricule doit y figurer et correspondre à cette adresse.
+  let m = normaliser(body?.matricule);
+  // Le matricule doit figurer dans la liste de classe de l'enseignant ET correspondre au nom saisi (et à l'adresse, si la liste en donne une).
   const [{ n }] = await q('SELECT count(*)::int AS n FROM liste_classe');
-  if (n) {
-    const [parAdresse] = await q('SELECT matricule FROM liste_classe WHERE email = $1', [session.email]);
-    if (parAdresse) {
-      if (m && m !== parAdresse.matricule) return [400, { error: `votre matricule dans la liste de classe est ${parAdresse.matricule}`, matricule_propose: parAdresse.matricule }];
-      return creerProfil(session, parAdresse.matricule, visible);
-    }
-    const [ligne] = FORMAT_MATRICULE.test(m) ? await q('SELECT email FROM liste_classe WHERE matricule = $1', [m]) : [];
-    if (!ligne) return [403, { error: 'ce matricule ne figure pas dans la liste de classe : vérifiez-le ou contactez l’enseignant' }];
-    if (ligne.email) return [403, { error: 'ce matricule est réservé à une autre adresse : contactez l’enseignant' }];
-  }
+  if (!n) return [503, { error: 'la liste de classe n’a pas encore été importée par l’enseignant : le profil ne peut pas être créé pour le moment' }];
+  const [parAdresse] = await q('SELECT matricule FROM liste_classe WHERE email = $1', [session.email]);
+  if (!m && parAdresse) m = parAdresse.matricule; // matricule non saisi : celui de la liste pour cette adresse
   if (!FORMAT_MATRICULE.test(m)) return [400, { error: 'matricule invalide : 4 à 15 lettres ou chiffres, sans espace ni signe' }];
-  return creerProfil(session, m, visible);
+  if (!jetons(body?.nom).length) return [400, { error: 'saisissez votre nom et vos prénoms, tels qu’ils figurent sur la liste de classe' }];
+  if (parAdresse && m !== parAdresse.matricule) return [400, { error: `votre matricule dans la liste de classe est ${parAdresse.matricule}`, matricule_propose: parAdresse.matricule }];
+  const [ligne] = await q('SELECT nom, email FROM liste_classe WHERE matricule = $1', [m]);
+  if (!ligne) return [403, { error: 'ce matricule ne figure pas dans la liste de classe : vérifiez-le ou contactez l’enseignant' }];
+  if (ligne.email && ligne.email !== session.email) return [403, { error: 'ce matricule est réservé à une autre adresse : contactez l’enseignant' }];
+  if (!nomCorrespond(body.nom, ligne.nom)) return [403, { error: 'le nom saisi ne correspond pas à ce matricule : écrivez votre nom et vos prénoms comme sur la liste de classe, ou contactez l’enseignant' }];
+  return creerProfil(session, m, visible, ligne.nom);
 }
 
-async function creerProfil(session, m, visible) {
+async function creerProfil(session, m, visible, nomListe) {
   const maintenantISO = maintenant().toISOString();
   try {
-    await q('INSERT INTO profils (email, matricule, nom, visible, cree, activite) VALUES ($1,$2,$3,$4,$5,$5)', [session.email, m, session.name || '', visible, maintenantISO]);
+    await q('INSERT INTO profils (email, matricule, nom, visible, cree, activite) VALUES ($1,$2,$3,$4,$5,$5)', [session.email, m, nomListe || session.name || '', visible, maintenantISO]);
   } catch (e) {
     if (/unique|duplicate|23505/i.test(`${e.code} ${e.message}`)) return [409, { error: 'ce matricule est déjà associé à un autre compte : contactez l’enseignant' }];
     throw e;

@@ -80,6 +80,7 @@ export async function rappelerFermeture(heures = 24) {
   const abos = await q(`SELECT p.endpoint FROM push_abos p WHERE EXISTS (
       SELECT 1 FROM devoirs d WHERE d.publie AND d.ouvre <= $1 AND d.ferme > $1 AND d.ferme <= $2
         AND NOT EXISTS (SELECT 1 FROM remises r WHERE r.devoir_id = d.id AND r.email = p.email)
+        AND NOT (d.surveille AND EXISTS (SELECT 1 FROM debuts b WHERE b.devoir_id = d.id AND b.email = p.email)) -- devoir surveillé déjà ouvert : ne se rouvre plus
         AND NOT EXISTS (SELECT 1 FROM fichiers f WHERE f.devoir_id = d.id AND f.email = p.email))`,
     [now.toISOString(), new Date(now.getTime() + heures * 3600e3).toISOString()]);
   return diffuser(k, abos);

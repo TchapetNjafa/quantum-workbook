@@ -17,17 +17,23 @@
       zone.innerHTML = `<form data-matricule class="prof-ligne">
         <p>${t('Pour déposer un devoir, figurer au classement ou jouer un défi, enregistrez votre <b>matricule</b>. C’est obligatoire et ne se fait qu’une fois ; votre nom et votre adresse viennent déjà de votre connexion.',
           'To submit an assignment, appear in the leaderboard or play a challenge, register your <b>student number (matricule)</b>. It is required and done only once; your name and address already come from your sign-in.')}</p>
+        <label>${t('Nom et prénoms', 'Full name')} <input type="text" name="n" required minlength="3" maxlength="120" autocomplete="name" size="36"></label>
         <label>${t('Matricule', 'Student number')} <input type="text" name="m" required minlength="4" maxlength="15" autocomplete="off" pattern="[A-Za-z0-9 ]{4,15}" size="16"></label>
+        <p class="muted">${t('Le matricule doit correspondre à votre nom tel qu’il figure sur la liste de classe (au moins deux de vos noms ou prénoms, dans n’importe quel ordre, accents et majuscules sans importance). S’ils ne correspondent pas, le profil est refusé.',
+          'The student number must match your name as it appears on the class list (at least two of your names, in any order; accents and capitals do not matter). If they do not match, the profile is refused.')}</p>
         <label><input type="checkbox" name="v" checked> ${t('Afficher mon matricule dans le classement', 'Show my student number in the leaderboard')}</label>
         <button class="btn accent" type="submit">${t('Enregistrer', 'Save')}</button></form>
         <p class="muted">${t('Données conservées 5 mois après votre dernière activité, puis supprimées. Vous pouvez tout effacer à tout moment depuis la page Profil.', 'Data kept for 5 months after your last activity, then deleted. You can erase everything at any time from the Profile page.')}</p>
         <div data-msg-mat role="status" aria-live="polite"></div>`;
       // Liste de classe de l'enseignant : le matricule lié à cette adresse est proposé d'avance.
-      const champ = zone.querySelector('[name=m]');
-      Profil.lire().then(p => { if (p && p.matricule_propose && !champ.value) champ.value = p.matricule_propose; });
+      const champ = zone.querySelector('[name=m]'), champNom = zone.querySelector('[name=n]');
+      Profil.lire().then(p => {
+        if (p && p.matricule_propose && !champ.value) champ.value = p.matricule_propose;
+        if (p && p.nom_propose && !champNom.value) champNom.value = p.nom_propose;
+      });
       zone.querySelector('[data-matricule]').onsubmit = async e => {
         e.preventDefault();
-        const rep = await post('/api/profil', { matricule: e.target.m.value, visible: e.target.v.checked });
+        const rep = await post('/api/profil', { matricule: e.target.m.value, nom: e.target.n.value, visible: e.target.v.checked });
         const j = await rep.json().catch(() => ({}));
         if (rep.ok) return surSucces && surSucces(j);
         if (j.matricule_propose) champ.value = j.matricule_propose;
@@ -61,7 +67,7 @@
     const pct = (a, b) => (b ? Math.round(100 * a / b) + ' %' : '—');
     montrer(`<p>${t('Compte', 'Account')} : <b>${esc(compte.name)}</b> <span class="muted">${esc(compte.email)}</span><br>${t('Matricule', 'Student number')} : <b>${esc(p.matricule)}</b></p>
       <label><input type="checkbox" data-visible ${p.visible ? 'checked' : ''}> ${t('Afficher mon matricule dans le classement', 'Show my student number in the leaderboard')}</label>
-      <p class="muted">${t('Une erreur de matricule ? Demandez à l’enseignant de le réinitialiser.', 'Wrong student number? Ask the teacher to reset it.')}
+      <p class="muted">${t('Une erreur de matricule ? Demandez à l’enseignant de le corriger.', 'Wrong student number? Ask the teacher to correct it.')}
         ${t(`Vos données (profil, scores, défis) sont conservées ${Math.round(p.conservation_jours / 30)} mois après votre dernière activité, puis supprimées automatiquement.`, `Your data (profile, scores, challenges) is kept for ${Math.round(p.conservation_jours / 30)} months after your last activity, then deleted automatically.`)}</p>
       <h2>${t('Progression au quiz', 'Quiz progress')}</h2>
       ${h.par_chapitre.length ? `<table class="plain-table"><thead><tr><th>${t('Chapitre', 'Chapter')}</th><th>${t('Séries', 'Sets')}</th><th>${t('Réussite', 'Success')}</th></tr></thead><tbody>

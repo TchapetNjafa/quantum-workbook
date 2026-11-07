@@ -4,8 +4,8 @@ import { q, maintenant } from './db.js';
 import { valider, decoderEmail, sansReponses } from './grade.js';
 import { creer, depuisRequete } from './session.js';
 import { supprimer, essai, modeAuth } from './stockage.js';
-import { etatDevoir, limiteDevoir } from './devoirs.js';
-import { RETENTION_JOURS, FORMAT_MATRICULE, normaliser } from './profil.js';
+import { etatDevoir, limiteDevoir, finaliser } from './devoirs.js';
+import { RETENTION_JOURS, FORMAT_MATRICULE, normaliser, nomCorrespond } from './profil.js';
 
 export const COOKIE_PROF = 'phy321_prof';
 export const DUREE_PROF = 3600; // secondes : il faut ressaisir le mot de passe après une heure
@@ -47,7 +47,7 @@ export async function login({ session, body }) {
 
 export async function listeDevoirs() {
   const l = await q(
-    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.publie, d.resultat_visible, d.copie, d.sujet, jsonb_array_length(d.questions) AS nb_questions,
+    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.publie, d.resultat_visible, d.copie, d.sujet, d.surveille, jsonb_array_length(d.questions) AS nb_questions,
             (SELECT count(*)::int FROM remises r WHERE r.devoir_id = d.id) AS nb_remises, d.purge
        FROM devoirs d ORDER BY d.ferme DESC`);
   // remises, ouvertures et copies sont supprimées 5 mois après la fermeture (voir profil.purgerAnciennes)
@@ -55,13 +55,17 @@ export async function listeDevoirs() {
   return [200, { devoirs: l.map(d => ({ ...d, ouvre: iso(d.ouvre), ferme: iso(d.ferme), purge: iso(d.purge), donnees_supprimees_le: efface(d) })) }];
 }
 
+/** Un devoir à questions est surveillé par défaut (une seule ouverture, sortie de la page = remise) ; `"surveille": false` le désactive. Sans question, il n'y a rien à surveiller. */
+const surveilleDe = (corps, questions) => questions.length > 0 && corps.surveille !== false;
+
 export async function creerDevoir({ body }) {
   const v = valider(body);
   if (!v.ok) return [400, { error: 'devoir invalide', erreurs: v.erreurs }];
   const [d] = await q(
-    'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions, copie, bareme) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
+    'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions, copie, bareme, surveille) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id',
     [v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, body.publie === true, body.resultat_visible === true, JSON.stringify(v.devoir.questions), body.copie === true,
-      v.devoir.questions.length === 0 ? Number(body.bareme ?? 20) : null]); // sans question : note saisie à la main sur ce barème (20 par défaut)
+      v.devoir.questions.length === 0 ? Number(body.bareme ?? 20) : null, // sans question : note saisie à la main sur ce barème (20 par défaut)
+      surveilleDe(body, v.devoir.questions)]);
   return [201, { id: d.id, ...(body.publie === true ? { notifies: await signaler() } : {}) }];
 }
 
@@ -84,8 +88,9 @@ export async function modifierDevoir({ params, body }) {
   const publie = typeof body.publie === 'boolean' ? body.publie : d.publie;
   const visible = typeof body.resultat_visible === 'boolean' ? body.resultat_visible : d.resultat_visible;
   const copie = typeof body.copie === 'boolean' ? body.copie : d.copie;
-  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, publie=$5, resultat_visible=$6, copie=$7 WHERE id=$1',
-    [d.id, titre, ouvre.toISOString(), ferme.toISOString(), publie, visible, copie]);
+  const surveille = typeof body.surveille === 'boolean' ? body.surveille : d.surveille;
+  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, publie=$5, resultat_visible=$6, copie=$7, surveille=$8 WHERE id=$1',
+    [d.id, titre, ouvre.toISOString(), ferme.toISOString(), publie, visible, copie, surveille]);
   return [200, { ok: true, ...(publie && !d.publie ? { notifies: await signaler() } : {}) }]; // publication : notification push aux abonnés
 }
 
@@ -116,12 +121,14 @@ export async function exportCsv({ params }) {
   const manuelles = d.questions.filter(x => x.type === 'interpretation'); // une colonne de points par question notée à la main
   const [, { remises }] = await remisesDevoir({ params });
   const entete = ['email', 'matricule', 'nom', 'note_auto', 'total_auto', 'note_manuelle', 'total_manuel', 'note_totale', 'recu_serveur', 'en_retard', 'hors_connexion',
-    'declare_appareil_non_verifiable', 'ouverture_serveur', 'copie', 'copie_octets', 'copie_recu_serveur', 'copie_en_retard', ...manuelles.map(x => `points_${x.id}_sur_${x.points}`)];
+    'declare_appareil_non_verifiable', 'ouverture_serveur', 'copie', 'copie_octets', 'copie_recu_serveur', 'copie_en_retard',
+    'sorties_de_page', 'remise_automatique', ...manuelles.map(x => `points_${x.id}_sur_${x.points}`)];
   const lignes = remises.map(r => {
     const complet = r.note !== null && (!r.manuel || r.note_manuelle !== null);
     return [r.email, r.matricule, r.nom, r.note, r.total, r.note_manuelle, r.manuel ? r.total_manuel : '', complet ? r.note + (r.note_manuelle || 0) : '',
       r.recu, r.recu ? (r.retard ? 'oui' : 'non') : '', r.recu ? (r.hors_ligne ? 'oui' : 'non') : '', r.declare, r.debut,
-      r.copie_taille ? 'oui' : 'non', r.copie_taille, r.copie_recu, r.copie_taille ? (r.copie_retard ? 'oui' : 'non') : '', ...manuelles.map(x => r.notes_questions?.[x.id] ?? '')];
+      r.copie_taille ? 'oui' : 'non', r.copie_taille, r.copie_recu, r.copie_taille ? (r.copie_retard ? 'oui' : 'non') : '',
+      r.sorties ?? '', r.auto === 'sortie' ? 'sortie de la page' : r.auto === 'temps' ? 'fin du temps' : '', ...manuelles.map(x => r.notes_questions?.[x.id] ?? '')];
   });
   const texte = '\ufeff' + [entete, ...lignes].map(l => l.map(cellule).join(';')).join('\r\n') + '\r\n';
   return [200, { texte, mime: 'text/csv; charset=utf-8', nom: `devoir-${params.id}-notes.csv` }];
@@ -228,18 +235,77 @@ export async function reinitialiserProfil({ params }) {
 
 export async function remisesDevoir({ params }) {
   if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
+  const [dev] = await q('SELECT * FROM devoirs WHERE id = $1', [Number(params.id)]);
+  if (dev) await finaliser(dev); // devoir surveillé : les sessions terminées sans remise deviennent des remises automatiques
   const l = await q(
-    // un étudiant apparaît s'il a remis les réponses OU déposé une copie (l'un des deux peut manquer)
-    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, r.declare, r.recu, r.retard, r.hors_ligne, b.debut,
+    // un étudiant apparaît s'il a remis les réponses OU déposé une copie (l'un des deux peut manquer) ; devoir surveillé : OU s'il l'a ouvert
+    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, r.declare, r.recu, r.retard, r.hors_ligne, r.auto, b.debut, b.sorties, b.quitte,
             f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard, pr.matricule
-       FROM (SELECT email FROM remises WHERE devoir_id = $1 UNION SELECT email FROM fichiers WHERE devoir_id = $1) u
+       FROM (SELECT email FROM remises WHERE devoir_id = $1 UNION SELECT email FROM fichiers WHERE devoir_id = $1
+             UNION SELECT email FROM debuts WHERE devoir_id = $1 AND $2::boolean) u
        LEFT JOIN remises r ON r.devoir_id = $1 AND r.email = u.email
        LEFT JOIN debuts b ON b.devoir_id = $1 AND b.email = u.email
        LEFT JOIN fichiers f ON f.devoir_id = $1 AND f.email = u.email
        LEFT JOIN profils pr ON pr.email = u.email
-      ORDER BY u.email`, [Number(params.id)]);
+      ORDER BY u.email`, [Number(params.id), !!(dev && dev.surveille)]);
   const num = v => (v === null || v === undefined ? null : Number(v));
-  return [200, { remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), note_manuelle: num(r.note_manuelle), total_manuel: num(r.total_manuel), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), copie_recu: iso(r.copie_recu) })) }];
+  return [200, { surveille: !!(dev && dev.surveille), remises: l.map(r => ({ ...r, nom: r.nom || '', note: num(r.note), total: num(r.total), note_manuelle: num(r.note_manuelle), total_manuel: num(r.total_manuel), declare: iso(r.declare), recu: iso(r.recu), debut: iso(r.debut), quitte: iso(r.quitte), sorties: r.sorties ?? null, auto: r.auto ?? null, copie_recu: iso(r.copie_recu) })) }];
+}
+
+/** Devoir surveillé : l'étudiant a perdu sa session (panne, mauvaise manipulation) → l'enseignant la rouvre. Efface l'ouverture et la remise AUTOMATIQUE ;
+ *  une remise volontaire n'est jamais effacée ici. */
+export async function rouvrirDevoir({ params }) {
+  if (!/^\d+$/.test(params.id)) return [404, { error: 'introuvable' }];
+  const email = decoderEmail(params.email);
+  if (!email) return [400, { error: 'adresse invalide' }];
+  const [v] = await q('SELECT 1 AS ok FROM remises WHERE devoir_id = $1 AND email = $2 AND auto IS NULL', [Number(params.id), email]);
+  if (v) return [409, { error: 'cet étudiant a remis volontairement : il n’y a rien à rouvrir' }];
+  await q('DELETE FROM remises WHERE devoir_id = $1 AND email = $2 AND auto IS NOT NULL', [Number(params.id), email]);
+  const r = await q('DELETE FROM debuts WHERE devoir_id = $1 AND email = $2 RETURNING email', [Number(params.id), email]);
+  return r.length ? [200, { ok: true }] : [404, { error: 'ce devoir n’a pas été ouvert par cet étudiant' }];
+}
+
+// ---------- vérification des profils contre la liste de classe, correction du matricule ----------
+/** Compare chaque profil à la liste de classe. Statuts : ok, inconnu (matricule absent de la liste), adresse_autre (matricule réservé à une autre adresse),
+ *  nom_different (le nom du profil ne correspond pas au nom de la liste). Pour chaque cas à vérifier, une suggestion (même adresse, sinon nom unique). */
+export async function verifierProfils() {
+  const liste = await q('SELECT matricule, nom, email FROM liste_classe');
+  const profils = await q('SELECT email, matricule, nom, activite FROM profils ORDER BY matricule');
+  const parMat = new Map(liste.map(l => [l.matricule, l])), parEmail = new Map(liste.filter(l => l.email).map(l => [l.email, l]));
+  const pris = new Map(profils.map(p => [p.matricule, p.email]));
+  const lignes = profils.map(p => {
+    const l = parMat.get(p.matricule);
+    const statut = !l ? 'inconnu' : l.email && l.email !== p.email ? 'adresse_autre' : l.email === p.email || nomCorrespond(p.nom, l.nom) ? 'ok' : 'nom_different';
+    let suggestion = null;
+    if (statut !== 'ok') {
+      const parAdr = parEmail.get(p.email);
+      const parNom = liste.filter(x => x.matricule !== p.matricule && (!x.email || x.email === p.email) && nomCorrespond(p.nom, x.nom));
+      const s = parAdr || (parNom.length === 1 ? parNom[0] : null);
+      if (s && s.matricule !== p.matricule) suggestion = { matricule: s.matricule, nom: s.nom, raison: parAdr ? 'adresse' : 'nom', pris_par: pris.get(s.matricule) || null };
+    }
+    return { email: p.email, matricule: p.matricule, nom: p.nom, nom_liste: l ? l.nom : null, activite: iso(p.activite), statut, suggestion };
+  });
+  const resume = { total: lignes.length, ok: lignes.filter(x => x.statut === 'ok').length };
+  return [200, { liste: liste.length, resume: { ...resume, a_verifier: resume.total - resume.ok }, profils: lignes }];
+}
+
+/** Corrige le matricule d'un profil SANS le supprimer (les scores, défis, remises et notes restent liés à l'adresse). `aligner_nom` : reprend le nom de la liste. */
+export async function corrigerMatricule({ params, body }) {
+  const email = decoderEmail(params.email), m = normaliser(body?.matricule);
+  if (!email) return [400, { error: 'adresse invalide' }];
+  if (!FORMAT_MATRICULE.test(m)) return [400, { error: 'matricule invalide : 4 à 15 lettres ou chiffres, sans espace ni signe' }];
+  const [p] = await q('SELECT email FROM profils WHERE email = $1', [email]);
+  if (!p) return [404, { error: 'profil introuvable' }];
+  const [autre] = await q('SELECT email FROM profils WHERE matricule = $1 AND email <> $2', [m, email]);
+  if (autre) return [409, { error: `ce matricule est déjà associé à ${autre.email} : corrigez d’abord l’autre profil`, email: autre.email }];
+  const [l] = await q('SELECT nom, email FROM liste_classe WHERE matricule = $1', [m]);
+  try {
+    await q('UPDATE profils SET matricule = $2, nom = COALESCE($3, nom) WHERE email = $1', [email, m, body?.aligner_nom === true && l ? l.nom : null]);
+  } catch (e) {
+    if (/unique|duplicate|23505/i.test(`${e.code} ${e.message}`)) return [409, { error: 'ce matricule est déjà associé à un autre compte' }];
+    throw e;
+  }
+  return [200, { ok: true, matricule: m, dans_liste: !!l, nom_liste: l ? l.nom : null, adresse_autre: !!(l && l.email && l.email !== email) }];
 }
 
 // ---------- liste de classe (matricule ↔ nom ↔ adresse) ----------
@@ -309,7 +375,8 @@ export async function apercu({ params }) {
     id: d.id, titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), publie: d.publie, copie: !!d.copie, sujet: !!d.sujet, nb_remises: n,
     modifiable: !d.publie && n === 0, // le contenu ne change que tant que le devoir n'est pas publié et qu'aucun étudiant n'a rien remis
     etudiant: sansReponses(d.questions), corrige: d.questions,
-    contenu: { titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), copie: !!d.copie, ...(d.questions.length ? {} : { bareme: Number(d.bareme ?? 20) }), questions: d.questions }
+    surveille: !!d.surveille,
+    contenu: { titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), copie: !!d.copie, surveille: !!d.surveille, ...(d.questions.length ? {} : { bareme: Number(d.bareme ?? 20) }), questions: d.questions }
   }];
 }
 
@@ -320,8 +387,9 @@ async function remplacerContenu(d, contenu) {
   if (n) return [409, { error: 'des étudiants ont déjà remis ce devoir : son contenu ne peut plus être modifié' }];
   const v = valider(contenu);
   if (!v.ok) return [400, { error: 'devoir invalide', erreurs: v.erreurs }];
-  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, questions=$5, copie=$6, bareme=$7 WHERE id=$1',
-    [d.id, v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, JSON.stringify(v.devoir.questions), contenu.copie === true, v.devoir.questions.length === 0 ? Number(contenu.bareme ?? 20) : null]);
+  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, questions=$5, copie=$6, bareme=$7, surveille=$8 WHERE id=$1',
+    [d.id, v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, JSON.stringify(v.devoir.questions), contenu.copie === true, v.devoir.questions.length === 0 ? Number(contenu.bareme ?? 20) : null,
+      contenu.surveille === undefined ? v.devoir.questions.length > 0 && d.surveille : surveilleDe(contenu, v.devoir.questions)]); // champ absent : on garde le réglage actuel
   return [200, { ok: true }];
 }
 
@@ -332,6 +400,7 @@ const sur20 = r => (r.note === null || (r.manuel && r.note_manuelle === null) ? 
 /** Notes sur 20. Un devoir non rendu compte 0 ; un devoir rendu mais pas encore noté est écarté de la moyenne.
  *  La moyenne n'existe que si l'étudiant a rendu au moins un devoir (sinon la case reste vide). Les devoirs dont les remises ont été purgées (5 mois) sont omis. */
 export async function recapNotes() {
+  for (const d of await q('SELECT * FROM devoirs WHERE surveille AND publie AND purge IS NULL')) await finaliser(d); // sessions surveillées terminées sans remise
   const devoirs = await q('SELECT id, titre FROM devoirs WHERE publie AND purge IS NULL ORDER BY ouvre, id');
   const remises = await q(`SELECT r.devoir_id, r.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel
                              FROM remises r JOIN devoirs d ON d.id = r.devoir_id WHERE d.publie AND d.purge IS NULL`);
@@ -360,7 +429,7 @@ export async function recapNotesCsv() {
   const fr = v => (typeof v === 'number' ? String(Math.round(v * 100) / 100).replace('.', ',') : v === 'a_noter' ? 'à noter' : '');
   const entete = ['matricule', 'nom', 'email', ...devoirs.map(d => `${d.titre} (/20)`), 'moyenne (/20)'];
   const corps = lignes.map(l => [l.matricule, l.nom, l.email, ...devoirs.map(d => (d.id in l.notes ? fr(l.notes[d.id]) : '')), l.moyenne === null ? '' : fr(l.moyenne)]);
-  const texte = '﻿' + [entete, ...corps].map(l => l.map(cellule).join(';')).join('\r\n') + '\r\n';
+  const texte = '\ufeff' + [entete, ...corps].map(l => l.map(cellule).join(';')).join('\r\n') + '\r\n';
   return [200, { texte, mime: 'text/csv; charset=utf-8', nom: 'recapitulatif-notes.csv' }];
 }
 
@@ -372,5 +441,5 @@ export async function vueEtudiant({ params }) {
   if (!d) return [404, { error: 'introuvable' }];
   const now = maintenant();
   return [200, { id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limiteDevoir(d)), etat: etatDevoir(d, now), maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
-    questions: sansReponses(d.questions), rendu: false, reponses: {}, recu: null, lecture_seule: true, apercu: true }];
+    surveille: !!d.surveille, questions: sansReponses(d.questions), rendu: false, reponses: {}, recu: null, lecture_seule: true, apercu: true }];
 }
