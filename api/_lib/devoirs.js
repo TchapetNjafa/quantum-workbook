@@ -36,9 +36,12 @@ export async function annonce() {
 
 export { etat as etatDevoir, limite as limiteDevoir }; // utilisés aussi par fichiers.js (mêmes règles de temps)
 
+/** Graine des variantes d'un étudiant : toujours la même pour (devoir, étudiant), donc l'énoncé reçu et la correction concordent. */
+export const graine = (d, email) => `${email}|${d.id}`;
+
 /** Enregistre une remise AUTOMATIQUE (sortie de la page, fin du temps) à partir des réponses données. Ne remplace jamais une remise existante. */
 async function remiseAuto(d, email, nom, reponses, recu, raison) {
-  const c = corriger(d.questions, reponses);
+  const c = corriger(d.questions, reponses, graine(d, email));
   await q(
     `INSERT INTO remises (devoir_id, email, nom, reponses, note, total, manuel, details, recu, retard, hors_ligne, total_manuel, auto)
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,FALSE,FALSE,$10,$11) ON CONFLICT (devoir_id, email) DO NOTHING`,
@@ -102,7 +105,7 @@ export async function ouvrir({ session, params }) {
   if (e === 'a_venir' || e === 'clos') return [403, { error: e === 'a_venir' ? 'devoir pas encore ouvert' : 'devoir clos' }];
   // l'enseignant peut lire le devoir comme un étudiant, sans l'ouvrir (pas d'horodatage) ni le remettre
   if (session.role === 'prof') return [200, { id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limite(d)), etat: e, maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
-    surveille: !!d.surveille, questions: sansReponses(d.questions), rendu: false, reponses: {}, recu: null, lecture_seule: true }];
+    surveille: !!d.surveille, questions: sansReponses(d.questions, 'apercu'), rendu: false, reponses: {}, recu: null, lecture_seule: true }];
   if (d.surveille) {
     if (e !== 'ouvert') return [403, { error: 'ce devoir ne s’ouvre que pendant sa fenêtre (entre l’ouverture et la fermeture) : il est fermé', ferme: iso(d.ferme) }];
     // Une seule ouverture par étudiant : l'insertion est atomique, la seconde tentative (autre appareil, rechargement) ne renvoie aucune ligne.
@@ -112,14 +115,14 @@ export async function ouvrir({ session, params }) {
       return [403, { error: 'ce devoir a déjà été ouvert avec votre compte : il est considéré comme remis et ne peut plus être rouvert', deja_ouvert: true }];
     }
     return [200, { id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limite(d)), etat: e, maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
-      surveille: true, questions: sansReponses(d.questions), rendu: false, reponses: {}, recu: null }];
+      surveille: true, questions: sansReponses(d.questions, graine(d, session.email)), rendu: false, reponses: {}, recu: null }];
   }
   // l'ouverture est horodatée par le serveur (première fois seulement)
   await q('INSERT INTO debuts (devoir_id, email, debut) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [d.id, session.email, now.toISOString()]);
   const [r] = await q('SELECT reponses, recu, retard FROM remises WHERE devoir_id = $1 AND email = $2', [d.id, session.email]);
   return [200, {
     id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limite(d)), etat: e, maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
-    surveille: false, questions: sansReponses(d.questions), rendu: !!r, reponses: r ? r.reponses : {}, recu: r ? iso(r.recu) : null
+    surveille: false, questions: sansReponses(d.questions, graine(d, session.email)), rendu: !!r, reponses: r ? r.reponses : {}, recu: r ? iso(r.recu) : null
   }];
 }
 
@@ -194,7 +197,7 @@ export async function remettre({ session, params, body }) {
   if (declare && isNaN(declare)) declare = null;
   if (declare && declare > now) declare = now;
 
-  const c = corriger(d.questions, reponses);
+  const c = corriger(d.questions, reponses, graine(d, session.email));
   const retard = d.surveille ? now > fin(d) : e === 'retard';
   // Une requête plus ancienne, arrivée en retard, ne doit pas écraser une remise plus récente (WHERE sur recu).
   // `offline` : la remise a été préparée sans réseau puis envoyée plus tard. Seule l'heure de réception (serveur) décide du retard ;

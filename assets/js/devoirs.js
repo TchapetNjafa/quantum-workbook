@@ -130,9 +130,19 @@
     afficherListe(devoirs, false);
   }
 
+  const media = q => (window.phy321Media ? window.phy321Media.html(q) : ''); // figures, audio, animations, tableaux (assets/js/devoirs-media.js)
+  const LETTRES = 'ABCDEFGH';
+
   function champ(q) {
     const n = `r-${q.id}`;
     if (q.type === 'qcm') return q.options.map((o, i) => `<label class="choice"><input type="radio" name="${n}" value="${i}"> <span>${esc(o)}</span></label>`).join('');
+    if (q.type === 'multi') return `<p class="muted">${t('Plusieurs réponses possibles : cochez toutes celles qui conviennent.', 'Several answers possible: tick every one that applies.')}</p>`
+      + q.options.map((o, i) => `<label class="choice"><input type="checkbox" name="${n}" value="${i}"> <span>${esc(o)}</span></label>`).join('');
+    if (q.type === 'appariement') { // propositions lettrées (MathJax les met en forme), un menu de lettres par élément à associer
+      const liste = `<ol class="dev-appar-options" type="A">${q.options.map(o => `<li>${esc(o)}</li>`).join('')}</ol>`;
+      const lignes = q.gauche.map((g, i) => `<label class="dev-appar-ligne"><span>${esc(g)}</span><select name="${n}-${i}" aria-label="${t('Proposition associée à', 'Option matched with')} ${i + 1}"><option value="">—</option>${q.options.map((_, k) => `<option value="${k}">${LETTRES[k]}</option>`).join('')}</select></label>`).join('');
+      return `<p class="muted">${t('Associez chaque élément à une proposition (une même proposition peut servir plusieurs fois).', 'Match each item with an option (an option may be used more than once).')}</p>${liste}<div class="dev-appar">${lignes}</div>`;
+    }
     if (q.type === 'vrai_faux') return ['true', 'false'].map(v => `<label class="choice"><input type="radio" name="${n}" value="${v}"> <span>${v === 'true' ? t('Vrai', 'True') : t('Faux', 'False')}</span></label>`).join('');
     if (q.type === 'numerical') return `<input type="text" inputmode="decimal" name="${n}" autocomplete="off" size="12"> ${esc(q.unit || '')}`;
     return `<textarea name="${n}" rows="5" maxlength="4000" style="width:100%"></textarea>`;
@@ -284,7 +294,7 @@
       <p class="muted"${surv ? ' hidden' : ''}>${t('Fermeture : ', 'Closes: ')}${esc(quand(d.ferme))}. ${t('Une remise reçue après cette heure et avant ', 'A submission received after that time and before ')}${esc(quand(d.limite))}${t(' est acceptée mais marquée en retard.', ' is accepted but marked late.')}
         ${t('L’heure retenue est celle du serveur, pas celle de votre appareil. Sans connexion, la remise est gardée sur votre appareil et envoyée au retour du réseau : elle doit parvenir au serveur avant l’heure limite.', 'The time recorded is the server’s, not your device’s. Without a connection, your submission is kept on your device and sent when the network returns: it must reach the server before the final deadline.')}</p>
       ${d.sujet && !horsLigne ? `<p><a class="btn small ghost" href="${APERCU ? `/api/prof/devoirs/${d.id}/sujet` : `/api/devoirs/${d.id}/sujet`}">${t('Télécharger le sujet (PDF à remplir)', 'Download the assignment (PDF to fill in)')}</a></p>` : ''}
-      <form id="dev-form">${d.questions.map((q, i) => `<fieldset class="diag-q"><legend>${i + 1}. ${esc(q.question)}${IA}${q.points > 1 ? ` <span class="muted">(${q.points} pts)</span>` : ''}</legend>${q.labo ? `<p class="dev-labo-btn" data-btn-labo="${q.id}" hidden><button class="btn small ghost" type="button" data-utiliser="${q.labo}" data-q="${q.id}">${t('Utiliser le simulateur ici', 'Use the simulator here')}</button></p><div class="dev-slot" data-slot="${q.id}"></div>` : ''}${champ(q)}</fieldset>`).join('')}</form>
+      <form id="dev-form">${d.questions.map((q, i) => `<fieldset class="diag-q"><legend>${i + 1}. ${esc(q.question).replace(/\n/g, '<br>')}${IA}${q.points > 1 ? ` <span class="muted">(${q.points} pts)</span>` : ''}</legend>${media(q)}${q.labo ? `<p class="dev-labo-btn" data-btn-labo="${q.id}" hidden><button class="btn small ghost" type="button" data-utiliser="${q.labo}" data-q="${q.id}">${t('Utiliser le simulateur ici', 'Use the simulator here')}</button></p><div class="dev-slot" data-slot="${q.id}"></div>` : ''}${champ(q)}</fieldset>`).join('')}</form>
       <div class="btn-row"><button class="btn accent" type="button" data-envoyer>${t('Remettre', 'Submit')}</button><button class="btn ghost" type="button" data-retour${surv ? ' hidden' : ''}>${t('Retour', 'Back')}</button></div>
       <div id="dev-msg" role="status" aria-live="polite"></div>
       ${d.copie ? `<fieldset class="diag-q"><legend>${t('Copie à déposer (PDF ou photo, 2 Mo maximum)', 'Paper to upload (PDF or photo, 2 MB maximum)')}</legend>
@@ -306,6 +316,7 @@
     }
     if (d.copie) copie(d, horsLigne, activer);
     monterLabos(d).catch(() => {});
+    if (window.phy321Media) window.phy321Media.monter(root, d.questions);
     if (APERCU) root.querySelectorAll('[data-retour]').forEach(b => { b.hidden = true; });
     if (d.lecture_seule) { // compte enseignant : on regarde, on ne remet pas (le serveur refuse aussi)
       root.querySelectorAll('#dev-form input, #dev-form textarea, #dev-form select').forEach(e => { if (!e.closest('.dev-labo')) e.disabled = true; }); // les simulateurs restent actifs
@@ -315,6 +326,8 @@
     const form = root.querySelector('#dev-form');
     for (const q of d.questions) {
       const prev = d.reponses[q.id]; if (prev === undefined || prev === null) continue;
+      if (q.type === 'multi') { form.querySelectorAll(`input[name="r-${q.id}"]`).forEach(e => { e.checked = Array.isArray(prev) && prev.map(String).includes(e.value); }); continue; }
+      if (q.type === 'appariement') { (Array.isArray(prev) ? prev : []).forEach((v, i) => { const s = form.elements[`r-${q.id}-${i}`]; if (s && v !== null && v !== undefined) s.value = String(v); }); continue; }
       const els = form.elements[`r-${q.id}`];
       if (estRadio(els)) [...els].forEach(e => { e.checked = e.value === String(prev); });
       else if (els) els.value = prev;
@@ -323,6 +336,8 @@
     const lire = () => {
       const reponses = {};
       for (const q of d.questions) {
+        if (q.type === 'multi') { const c = [...form.querySelectorAll(`input[name="r-${q.id}"]:checked`)].map(e => Number(e.value)); if (c.length) reponses[q.id] = c; continue; }
+        if (q.type === 'appariement') { const a = q.gauche.map((_, i) => form.elements[`r-${q.id}-${i}`].value); if (a.some(x => x !== '')) reponses[q.id] = a; continue; }
         const els = form.elements[`r-${q.id}`];
         const v = estRadio(els) ? ([...els].find(e => e.checked) || {}).value : els.value;
         if (v !== undefined && v !== '') reponses[q.id] = q.type === 'vrai_faux' ? v === 'true' : v;

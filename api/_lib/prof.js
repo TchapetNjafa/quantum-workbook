@@ -239,7 +239,7 @@ export async function remisesDevoir({ params }) {
   if (dev) await finaliser(dev); // devoir surveillé : les sessions terminées sans remise deviennent des remises automatiques
   const l = await q(
     // un étudiant apparaît s'il a remis les réponses OU déposé une copie (l'un des deux peut manquer) ; devoir surveillé : OU s'il l'a ouvert
-    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, r.declare, r.recu, r.retard, r.hors_ligne, r.auto, b.debut, b.sorties, b.quitte, b.absence_ms, b.absence_max_ms,
+    `SELECT u.email, r.nom, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, r.details, r.declare, r.recu, r.retard, r.hors_ligne, r.auto, b.debut, b.sorties, b.quitte, b.absence_ms, b.absence_max_ms,
             f.taille AS copie_taille, f.recu AS copie_recu, f.retard AS copie_retard, pr.matricule, lc.nom AS nom_liste
        FROM (SELECT email FROM remises WHERE devoir_id = $1 UNION SELECT email FROM fichiers WHERE devoir_id = $1
              UNION SELECT email FROM debuts WHERE devoir_id = $1 AND $2::boolean) u
@@ -377,7 +377,7 @@ export async function apercu({ params }) {
   return [200, {
     id: d.id, titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), publie: d.publie, copie: !!d.copie, sujet: !!d.sujet, nb_remises: n,
     modifiable: !d.publie && n === 0, // le contenu ne change que tant que le devoir n'est pas publié et qu'aucun étudiant n'a rien remis
-    etudiant: sansReponses(d.questions), corrige: d.questions,
+    etudiant: sansReponses(d.questions, 'apercu'), corrige: d.questions,
     surveille: !!d.surveille,
     contenu: { titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), copie: !!d.copie, surveille: !!d.surveille, ...(d.questions.length ? {} : { bareme: Number(d.bareme ?? 20) }), questions: d.questions }
   }];
@@ -444,5 +444,5 @@ export async function vueEtudiant({ params }) {
   if (!d) return [404, { error: 'introuvable' }];
   const now = maintenant();
   return [200, { id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limiteDevoir(d)), etat: etatDevoir(d, now), maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
-    surveille: !!d.surveille, questions: sansReponses(d.questions), rendu: false, reponses: {}, recu: null, lecture_seule: true, apercu: true }];
+    surveille: !!d.surveille, questions: sansReponses(d.questions, 'apercu'), rendu: false, reponses: {}, recu: null, lecture_seule: true, apercu: true }];
 }

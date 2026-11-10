@@ -126,9 +126,9 @@ const TABLE = [
   ['POST', '/api/devoirs/:id/quitter', 'session', 100_000, devoirs.quitter],
   ['POST', '/api/prof/login', 'session', 1_000, prof.login],
   ['GET', '/api/prof/devoirs', 'prof', 0, prof.listeDevoirs],
-  ['POST', '/api/prof/devoirs', 'prof', 250_000, prof.creerDevoir],
+  ['POST', '/api/prof/devoirs', 'prof', 1_000_000, prof.creerDevoir], // 1 Mo : les médias (images, séquences, tableaux) sont des données du devoir
   ['GET', '/api/prof/devoirs/:id', 'prof', 0, prof.lireDevoir],
-  ['POST', '/api/prof/devoirs/:id', 'prof', 10_000, prof.modifierDevoir],
+  ['POST', '/api/prof/devoirs/:id', 'prof', 1_000_000, prof.modifierDevoir], // porte aussi le remplacement du contenu (body.contenu)
   ['GET', '/api/prof/devoirs/:id/remises', 'prof', 0, prof.remisesDevoir],
   // fichiers : 6e valeur true = corps binaire
   ['POST', '/api/devoirs/:id/copie', 'session', 2 * 1024 * 1024, fichiers.deposerCopie, true],
