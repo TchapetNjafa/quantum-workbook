@@ -192,9 +192,10 @@
     montrer(`<h3>${esc(dev.titre)}</h3>
       <div class="box dev-avertissement"><p><b>${t('Devoir surveillé : à lire avant de commencer', 'Supervised assignment: read before starting')}</b></p><ul>
         <li>${t('Le devoir ne s’ouvre que du ', 'The assignment only opens from ')}<b>${esc(quand(dev.ouvre))}</b>${t(' au ', ' to ')}<b>${esc(quand(dev.ferme))}</b>${t(' (heure du serveur). Un compte à rebours s’affiche dès l’ouverture ; il se termine à l’heure de fermeture, la même pour tous.', ' (server time). A countdown is shown from the moment you open it; it ends at the closing time, the same for everyone.')}</li>
-        <li><b>${t('Une fois commencé, vous ne devez plus quitter la page.', 'Once started, you must not leave the page.')}</b> ${t('Fermer l’onglet, recharger la page, revenir en arrière ou ouvrir un autre site met fin au devoir : vos réponses du moment sont remises automatiquement et vous ne pourrez plus les modifier.', 'Closing the tab, reloading, going back or opening another site ends the assignment: your answers at that moment are submitted automatically and you can no longer change them.')}</li>
+        <li><b>${t('Une fois commencé, vous ne devez plus quitter la page, ne serait-ce qu’un instant.', 'Once started, you must not leave the page, not even for a moment.')}</b> ${t('Fermer l’onglet, recharger la page, revenir en arrière ou ouvrir un autre site met fin au devoir : vos réponses du moment sont remises automatiquement et vous ne pourrez plus les modifier.', 'Closing the tab, reloading, going back or opening another site ends the assignment: your answers at that moment are submitted automatically and you can no longer change them.')}</li>
         <li>${t('Le devoir ne s’ouvre qu’<b>une seule fois</b>, avec votre compte : il ne peut pas être rouvert, ni sur cet appareil ni sur un autre.', 'The assignment opens only <b>once</b> with your account: it cannot be reopened, neither on this device nor on another.')}</li>
-        <li><b>${t('Changer d’onglet, de fenêtre ou d’application met fin au devoir', 'Switching tab, window or app ends the assignment')}</b> ${t('(vos réponses sont remises, comme en quittant la page). Sur téléphone ou tablette, une absence de <b>10 secondes au plus</b> (un appel refusé, par exemple) est tolérée ; au-delà, le devoir prend fin. Toute absence est enregistrée, avec sa durée, et vue de l’enseignant.', '(your answers are submitted, as when leaving the page). On a phone or tablet, an absence of <b>10 seconds at most</b> (a declined call, for example) is tolerated; beyond that, the assignment ends. Every absence is recorded, with its duration, and seen by the teacher.')}</li>
+        <li><b>${t('Changer d’onglet, de fenêtre ou d’application met fin au devoir', 'Switching tab, window or app ends the assignment')}</b> ${t('(vos réponses sont remises, comme en quittant la page). Sur téléphone ou tablette seulement, une absence de <b>12,5 secondes au plus</b> (un appel refusé, par exemple) est tolérée : ne comptez pas dessus ; au-delà, le devoir prend fin. Toute absence est enregistrée, avec sa durée, et vue de l’enseignant.', '(your answers are submitted, as when leaving the page). On a phone or tablet only, an absence of <b>12.5 seconds at most</b> (a declined call, for example) is tolerated: do not count on it; beyond that, the assignment ends. Every absence is recorded, with its duration, and seen by the teacher.')}</li>
+        <li><b>${t('Gardez l’écran allumé pendant tout le devoir.', 'Keep the screen on for the whole assignment.')}</b> ${t('Un écran qui se met en veille cache la page et met fin au devoir. Avant de commencer : réglez la mise en veille sur la durée la plus longue (ou « jamais »), branchez le chargeur, désactivez l’économiseur d’écran et le mode économie d’énergie.', 'A screen that goes to sleep hides the page and ends the assignment. Before starting: set the screen timeout to the longest duration (or “never”), plug in the charger, turn off the screen saver and battery saver mode.')}</li>
         <li>${t('Seule la remise peut se faire sans connexion : gardez la connexion pour toute la durée du devoir.', 'Only the submission can be made offline: keep your connection for the whole assignment.')}</li>
         <li>${t('Le devoir se fait seul, sans aide extérieure ni assistant d’intelligence artificielle.', 'The assignment is done alone, without outside help or an AI assistant.')}</li></ul></div>
       <p><label class="choice"><input type="checkbox" data-compris> <span>${t('J’ai lu ces règles et je comprends que quitter la page vaut remise et que je ne pourrai pas rouvrir le devoir.', 'I have read these rules and I understand that leaving the page counts as submitting and that I will not be able to reopen the assignment.')}</span></label></p>
@@ -213,7 +214,7 @@
     const t0 = performance.now(), s0 = Date.parse(d.maintenant), fin = Date.parse(d.ferme), base = `/api/devoirs/${d.id}`;
     // Absences (page cachée) : comptées et chronométrées par l'appareil, envoyées au serveur avec les réponses ; l'enseignant les voit.
     const tactile = matchMedia('(pointer: coarse)').matches;   // téléphone ou tablette
-    const TOLERANCE_MS = 10000;                                // écran tactile : une absence de 10 s au plus est tolérée (appel refusé, notification), au-delà le devoir se termine
+    const TOLERANCE_MS = 12500;                                // écran tactile : une absence de 12,5 s au plus est tolérée (appel refusé, notification), au-delà le devoir se termine
     let sorties = 0, absTot = 0, absMax = 0, cache = null;     // cache : instant (Date.now) où la page est devenue cachée
     const absences = () => { const en = cache === null ? 0 : Date.now() - cache; return { absence_ms: absTot + en, absence_max_ms: Math.max(absMax, en) }; };
     const placer = () => { const tb = document.querySelector('.topbar'); bar.style.top = (tb ? tb.offsetHeight : 0) + 'px'; };
@@ -237,14 +238,14 @@
     addEventListener('pagehide', () => { parti = true; if (!estTermine()) fetch(`${base}/quitter`, { method: 'POST', credentials: 'same-origin', headers: entetes, body: corps(), keepalive: true }).catch(() => {}); });
     addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
     // Ordinateur : changer d'onglet ou de fenêtre met fin au devoir (l'autre onglet peut porter le cours ou une IA).
-    // Téléphone et tablette : une absence de 10 s au plus est tolérée (un appel refusé cache aussi la page) ; au-delà, le devoir se termine.
+    // Téléphone et tablette : une absence de 12,5 s au plus est tolérée (un appel refusé cache aussi la page) ; au-delà, le devoir se termine.
     // Dans tous les cas, chaque absence et sa durée sont enregistrées. Une bannière d'appel qui ne cache pas la page ne compte pas.
     const terminer = texte => {
       fetch(`${base}/quitter`, { method: 'POST', credentials: 'same-origin', headers: entetes, body: corps({ raison: 'onglet' }), keepalive: true }).catch(() => {});
       finir(texte);
     };
     const MSG_ONGLET = t('Devoir terminé : vous avez quitté l’onglet du devoir. Vos réponses ont été remises automatiquement et l’enseignant en est informé.', 'Assignment ended: you left the assignment tab. Your answers were submitted automatically and the teacher is informed.');
-    const MSG_TACTILE = t('Devoir terminé : vous avez quitté la page plus de 10 secondes. Vos réponses ont été remises automatiquement et l’enseignant en est informé.', 'Assignment ended: you left the page for more than 10 seconds. Your answers were submitted automatically and the teacher is informed.');
+    const MSG_TACTILE = t('Devoir terminé : vous avez quitté la page plus de 12,5 secondes. Vos réponses ont été remises automatiquement et l’enseignant en est informé.', 'Assignment ended: you left the page for more than 12.5 seconds. Your answers were submitted automatically and the teacher is informed.');
     document.addEventListener('visibilitychange', () => {
       if (estTermine()) return;
       if (document.visibilityState === 'hidden') {
@@ -262,8 +263,8 @@
       if (tactile && duree > TOLERANCE_MS) return terminer(MSG_TACTILE);
       brouillon(true);
       alerte.hidden = false;
-      alerte.textContent = t(`Vous avez quitté la page ${sorties} fois pendant ce devoir (${Math.round(absTot / 1000)} s en tout) : l’enseignant le voit.${tactile ? ' Une absence de plus de 10 secondes met fin au devoir.' : ' Ne quittez plus la page.'}`,
-        `You left the page ${sorties} time(s) during this assignment (${Math.round(absTot / 1000)} s in total): the teacher can see it.${tactile ? ' An absence of more than 10 seconds ends the assignment.' : ' Do not leave the page again.'}`);
+      alerte.textContent = t(`Vous avez quitté la page ${sorties} fois pendant ce devoir (${Math.round(absTot / 1000)} s en tout) : l’enseignant le voit.${tactile ? ' Une absence de plus de 12,5 secondes met fin au devoir.' : ' Ne quittez plus la page.'}`,
+        `You left the page ${sorties} time(s) during this assignment (${Math.round(absTot / 1000)} s in total): the teacher can see it.${tactile ? ' An absence of more than 12.5 seconds ends the assignment.' : ' Do not leave the page again.'}`);
     });
   }
 
@@ -290,7 +291,7 @@
     vue = 'devoir';
     const surv = !!d.surveille && !d.lecture_seule;
     montrer(`${horsLigne ? `<p class="muted" role="status">${reseau}</p>` : ''}${surv ? `<div class="dev-minuteur" role="timer" aria-label="${t('Temps restant', 'Time left')}"><span>${t('Temps restant', 'Time left')}</span> <b data-reste>--:--:--</b></div><div class="prof-erreurs" data-sorties role="alert" hidden></div>` : ''}<h3>${esc(d.titre)}${IA}</h3>
-      ${surv ? `<p class="muted">${t('Fermeture : ', 'Closes: ')}${esc(quand(d.ferme))}. ${t('À cette heure, vos réponses sont remises automatiquement. Ne quittez pas la page : cela vaut remise.', 'At that time your answers are submitted automatically. Do not leave the page: it counts as submitting.')}</p>` : ''}
+      ${surv ? `<p class="muted">${t('Fermeture : ', 'Closes: ')}${esc(quand(d.ferme))}. ${t('À cette heure, vos réponses sont remises automatiquement. Ne quittez pas la page, même un instant, et gardez l’écran allumé : cela vaut remise.', 'At that time your answers are submitted automatically. Do not leave the page, even for a moment, and keep the screen on: it counts as submitting.')}</p>` : ''}
       <p class="muted"${surv ? ' hidden' : ''}>${t('Fermeture : ', 'Closes: ')}${esc(quand(d.ferme))}. ${t('Une remise reçue après cette heure et avant ', 'A submission received after that time and before ')}${esc(quand(d.limite))}${t(' est acceptée mais marquée en retard.', ' is accepted but marked late.')}
         ${t('L’heure retenue est celle du serveur, pas celle de votre appareil. Sans connexion, la remise est gardée sur votre appareil et envoyée au retour du réseau : elle doit parvenir au serveur avant l’heure limite.', 'The time recorded is the server’s, not your device’s. Without a connection, your submission is kept on your device and sent when the network returns: it must reach the server before the final deadline.')}</p>
       ${d.sujet && !horsLigne ? `<p><a class="btn small ghost" href="${APERCU ? `/api/prof/devoirs/${d.id}/sujet` : `/api/devoirs/${d.id}/sujet`}">${t('Télécharger le sujet (PDF à remplir)', 'Download the assignment (PDF to fill in)')}</a></p>` : ''}
