@@ -325,10 +325,16 @@
   const LETTRES = 'ABCDEFGH';
   const blocQuestion = (q, i, corrige) => {
     const rep = corrige ? `<p class="muted">${t('Réponse attendue : ', 'Expected answer: ')}<b>${esc(q.type === 'qcm' ? `${LETTRES[q.correct_answer]}. ${q.options[q.correct_answer]}` : q.type === 'vrai_faux' ? (q.correct_answer ? t('vrai', 'true') : t('faux', 'false'))
-      : q.type === 'numerical' ? `${q.correct_answer}${q.unit ? ' ' + q.unit : ''} (± ${q.tolerance})` : t('correction manuelle', 'manual marking'))}</b>${q.explanation ? ` — ${esc(q.explanation)}` : ''}</p>` : '';
+      : q.type === 'numerical' ? `${q.correct_answer}${q.unit ? ' ' + q.unit : ''} (± ${q.tolerance})${q.variables ? t(' — calculée pour chaque étudiant (variables : ', ' — computed for each student (variables: ') + Object.entries(q.variables).map(([k, v]) => `${k} ∈ {${v.join(', ')}}`).join(' ; ') + ')' : ''}`
+      : q.type === 'multi' ? q.correct_answer.map(k => LETTRES[k]).join(', ') + t(' (points partiels : bonnes − fausses)', ' (partial credit: right − wrong)')
+      : q.type === 'appariement' ? q.gauche.map((g, k) => `${k + 1} → ${LETTRES[q.correct_answer[k]]}`).join(' ; ') + t(' (points proportionnels aux paires justes)', ' (credit proportional to correct pairs)')
+      : t('correction manuelle', 'manual marking'))}</b>${q.explanation ? ` — ${esc(q.explanation)}` : ''}</p>` : '';
+    const medias = q.media ? `<p class="muted">${t('Médias : ', 'Media: ')}${q.media.map(m => m.type).join(', ')}</p>` : '';
     return `<fieldset class="diag-q" disabled><legend>${i + 1}. ${esc(q.question)} <span class="muted">(${q.points} pt${q.points > 1 ? 's' : ''}${q.type === 'interpretation' ? t(', corrigée à la main', ', marked by hand') : ''})</span></legend>
       ${q.type === 'qcm' ? `<ul class="choices">${q.options.map((o, k) => `<li><label class="choice"><input type="radio" disabled>${LETTRES[k]}. ${esc(o)}${corrige && k === q.correct_answer ? ` <b>✓</b>` : ''}</label></li>`).join('')}</ul>`
-        : q.type === 'vrai_faux' ? `<p>${t('Vrai / faux', 'True / false')}</p>` : q.type === 'numerical' ? `<input type="text" disabled placeholder="${esc(q.unit || '')}">` : `<textarea disabled rows="2"></textarea>`}${rep}</fieldset>`;
+        : q.type === 'multi' ? `<ul class="choices">${q.options.map((o, k) => `<li><label class="choice"><input type="checkbox" disabled>${LETTRES[k]}. ${esc(o)}${corrige && q.correct_answer.includes(k) ? ` <b>✓</b>` : ''}</label></li>`).join('')}</ul>`
+        : q.type === 'appariement' ? `<ol>${q.gauche.map(g => `<li>${esc(g)}</li>`).join('')}</ol><ul class="choices">${q.options.map((o, k) => `<li>${LETTRES[k]}. ${esc(o)}</li>`).join('')}</ul>`
+        : q.type === 'vrai_faux' ? `<p>${t('Vrai / faux', 'True / false')}</p>` : q.type === 'numerical' ? `<input type="text" disabled placeholder="${esc(q.unit || '')}">` : `<textarea disabled rows="2"></textarea>`}${medias}${rep}</fieldset>`;
   };
 
   async function apercu(id, d) {
