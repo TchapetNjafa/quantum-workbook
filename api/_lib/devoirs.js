@@ -72,7 +72,9 @@ export async function liste({ session }) {
   const now = maintenant();
   if (session.role !== 'prof') await finaliserPour(session.email);
   const lignes = await q(
-    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, d.surveille, b.debut, r.recu, r.retard, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions, d.questions
+    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, d.surveille, b.debut, r.recu, r.retard, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions,
+            (SELECT COALESCE(jsonb_agg(jsonb_build_object('id', x->>'id', 'type', x->>'type', 'points', x->'points')), '[]'::jsonb)
+               FROM jsonb_array_elements(d.questions) x WHERE x->>'type' = 'interpretation') AS questions
        FROM devoirs d LEFT JOIN remises r ON r.devoir_id = d.id AND r.email = $1
        LEFT JOIN debuts b ON b.devoir_id = d.id AND b.email = $1
       WHERE d.publie ORDER BY d.ferme DESC`, [session.email]);
@@ -91,6 +93,11 @@ export async function liste({ session }) {
     } : {})
   }));
   return [200, { maintenant: now.toISOString(), devoirs, a_faire: devoirs.filter(d => d.etat === 'ouvert' && !d.rendu && !d.ouvert_le).length }];
+}
+
+async function chargerLeger(id) {
+  if (!/^\d+$/.test(id)) return null;
+  return (await q('SELECT id, surveille FROM devoirs WHERE id = $1 AND publie', [Number(id)]))[0] || null;
 }
 
 async function charger(id) {
@@ -133,7 +140,7 @@ const absences = body => ({ total: ms(body?.absence_ms), max: ms(body?.absence_m
 /** Devoir surveillé : la page envoie ses réponses à intervalle régulier (et signale les changements d'onglet). Sert de brouillon et de signe de vie. */
 export async function brouillon({ session, params, body }) {
   if (session.role === 'prof') return [200, { ok: true }];
-  const d = await charger(params.id);
+  const d = await chargerLeger(params.id); // appelée toutes les 8 s par étudiant : ne jamais relire les énoncés (images) ici
   if (!d || !d.surveille) return [404, { error: 'devoir introuvable' }];
   const reponses = body && typeof body.reponses === 'object' && body.reponses !== null && !Array.isArray(body.reponses) ? body.reponses : null;
   const sorties = Number.isInteger(body?.sorties) && body.sorties >= 0 && body.sorties <= 1000 ? body.sorties : 0;

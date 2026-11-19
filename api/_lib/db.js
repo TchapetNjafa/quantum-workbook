@@ -67,7 +67,7 @@ const SCHEMA = [
 
 function connexion() {
   if (db) return db;
-  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  const url = process.env.PHY321_DB_DATABASE_URL || process.env.DATABASE_URL || process.env.POSTGRES_URL; // PHY321_DB_DATABASE_URL : 2e base Neon (préfixe PHY321_DB de l'intégration Vercel), prioritaire sur l'ancienne (DATABASE_URL, quota dépassé le 2026-11-11)
   if (!url) throw Object.assign(new Error('DATABASE_URL absent'), { code: 'config' });
   const sql = neon(url);
   db = { query: (texte, params) => sql.query(texte, params) };
