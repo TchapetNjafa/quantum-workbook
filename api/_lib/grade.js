@@ -208,5 +208,5 @@ export function corriger(questions, reponses = {}, graine = '') {
     note += points;
     return { id: q.id, ok: part === 1, points, ...(q.variables ? { valeurs } : {}) };
   });
-  return { note: arrondi4(note), total, manuel, totalManuel, details };
+  return { note: arrondi4(note), total: arrondi4(total), manuel, totalManuel: arrondi4(totalManuel), details }; // total arrondi : 0,25 + 0,4 + … peut donner 19,999999999999996, affiché tel quel « note / total »
 }
