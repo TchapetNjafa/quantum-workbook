@@ -80,3 +80,39 @@ iframe.apercu-cadre { width: 100%; height: 75vh; border: 1px solid var(--rule); 
 .dev-appar { display: grid; gap: .4rem; }
 .dev-appar-ligne { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .8rem; padding: .3rem 0; border-bottom: 1px solid var(--rule-soft); }
 .dev-appar-ligne select { min-width: 4.5rem; font: inherit; padding: .25rem .4rem; }
+
+/* calculatrice scientifique et pavé numérique des devoirs (assets/js/devoirs-calculatrice.js) */
+/* La racine ne doit ni être « relative » ni créer de contexte d'empilement (règle `body > *` du Carnet) : ses enfants fixes se placent au-dessus de la barre du bas (z-index 40). */
+.calc-racine { position: static; z-index: auto; }
+.calc-bouton { position: fixed; right: 1rem; bottom: 1rem; z-index: 60; box-shadow: 0 2px 10px rgb(0 0 0 / .2); }
+.calc-ouverte .calc-bouton, .pave-ouvert .calc-bouton { display: none; }
+.calc { position: fixed; right: 1rem; bottom: 1rem; z-index: 61; box-sizing: border-box; width: min(23rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto;
+  padding: .6rem; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-md); box-shadow: 0 6px 24px rgb(0 0 0 / .28); font-family: var(--sans); }
+.calc-tete { display: flex; align-items: center; justify-content: space-between; margin: 0 0 .4rem; }
+.calc-ecran { padding: .4rem .6rem; margin: 0 0 .5rem; background: var(--paper-2); border: 1px solid var(--rule-soft); border-radius: var(--r-sm); text-align: right; }
+.calc-expr { min-height: 1.5rem; overflow-x: auto; white-space: nowrap; font-family: var(--mono); font-size: 1rem; color: var(--ink-2); scrollbar-width: none; }
+.calc-res { display: block; min-height: 2rem; font-family: var(--mono); font-size: 1.5rem; font-variant-numeric: tabular-nums; overflow-x: auto; white-space: nowrap; color: var(--ink-2); }
+.calc-res[data-etat="final"] { color: var(--ink); font-weight: 500; }
+.calc-res[data-etat="erreur"] { color: var(--accent-ink); }
+.calc-touches { display: grid; grid-template-columns: repeat(5, 1fr); gap: .3rem; }
+.calc-k, .pave-k { font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-sm); cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+.calc-k { min-height: 2.75rem; padding: 0; font-size: 1.05rem; }
+.calc-k.calc-fn { background: var(--paper-3); font-size: .88rem; }
+.calc-k.calc-op { background: var(--paper-2); font-size: 1.2rem; }
+.calc-k.calc-egal { grid-column: span 2; background: var(--accent); border-color: var(--accent); color: #fff; font-size: 1.3rem; }
+.calc-k:active, .pave-k:active { background: var(--accent-wash); }
+.calc-inserer { width: 100%; margin-top: .55rem; }
+.calc-inserer:disabled { opacity: .5; }
+.calc-msg { min-height: 1.2rem; margin: .35rem 0 0; font-size: .85rem; }
+.pave { position: fixed; left: 0; right: 0; bottom: 0; z-index: 61; box-sizing: border-box; padding: .5rem .6rem calc(.5rem + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--rule); box-shadow: 0 -4px 16px rgb(0 0 0 / .18); }
+.pave-tete { display: flex; justify-content: space-between; gap: .5rem; margin: 0 0 .4rem; }
+.pave-grille { display: grid; grid-template-columns: repeat(4, 1fr); gap: .35rem; max-width: 24rem; margin: 0 auto; }
+.pave-k { min-height: 3rem; padding: 0; font-size: 1.35rem; }
+.pave-k sup { font-size: .6em; }
+.pave-k.pave-ok { background: var(--accent); border-color: var(--accent); color: #fff; font-size: 1.1rem; }
+#dev-form input[data-num] { font-size: max(1rem, 16px); } /* sous 16 px, iOS agrandit la page au focus */
+@media (max-width: 1023px) {
+  .calc-bouton { bottom: calc(3.25rem + env(safe-area-inset-bottom) + .75rem); }
+  .calc { left: 0; right: 0; bottom: calc(3.25rem + env(safe-area-inset-bottom)); width: auto; max-height: 72dvh; border-radius: var(--r-md) var(--r-md) 0 0; }
+  .pave { bottom: calc(3.25rem + env(safe-area-inset-bottom)); padding-bottom: .5rem; }
+}

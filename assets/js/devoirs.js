@@ -15,7 +15,7 @@
   const quand = iso => new Date(iso).toLocaleString(EN ? 'en-GB' : 'fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
   const api = (path, opt) => fetch(path, { credentials: 'same-origin', ...opt });
   const post = (path, body) => api(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const montrer = html => { root.innerHTML = html; if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([root]).catch(() => {}); };
+  const montrer = html => { if (window.phy321Calc) window.phy321Calc.demonter(); root.innerHTML = html; if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([root]).catch(() => {}); };
   const File = () => window.phy321File || { liste: () => [], ajouter() {}, retirer() {}, flush: async () => {} };
   // Copie locale (lecture hors connexion) : titres, dates et énoncés, jamais de réponses ni de notes.
   const memo = {
@@ -144,7 +144,7 @@
       return `<p class="muted">${t('Associez chaque élément à une proposition (une même proposition peut servir plusieurs fois).', 'Match each item with an option (an option may be used more than once).')}</p>${liste}<div class="dev-appar">${lignes}</div>`;
     }
     if (q.type === 'vrai_faux') return ['true', 'false'].map(v => `<label class="choice"><input type="radio" name="${n}" value="${v}"> <span>${v === 'true' ? t('Vrai', 'True') : t('Faux', 'False')}</span></label>`).join('');
-    if (q.type === 'numerical') return `<input type="text" inputmode="decimal" name="${n}" autocomplete="off" size="12"> ${esc(q.unit || '')}`;
+    if (q.type === 'numerical') return `<input type="text" inputmode="decimal" name="${n}" data-num autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" size="12" aria-label="${t('Réponse numérique', 'Numerical answer')}"> ${esc(q.unit || '')}`;
     return `<textarea name="${n}" rows="5" maxlength="4000" style="width:100%"></textarea>`;
   }
 
@@ -317,6 +317,7 @@
     }
     if (d.copie) copie(d, horsLigne, activer);
     monterLabos(d).catch(() => {});
+    if (window.phy321Calc && d.questions.length) window.phy321Calc.monter(root.querySelector('#dev-form')); // calculatrice et pavé numérique (assets/js/devoirs-calculatrice.js)
     if (window.phy321Media) window.phy321Media.monter(root, d.questions);
     if (APERCU) root.querySelectorAll('[data-retour]').forEach(b => { b.hidden = true; });
     if (d.lecture_seule) { // compte enseignant : on regarde, on ne remet pas (le serveur refuse aussi)
