@@ -169,7 +169,7 @@ export function sansReponses(questions, graine = '') {
 }
 
 const nombre = v => {
-  const n = Number(String(v ?? '').replace(/\s/g, '').replace(',', '.'));
+  const n = Number(String(v ?? '').replace(/\s/g, '').replace(/[−–]/g, '-').replace(',', '.')); // « − » (U+2212) et « – » : signe moins typographique (collé ou saisi au pavé)
   return String(v ?? '').trim() === '' ? NaN : n;
 };
 /** Valeur d'un champ numérique (nombre ou expression) pour la variante donnée. */
