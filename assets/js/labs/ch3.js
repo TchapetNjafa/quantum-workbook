@@ -332,4 +332,6 @@
 
   const labs = { postulats, larmor, rabi, ramsey };
   document.querySelectorAll('[data-lab]').forEach(el => { const f = labs[el.dataset.lab]; if (f) f(el); });
+  // les pages qui injectent un labo après coup (devoirs) l'initialisent avec Lab.mounters[nom](figure)
+  window.Lab.mounters = Object.assign(window.Lab.mounters || {}, labs);
 })();

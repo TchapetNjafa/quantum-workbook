@@ -5,9 +5,10 @@
 //   impacts    { positions: [-1…1], cadence?, legende? }      animation : impacts un à un sur un écran (fentes d'Young…)
 //   compteurs  { categories: [2 à 4 noms], evenements: [indices], cadence?, legende? }   animation : compteurs qui montent
 //   tableau    { colonnes: […], lignes: [[…]…], legende? }    données brutes
+//   audio      { src: data:audio/(mpeg|ogg|wav);base64,… (200 Ko au plus), legende? }    extrait vocal court (lecteur du navigateur)
 // Les séquences sont tirées à l'avance (graine fixe) par l'auteur du devoir : le paramètre caché n'est jamais envoyé à l'étudiant.
-export const MEDIA_TYPES = ['image', 'clics', 'impacts', 'compteurs', 'tableau'];
-const MAX_MEDIAS = 6, MAX_IMAGE = 120_000;
+export const MEDIA_TYPES = ['image', 'clics', 'impacts', 'compteurs', 'tableau', 'audio'];
+const MAX_MEDIAS = 6, MAX_IMAGE = 120_000, MAX_AUDIO = 200_000;
 
 const court = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
 const entier = (v, a, b) => Number.isInteger(v) && v >= a && v <= b;
@@ -60,7 +61,16 @@ function tableau(m, etiquette, erreurs) {
   return { type: 'tableau', colonnes: [...c], lignes: l.map(r => [...r]), ...(court(m.legende, 300) ? { legende: m.legende } : {}) };
 }
 
-const VALIDEURS = { image, clics, impacts, compteurs, tableau };
+function audio(m, etiquette, erreurs) {
+  const src = m.src;
+  if (typeof src !== 'string' || src.length > MAX_AUDIO || !/^data:audio\/(mpeg|ogg|wav);base64,[A-Za-z0-9+/]+={0,2}$/.test(src)) {
+    erreurs.push(`${etiquette} (audio) : src doit être un extrait intégré data:audio/mpeg|ogg|wav;base64 de ${MAX_AUDIO / 1000} Ko au plus`);
+    return null;
+  }
+  return { type: 'audio', src, ...(court(m.legende, 300) ? { legende: m.legende } : {}) };
+}
+
+const VALIDEURS = { image, clics, impacts, compteurs, tableau, audio };
 
 /** Valide la liste `media` d'une question. Renvoie { medias } (copies normalisées) ; les problèmes sont ajoutés à `erreurs`. */
 export function validerMedias(brut, nom, erreurs) {

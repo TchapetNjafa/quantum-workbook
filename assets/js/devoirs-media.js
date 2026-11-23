@@ -14,6 +14,7 @@
     const leg = m.legende ? `<figcaption class="muted">${esc(m.legende)}</figcaption>` : '';
     const id = `data-media="${esc(q.id)}:${k}"`;
     if (m.type === 'image') return `<figure class="dev-media dev-fig"><img src="${esc(m.src)}" alt="${esc(m.alt)}">${leg}</figure>`;
+    if (m.type === 'audio') return `<figure class="dev-media">${leg}<audio controls preload="auto" src="${esc(m.src)}">${t('Lecteur audio non pris en charge par ce navigateur.', 'Audio player not supported by this browser.')}</audio><p class="muted">${t('Casque conseillé ; vous pouvez réécouter autant de fois que nécessaire.', 'Headphones recommended; you can listen again as many times as needed.')}</p></figure>`;
     if (m.type === 'tableau') {
       return `<figure class="dev-media"><div class="dev-tableau" tabindex="0" role="region" aria-label="${esc(m.legende || t('Tableau de données', 'Data table'))}"><table>
         <thead><tr>${m.colonnes.map(c => `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead>
