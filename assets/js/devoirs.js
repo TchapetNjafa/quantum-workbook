@@ -151,8 +151,8 @@
   const estRadio = els => els && els.length !== undefined && els[0] && els[0].type === 'radio';
 
   /* ---------- simulateurs intégrés : les labos du Carnet, copiés tels quels depuis la page du chapitre (une seule instance par labo) ---------- */
-  const LABO_CH = { young: 1, mz: 1, phasors: 1, qubit: 1, deco: 1, sg: 2, op: 2, rb: 2 };
-  const PAGES = { 1: ['/chapitres/1-etats-quantiques.html', '/en/chapters/1-quantum-states.html'], 2: ['/chapitres/2-mesure-operateurs.html', '/en/chapters/2-measurement-operators.html'] };
+  const LABO_CH = { young: 1, mz: 1, phasors: 1, qubit: 1, deco: 1, sg: 2, op: 2, rb: 2, postulats: 3, larmor: 3, rabi: 3, ramsey: 3 };
+  const PAGES = { 1: ['/chapitres/1-etats-quantiques.html', '/en/chapters/1-quantum-states.html'], 2: ['/chapitres/2-mesure-operateurs.html', '/en/chapters/2-measurement-operators.html'], 3: ['/chapitres/3-dynamique.html', '/en/chapters/3-quantum-dynamics.html'] };
   /* Un seul exemplaire de chaque labo (les labos repèrent leurs éléments par identifiant). Il s'affiche sous la première question qui l'utilise ;
      le bouton « Utiliser le simulateur ici » des autres questions le déplace sous elles, avec ses réglages. */
   async function monterLabos(d) {
@@ -179,7 +179,7 @@
         boite.replaceChildren(noeud);
         window.Lab.mounters[id](noeud);
         if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([noeud]).catch(() => {});
-      } catch { boite.querySelector('p').textContent = t('Simulateur indisponible (réseau). Ouvrez le chapitre 1 du Carnet pour le manipuler.', 'Simulator unavailable (network). Open chapter 1 of the Workbook to use it.'); }
+      } catch { boite.querySelector('p').textContent = t('Simulateur indisponible (réseau). Ouvrez le chapitre correspondant du Carnet pour le manipuler.', 'Simulator unavailable (network). Open the matching chapter of the Workbook to use it.'); }
     }
   }
 

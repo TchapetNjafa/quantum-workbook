@@ -7,7 +7,7 @@ import { evaluer } from './expr.js';
 import { validerMedias } from './media.js';
 
 export const TYPES = ['qcm', 'vrai_faux', 'numerical', 'multi', 'appariement', 'interpretation'];
-export const LABOS = ['young', 'mz', 'phasors', 'qubit', 'deco', 'sg', 'op', 'rb']; // simulateurs du Carnet affichables dans un devoir (labos des chapitres 1 et 2)
+export const LABOS = ['young', 'mz', 'phasors', 'qubit', 'deco', 'sg', 'op', 'rb', 'postulats', 'larmor', 'rabi', 'ramsey']; // simulateurs du Carnet affichables dans un devoir (labos des chapitres 1 à 3)
 const SECRETS = ['correct_answer', 'tolerance', 'explanation', 'sample_answer', 'variables'];
 const TAILLE_MAX = 900_000; // octets de JSON pour l'ensemble des questions (les médias sont des données)
 
