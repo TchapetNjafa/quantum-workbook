@@ -56,6 +56,18 @@ const combinaisons = variables => {
 
 const estNombreTexte = s => typeof s === 'string' && s.trim() !== '' && Number.isFinite(Number(s.replace(',', '.')));
 
+// ---------- ordre des options propre à chaque étudiant ----------
+/** Ordre d'affichage des options d'une question marquée `melanger` : ordre[i] = indice d'origine de l'option affichée en position i.
+ *  Déterministe (hachage de graine|question) ; identité sans `melanger`, sans option, et pour l'aperçu de l'enseignant (graine « apercu »). */
+export function ordreOptions(q, graine = '') {
+  const n = Array.isArray(q?.options) ? q.options.length : 0;
+  const ordre = Array.from({ length: n }, (_, i) => i);
+  if (!q.melanger || n < 2 || graine === 'apercu') return ordre;
+  const h = createHash('sha256').update(`${graine}|${q.id}|ordre`).digest();
+  for (let i = n - 1; i > 0; i--) { const j = h[i] % (i + 1); [ordre[i], ordre[j]] = [ordre[j], ordre[i]]; }   // Fisher-Yates, n ≤ 8 < 32 octets
+  return ordre;
+}
+
 /** Valide `variables` d'une question ; renvoie la copie normalisée ou undefined. */
 function validerVariables(brut, n, erreurs) {
   if (brut === undefined) return undefined;
@@ -109,6 +121,8 @@ export function valider(d) {
     if (!(points > 0 && points <= 20)) return erreurs.push(`${n} : points invalides`);
     const out = { id: `q${i + 1}`, type: q.type, question: q.question, points };
     if (q.labo !== undefined) { if (!LABOS.includes(q.labo)) return erreurs.push(`${n} : labo inconnu (${LABOS.join(', ')})`); out.labo = q.labo; }
+    if (q.melanger !== undefined && typeof q.melanger !== 'boolean') return erreurs.push(`${n} : melanger doit être true ou false`);
+    if (q.melanger === true && ['qcm', 'multi', 'appariement'].includes(q.type)) out.melanger = true;   // ordre des options propre à chaque étudiant
     const variables = validerVariables(q.variables, n, erreurs);
     if (variables) out.variables = variables;
     const { medias } = validerMedias(q.media, n, erreurs);
@@ -157,12 +171,14 @@ export function valider(d) {
 /** Questions telles que l'étudiant les voit : sa variante substituée, jamais les réponses ni les explications ni la liste des variables. */
 export function sansReponses(questions, graine = '') {
   return questions.map(q => {
-    const base = Object.fromEntries(Object.entries(q).filter(([k]) => !SECRETS.includes(k)));
-    if (!q.variables) return base;
+    const base = Object.fromEntries(Object.entries(q).filter(([k]) => !SECRETS.includes(k) && k !== 'melanger'));
+    const ordre = ordreOptions(q, graine);                         // options dans l'ordre propre à cet étudiant (identité sans `melanger`)
+    const rang = q.options ? ordre.map(k => q.options[k]) : null;
+    if (!q.variables) return rang ? { ...base, options: rang } : base;
     const v = valeursVariante(q, graine);
     return {
       ...base, question: substituer(q.question, v),
-      ...(q.options ? { options: q.options.map(o => substituer(o, v)) } : {}),
+      ...(rang ? { options: rang.map(o => substituer(o, v)) } : {}),
       ...(q.gauche ? { gauche: q.gauche.map(g => substituer(g, v)) } : {})
     };
   });
@@ -186,7 +202,9 @@ export function corriger(questions, reponses = {}, graine = '') {
     total += q.points;
     const valeurs = valeursVariante(q, graine);
     let part = 0; // fraction des points obtenue, de 0 à 1
-    if (q.type === 'qcm') part = r !== '' && r !== null && r !== undefined && Number(r) === q.correct_answer ? 1 : 0;
+    const ordre = ordreOptions(q, graine);                         // l'étudiant répond avec les indices de SON ordre d'affichage ; on revient aux indices d'origine
+    const origine = x => (Number.isInteger(x) && x >= 0 && x < ordre.length ? ordre[x] : undefined);
+    if (q.type === 'qcm') part = r !== '' && r !== null && r !== undefined && origine(Number(r)) === q.correct_answer ? 1 : 0;
     else if (q.type === 'vrai_faux') part = ((r === true || r === 'true') ? q.correct_answer === true : (r === false || r === 'false') ? q.correct_answer === false : false) ? 1 : 0;
     else if (q.type === 'numerical') {
       const v = nombre(r);
@@ -194,13 +212,13 @@ export function corriger(questions, reponses = {}, graine = '') {
     } else if (q.type === 'multi') {
       const choix = entiers(r);
       if (choix) {
-        const eux = new Set(choix), juste = new Set(q.correct_answer);
-        const bonnes = [...eux].filter(x => juste.has(x)).length, fausses = [...eux].filter(x => !juste.has(x) && x >= 0 && x < q.options.length).length;
+        const eux = new Set(choix.map(origine).filter(x => x !== undefined)), juste = new Set(q.correct_answer);
+        const bonnes = [...eux].filter(x => juste.has(x)).length, fausses = [...eux].filter(x => !juste.has(x)).length;
         part = Math.max(0, (bonnes - fausses) / juste.size);
       }
     } else if (q.type === 'appariement') {
       if (Array.isArray(r)) {
-        const justes = q.correct_answer.filter((c, i) => r[i] !== '' && r[i] !== null && r[i] !== undefined && Number(r[i]) === c).length;
+        const justes = q.correct_answer.filter((c, i) => r[i] !== '' && r[i] !== null && r[i] !== undefined && origine(Number(r[i])) === c).length;
         part = justes / q.correct_answer.length;
       }
     }
