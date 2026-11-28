@@ -108,6 +108,8 @@ export function valider(d) {
   if (!texte(d?.titre, 200)) erreurs.push('titre manquant ou trop long');
   if (isNaN(ouvre) || isNaN(ferme)) erreurs.push('dates ouvre/ferme invalides');
   else if (ferme <= ouvre) erreurs.push('ferme doit suivre ouvre');
+  const dureeOk = d?.duree_min === undefined || d?.duree_min === null || (Number.isInteger(d.duree_min) && d.duree_min >= 1 && d.duree_min <= 1440);
+  if (!dureeOk) erreurs.push('duree_min : entier de 1 à 1440 (minutes) attendu');
   // Un devoir « copie seule » (sujet PDF, l'étudiant dépose sa copie) n'a pas de question ; sinon 1 à 60 questions.
   const sansQuestion = d?.copie === true && (d.questions === undefined || (Array.isArray(d.questions) && d.questions.length === 0));
   if (!sansQuestion && (!Array.isArray(d?.questions) || d.questions.length < 1 || d.questions.length > 60)) erreurs.push('1 à 60 questions attendues (ou aucune pour un devoir à copie déposée)');
@@ -165,7 +167,7 @@ export function valider(d) {
   });
   if (JSON.stringify(questions).length > TAILLE_MAX) erreurs.push('devoir trop volumineux');
   if (erreurs.length) return { ok: false, erreurs }; // avant toute conversion : toISOString() lève une exception sur une date invalide
-  return { ok: true, erreurs, devoir: { titre: d.titre, ouvre: ouvre.toISOString(), ferme: ferme.toISOString(), questions } };
+  return { ok: true, erreurs, devoir: { titre: d.titre, ouvre: ouvre.toISOString(), ferme: ferme.toISOString(), duree_min: d.duree_min ?? null, questions } };
 }
 
 /** Questions telles que l'étudiant les voit : sa variante substituée, jamais les réponses ni les explications ni la liste des variables. */

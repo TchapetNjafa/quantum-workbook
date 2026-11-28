@@ -62,7 +62,9 @@ const SCHEMA = [
   `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS sorties INT NOT NULL DEFAULT 0`, // fois où l'onglet a été quitté (changement d'onglet, d'application)
   `ALTER TABLE remises ADD COLUMN IF NOT EXISTS auto TEXT`,               // NULL = remise volontaire ; 'sortie', 'onglet' ou 'temps' = remise automatique
   `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS absence_ms INT NOT NULL DEFAULT 0`,     // durée totale pendant laquelle la page était cachée (mesurée par l'appareil, indicative)
-  `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS absence_max_ms INT NOT NULL DEFAULT 0`  // plus longue absence
+  `ALTER TABLE debuts ADD COLUMN IF NOT EXISTS absence_max_ms INT NOT NULL DEFAULT 0`, // plus longue absence
+  // durée maximale par étudiant (minutes, à partir de son ouverture), plafonnée par `ferme` ; NULL = jusqu'à `ferme`
+  `ALTER TABLE devoirs ADD COLUMN IF NOT EXISTS duree_min INT`
 ];
 
 function connexion() {
