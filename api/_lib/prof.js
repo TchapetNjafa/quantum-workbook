@@ -62,10 +62,10 @@ export async function creerDevoir({ body }) {
   const v = valider(body);
   if (!v.ok) return [400, { error: 'devoir invalide', erreurs: v.erreurs }];
   const [d] = await q(
-    'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions, copie, bareme, surveille) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id',
+    'INSERT INTO devoirs (titre, ouvre, ferme, publie, resultat_visible, questions, copie, bareme, surveille, duree_min) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id',
     [v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, body.publie === true, body.resultat_visible === true, JSON.stringify(v.devoir.questions), body.copie === true,
       v.devoir.questions.length === 0 ? Number(body.bareme ?? 20) : null, // sans question : note saisie à la main sur ce barème (20 par défaut)
-      surveilleDe(body, v.devoir.questions)]);
+      surveilleDe(body, v.devoir.questions), v.devoir.duree_min]);
   return [201, { id: d.id, ...(body.publie === true ? { notifies: await signaler() } : {}) }];
 }
 
@@ -379,7 +379,7 @@ export async function apercu({ params }) {
     modifiable: !d.publie && n === 0, // le contenu ne change que tant que le devoir n'est pas publié et qu'aucun étudiant n'a rien remis
     etudiant: sansReponses(d.questions, 'apercu'), corrige: d.questions,
     surveille: !!d.surveille,
-    contenu: { titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), copie: !!d.copie, surveille: !!d.surveille, ...(d.questions.length ? {} : { bareme: Number(d.bareme ?? 20) }), questions: d.questions }
+    contenu: { titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), copie: !!d.copie, surveille: !!d.surveille, ...(d.duree_min ? { duree_min: d.duree_min } : {}), ...(d.questions.length ? {} : { bareme: Number(d.bareme ?? 20) }), questions: d.questions }
   }];
 }
 
@@ -390,9 +390,9 @@ async function remplacerContenu(d, contenu) {
   if (n) return [409, { error: 'des étudiants ont déjà remis ce devoir : son contenu ne peut plus être modifié' }];
   const v = valider(contenu);
   if (!v.ok) return [400, { error: 'devoir invalide', erreurs: v.erreurs }];
-  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, questions=$5, copie=$6, bareme=$7, surveille=$8 WHERE id=$1',
+  await q('UPDATE devoirs SET titre=$2, ouvre=$3, ferme=$4, questions=$5, copie=$6, bareme=$7, surveille=$8, duree_min=$9 WHERE id=$1',
     [d.id, v.devoir.titre, v.devoir.ouvre, v.devoir.ferme, JSON.stringify(v.devoir.questions), contenu.copie === true, v.devoir.questions.length === 0 ? Number(contenu.bareme ?? 20) : null,
-      contenu.surveille === undefined ? v.devoir.questions.length > 0 && d.surveille : surveilleDe(contenu, v.devoir.questions)]); // champ absent : on garde le réglage actuel
+      contenu.surveille === undefined ? v.devoir.questions.length > 0 && d.surveille : surveilleDe(contenu, v.devoir.questions), v.devoir.duree_min]); // champ absent : on garde le réglage actuel
   return [200, { ok: true }];
 }
 

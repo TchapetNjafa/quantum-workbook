@@ -16,6 +16,11 @@ export const TOLERANCE_MS = 60 * 1000;          // devoir surveillé : la remise
 const iso = d => (d ? new Date(d).toISOString() : null);
 const limite = d => new Date(new Date(d.ferme).getTime() + DELAI_GRACE_MS);
 const fin = d => new Date(new Date(d.ferme).getTime() + TOLERANCE_MS);
+/** Fin du temps d'UN étudiant : `duree_min` minutes après son ouverture, jamais après `ferme` (sans durée : `ferme`). */
+export const finEtudiant = (d, debut) => {
+  const f = new Date(d.ferme).getTime();
+  return new Date(d.duree_min && debut ? Math.min(f, new Date(debut).getTime() + d.duree_min * 60_000) : f);
+};
 
 function etat(d, now) {
   const ouvre = new Date(d.ouvre), ferme = new Date(d.ferme);
@@ -52,12 +57,13 @@ async function remiseAuto(d, email, nom, reponses, recu, raison) {
  *  Appelée avant toute lecture de remises ; `email` restreint à un étudiant. Sans effet sur un devoir non surveillé. */
 export async function finaliser(d, email = null) {
   if (!d.surveille || !d.questions.length) return;
-  const apresFin = maintenant() > fin(d);
-  const l = await q(
-    `SELECT b.email, b.brouillon, b.quitte, p.nom FROM debuts b LEFT JOIN profils p ON p.email = b.email
-      WHERE b.devoir_id = $1 AND ($2::text IS NULL OR b.email = $2) AND (b.quitte IS NOT NULL OR $3::boolean)
-        AND NOT EXISTS (SELECT 1 FROM remises r WHERE r.devoir_id = b.devoir_id AND r.email = b.email)`, [d.id, email, apresFin]);
-  for (const x of l) await remiseAuto(d, x.email, x.nom, x.brouillon || {}, x.quitte || d.ferme, x.quitte ? 'sortie' : 'temps');
+  const now = maintenant();
+  const l = (await q(
+    `SELECT b.email, b.brouillon, b.quitte, b.debut, p.nom FROM debuts b LEFT JOIN profils p ON p.email = b.email
+      WHERE b.devoir_id = $1 AND ($2::text IS NULL OR b.email = $2)
+        AND NOT EXISTS (SELECT 1 FROM remises r WHERE r.devoir_id = b.devoir_id AND r.email = b.email)`, [d.id, email]))
+    .filter(x => x.quitte !== null || now.getTime() > finEtudiant(d, x.debut).getTime() + TOLERANCE_MS); // temps écoulé POUR CET ÉTUDIANT (durée ou fermeture)
+  for (const x of l) await remiseAuto(d, x.email, x.nom, x.brouillon || {}, x.quitte || finEtudiant(d, x.debut), x.quitte ? 'sortie' : 'temps');
 }
 
 /** Finalise tous les devoirs surveillés publiés d'un étudiant qui n'ont pas de remise (appelée par la liste). */
@@ -72,7 +78,7 @@ export async function liste({ session }) {
   const now = maintenant();
   if (session.role !== 'prof') await finaliserPour(session.email);
   const lignes = await q(
-    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, d.surveille, b.debut, r.recu, r.retard, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions,
+    `SELECT d.id, d.titre, d.ouvre, d.ferme, d.resultat_visible, d.copie, d.sujet, d.surveille, d.duree_min, b.debut, r.recu, r.retard, r.note, r.total, r.manuel, r.note_manuelle, r.total_manuel, r.notes_questions,
             (SELECT COALESCE(jsonb_agg(jsonb_build_object('id', x->>'id', 'type', x->>'type', 'points', x->'points')), '[]'::jsonb)
                FROM jsonb_array_elements(d.questions) x WHERE x->>'type' = 'interpretation') AS questions
        FROM devoirs d LEFT JOIN remises r ON r.devoir_id = d.id AND r.email = $1
@@ -81,7 +87,7 @@ export async function liste({ session }) {
   const devoirs = lignes.map(d => ({
     id: d.id, titre: d.titre, ouvre: iso(d.ouvre), ferme: iso(d.ferme), limite: iso(limite(d)),
     lecture_seule: session.role === 'prof',
-    surveille: !!d.surveille, ouvert_le: d.surveille ? iso(d.debut) : null, // un devoir surveillé déjà ouvert ne se rouvre pas
+    surveille: !!d.surveille, duree_min: d.duree_min || null, ouvert_le: d.surveille ? iso(d.debut) : null, // un devoir surveillé déjà ouvert ne se rouvre pas
     copie: !!d.copie, sujet: !!d.sujet, etat: etat(d, now), rendu: !!d.recu, recu: iso(d.recu), retard: !!d.retard,
     // La note n'est montrée qu'après la fin du délai de remise : sinon, des remises répétées permettraient de deviner les réponses.
     ...(d.resultat_visible && d.recu && now > limite(d) ? {
@@ -121,7 +127,8 @@ export async function ouvrir({ session, params }) {
       await finaliser(d, session.email);
       return [403, { error: 'ce devoir a déjà été ouvert avec votre compte : il est considéré comme remis et ne peut plus être rouvert', deja_ouvert: true }];
     }
-    return [200, { id: d.id, titre: d.titre, ferme: iso(d.ferme), limite: iso(limite(d)), etat: e, maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
+    // `ferme` = fin du temps de CET étudiant (durée à partir de son ouverture, plafonnée par la fermeture) : le compte à rebours de la page s'y appuie.
+    return [200, { id: d.id, titre: d.titre, ferme: iso(finEtudiant(d, now)), limite: iso(limite(d)), duree_min: d.duree_min || null, etat: e, maintenant: now.toISOString(), copie: !!d.copie, sujet: !!d.sujet,
       surveille: true, questions: sansReponses(d.questions, graine(d, session.email)), rendu: false, reponses: {}, recu: null }];
   }
   // l'ouverture est horodatée par le serveur (première fois seulement)
@@ -179,16 +186,18 @@ export async function remettre({ session, params, body }) {
   if (e === 'clos') return [403, { error: 'remise refusée : délai dépassé', limite: iso(limite(d)) }];
   if (!(await profilDe(session.email))) return [400, { error: 'enregistrez d’abord votre matricule (page Profil)', matricule_requis: true }];
   if (!d.questions.length) return [400, { error: 'ce devoir n’a pas de questions : il se rend en déposant une copie' }];
+  let finE = fin(d); // fin du temps (tolérance comprise) : celle de l'étudiant pour un devoir surveillé avec durée
   if (d.surveille) { // pas de remise sans ouverture ; une seule remise
-    const [b] = await q('SELECT 1 AS ok FROM debuts WHERE devoir_id = $1 AND email = $2', [d.id, session.email]);
+    const [b] = await q('SELECT debut FROM debuts WHERE devoir_id = $1 AND email = $2', [d.id, session.email]);
     if (!b) return [403, { error: 'ce devoir surveillé doit d’abord être ouvert pendant sa fenêtre' }];
     const [deja] = await q('SELECT auto FROM remises WHERE devoir_id = $1 AND email = $2', [d.id, session.email]);
     if (deja && deja.auto === null) return [409, { error: 'ce devoir a déjà été remis : une seule remise est possible' }];
     // Une remise AUTOMATIQUE (page quittée, temps écoulé) ne cède la place qu'à une remise préparée hors connexion AVANT la fermeture et arrivée ensuite
     // (file locale de l'appareil) ; sinon, quitter la page puis renvoyer d'autres réponses contournerait la règle.
+    finE = new Date(finEtudiant(d, b.debut).getTime() + TOLERANCE_MS);
     if (deja) {
       const avant = body?.declared_at ? new Date(body.declared_at) : null;
-      if (!(body?.offline === true && avant && !isNaN(avant) && avant <= fin(d))) return [409, { error: 'la page du devoir a été quittée ou le temps est écoulé : la remise automatique est définitive' }];
+      if (!(body?.offline === true && avant && !isNaN(avant) && avant <= finE)) return [409, { error: 'la page du devoir a été quittée ou le temps est écoulé : la remise automatique est définitive' }];
     }
   }
   // Garde-fou : un devoir qui demande une copie ne peut pas être remis sans elle (le bouton est aussi désactivé côté interface).
@@ -205,7 +214,7 @@ export async function remettre({ session, params, body }) {
   if (declare && declare > now) declare = now;
 
   const c = corriger(d.questions, reponses, graine(d, session.email));
-  const retard = d.surveille ? now > fin(d) : e === 'retard';
+  const retard = d.surveille ? now > finE : e === 'retard';
   // Une requête plus ancienne, arrivée en retard, ne doit pas écraser une remise plus récente (WHERE sur recu).
   // `offline` : la remise a été préparée sans réseau puis envoyée plus tard. Seule l'heure de réception (serveur) décide du retard ;
   // l'heure déclarée par l'appareil reste indicative et est présentée comme telle à l'enseignant.
